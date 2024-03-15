@@ -39,6 +39,17 @@ export const MenuList = [
       //   },
     ],
   },
+  {
+    title: "Customers",
+    classsChange: "mm-collapse",
+    iconStyle: <i className="material-icons">school</i>,
+    content: [
+      {
+        title: "Customers",
+        to: "customers",
+      },
+    ],
+  },
   // {
   //   title: "Teacher",
   //   classsChange: "mm-collapse",

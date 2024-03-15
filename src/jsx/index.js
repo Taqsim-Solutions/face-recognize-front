@@ -21,6 +21,8 @@ import DashboardDark from "./components/Dashboard/DashboardDark";
 
 //student
 import Users from "./components/Student/Users";
+import Customers from "./components/Student/Customers";
+import CustomersForm from "./components/Forms/Wizard/Wizard.js";
 import StudentDetails from "./components/Student/StudentDetails";
 import AddNewStudent from "./components/Student/AddNewStudent";
 
@@ -55,7 +57,7 @@ import ProductDetail from "./components/AppsMenu/Shop/ProductGrid/ProductDetail"
 import ProductOrder from "./components/AppsMenu/Shop/ProductOrder";
 import Checkout from "./components/AppsMenu/Shop/Checkout/Checkout";
 import Invoice from "./components/AppsMenu/Shop/Invoice/Invoice";
-import Customers from "./components/AppsMenu/Shop/Customers/Customers";
+// import Customers from "./components/AppsMenu/Shop/Customers/Customers";
 
 /// Charts
 import SparklineChart from "./components/charts/Sparkline";
@@ -118,6 +120,8 @@ const Markup = () => {
   const routhPath = [
     { url: "finance", component: <Finance /> },
     { url: "users", component: <Users /> },
+    { url: "customers", component: <Customers /> },
+    { url: "customers/create", component: <CustomersForm /> },
     { url: "student-detail", component: <StudentDetails /> },
     { url: "add-student", component: <AddNewStudent /> },
     { url: "teacher", component: <Teachers /> },

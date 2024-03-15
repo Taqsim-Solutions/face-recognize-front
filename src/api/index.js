@@ -23,3 +23,11 @@ export const deleteUser = (id) => {
 export const getRoles = () => {
   return request({ method: "GET", url: "/roles" });
 };
+
+export const getCustomers = (params) => {
+  return request({ method: "GET", url: "/customer", params });
+};
+
+export const createCustomer = (data) => {
+  return request({ method: "POST", url: "/customer", data });
+};
