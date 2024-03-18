@@ -8,6 +8,7 @@ import { store } from "./store/store";
 import ThemeContext from "./context/ThemeContext";
 import AuthProvider from "./providers/AuthProvider";
 import QueryProvider from "./providers/QueryProviders";
+import LangProvider from "./providers/LangProvider";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -17,7 +18,9 @@ root.render(
         <BrowserRouter basename="/">
           <ThemeContext>
             <AuthProvider>
-              <App />
+              <LangProvider>
+                <App />
+              </LangProvider>
             </AuthProvider>
           </ThemeContext>
         </BrowserRouter>

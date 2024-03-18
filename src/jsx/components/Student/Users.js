@@ -3,11 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { getUsersQuery } from "../../../queries/index";
 import AddUserModal from "./AddUserModal";
 import DeleteModal from "./DeleteUser";
+import { useTranslation } from "react-i18next";
 
 const Students = () => {
   const [editUser, setEditUser] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
   const [createModal, setCreateModal] = useState(false);
+  const { t } = useTranslation();
 
   const { data: users } = useQuery({
     ...getUsersQuery(),
