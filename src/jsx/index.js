@@ -20,14 +20,16 @@ import Finance from "./components/Dashboard/Finance";
 import DashboardDark from "./components/Dashboard/DashboardDark";
 
 //student
-import Users from "./components/Student/Users";
-import Customers from "./components/Student/Customers";
+import Teachers from "./components/pages/teachers/Teachers.js";
+import TeachersCreate from "./components/pages/teachers/CreateTeacher/CreateTeacher.js";
+import Schools from "./components/Student/Schools";
+import Users from "./components/Student/Users.js";
 import CustomersForm from "./components/Forms/Wizard/Wizard.js";
 import StudentDetails from "./components/Student/StudentDetails";
 import AddNewStudent from "./components/Student/AddNewStudent";
 
 //Teacher
-import Teachers from "./components/Teacher/Teachers";
+// import Teachers from "./components/Teacher/Teachers";
 import TeachersDetail from "./components/Teacher/TeachersDetail";
 import AddNewTeacher from "./components/Teacher/AddNewTeacher";
 //Food
@@ -120,7 +122,10 @@ const Markup = () => {
   const routhPath = [
     { url: "finance", component: <Finance /> },
     { url: "users", component: <Users /> },
-    { url: "customers", component: <Customers /> },
+    { url: "teachers", component: <Teachers /> },
+    { url: "teachers/create", component: <TeachersCreate /> },
+    { url: "teachers/:teacherId", component: <TeachersCreate /> },
+    { url: "schools", component: <Schools /> },
     { url: "customers/create", component: <CustomersForm /> },
     { url: "student-detail", component: <StudentDetails /> },
     { url: "add-student", component: <AddNewStudent /> },
@@ -144,7 +149,7 @@ const Markup = () => {
     { url: "ecom-product-order", component: <ProductOrder /> },
     { url: "ecom-checkout", component: <Checkout /> },
     { url: "ecom-invoice", component: <Invoice /> },
-    { url: "ecom-customers", component: <Customers /> },
+    // { url: "ecom-customers", component: <Customers /> },
     //Charts
     { url: "chart-apexchart", component: <ApexChart /> },
     { url: "chart-rechart", component: <RechartJs /> },

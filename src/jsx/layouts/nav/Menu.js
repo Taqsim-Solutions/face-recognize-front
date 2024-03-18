@@ -20,33 +20,35 @@ export const MenuList = [
   //     ],
   //   },
   {
+    title: "Schools",
+    classsChange: "mm-collapse",
+    iconStyle: <i className="material-icons">person</i>,
+    content: [
+      {
+        title: "Schools",
+        to: "schools",
+      },
+    ],
+  },
+  {
     title: "Users",
     classsChange: "mm-collapse",
-    // iconStyle: <i className="material-symbols-outlined">school</i>,
-    iconStyle: <i className="material-icons">folder</i>,
+    iconStyle: <i className="material-icons">person</i>,
     content: [
       {
         title: "Users",
         to: "users",
       },
-      //   {
-      //     title: "Student Detail",
-      //     to: "student-detail",
-      //   },
-      //   {
-      //     title: "Add New Student",
-      //     to: "add-student",
-      //   },
     ],
   },
   {
-    title: "Customers",
+    title: "Teachers",
     classsChange: "mm-collapse",
     iconStyle: <i className="material-icons">school</i>,
     content: [
       {
-        title: "Customers",
-        to: "customers",
+        title: "Teachers",
+        to: "teachers",
       },
     ],
   },

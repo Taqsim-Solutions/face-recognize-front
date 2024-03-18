@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
+import { useQueryClient } from "@tanstack/react-query";
 import swal from "sweetalert";
-import { getRolesQuery } from "../../../queries/index";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createUser, editUser } from "../../../api";
 
 function isValidEmail(email) {
@@ -14,9 +13,8 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [roleId, setRoleId] = useState(1);
-  const [rolesOptions, setRolesOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   let errorsObj = {
     firstName: "",
@@ -28,12 +26,7 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
   const [errors, setErrors] = useState(errorsObj);
   const queryClient = useQueryClient();
 
-  const { data: roles } = useQuery({
-    ...getRolesQuery(),
-  });
-
   const onSubmit = () => {
-    setLoading(true);
     let error = false;
     const errorObj = { ...errorsObj };
     if (firstName === "") {
@@ -52,21 +45,23 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
       errorObj.password = "Password is Required";
       error = true;
     }
-    if (roleId === "") {
-      errorObj.roleId = "Role id is Required";
+    if (login === "") {
+      errorObj.login = "Login is Required";
       error = true;
     }
     setErrors(errorObj);
     if (error) {
       return;
     }
+    setLoading(true);
     (user ? editUser : createUser)(
       {
         firstName,
         lastName,
         email,
-        roleId,
         password,
+        login,
+        level: 5,
       },
       user?.id
     )
@@ -82,21 +77,11 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
   };
 
   useEffect(() => {
-    if (roles?.result) {
-      const options = roles.result.map((role) => ({
-        value: role.id,
-        label: role.name,
-      }));
-      setRolesOptions(options);
-    }
-  }, [roles]);
-
-  useEffect(() => {
     if (user) {
-      setRoleId(user.role?.id);
       setFirstName(user.firstName);
       setLastName(user.lastName);
       setEmail(user.email);
+      setLogin(user.login);
     }
   }, [user]);
 
@@ -145,6 +130,21 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
                 <div className="text-danger fs-12">{errors.lastName}</div>
               )}
             </div>
+            <div className="mb-3 d-block">
+              <label htmlFor="basic-url" className="form-label d-block">
+                Login
+              </label>
+              <input
+                type="text"
+                className="form-control w-100"
+                placeholder="Login"
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
+              />
+              {errors.login && (
+                <div className="text-danger fs-12">{errors.login}</div>
+              )}
+            </div>
             <div class="mb-3 d-block">
               <label htmlFor="exampleFormControlInput2" class="form-label mb-2">
                 Email
@@ -182,20 +182,6 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
                 )}
               </div>
             )}
-            <div className="form-group mb-3">
-              <label>Role</label>
-              <select
-                className="form-control"
-                onChange={(e) => setRoleId(e.target.value)}
-              >
-                {rolesOptions.map((role) => (
-                  <option value={role.value}>{role.label}</option>
-                ))}
-              </select>
-              {errors.role && (
-                <div className="text-danger fs-12">{errors.role}</div>
-              )}
-            </div>
           </div>
           <div className="modal-footer">
             <button

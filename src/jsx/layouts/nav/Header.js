@@ -104,18 +104,7 @@ const Header = ({ onNote }) => {
       <div className="header-content">
         <nav className="navbar navbar-expand">
           <div className="collapse navbar-collapse justify-content-between">
-            <div className="header-left">
-              <div
-                className="dashboard_bar"
-                style={{ textTransform: "capitalize" }}
-              >
-                {finalName.join(" ").length === 0
-                  ? "Dashboard"
-                  : finalName.join(" ") === "dashboard dark"
-                  ? "Dashboard"
-                  : finalName.join(" ")}
-              </div>
-            </div>
+            <div className="header-left"></div>
             <ul className="navbar-nav header-right">
               <li className="nav-item dropdown notification_dropdown">
                 <Link

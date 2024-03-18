@@ -1,18 +1,17 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getCustomersQuery } from "../../../queries/index";
-import AddUserModal from "./AddUserModal";
-import DeleteModal from "./DeleteUser";
+import { getTeachersQuery } from "../../../../queries/index";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { DeleteTeacher } from "./DeleteTeacher";
 
-const Customers = () => {
-  const [editUser, setEditUser] = useState(null);
+const Teachers = () => {
   const [deleteModal, setDeleteModal] = useState(null);
-  const [createModal, setCreateModal] = useState(false);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const { data: customers } = useQuery({
-    ...getCustomersQuery({
-      visitedFrom: "0001-03-15T11:08:27.904Z",
-    }),
+    ...getTeachersQuery(),
   });
 
   return (
@@ -22,14 +21,19 @@ const Customers = () => {
           <div className="row">
             <div className="col-xl-12">
               <div className="page-title flex-wrap">
-                <div />
+                <div
+                  className="dashboard_bar header-left"
+                  style={{ textTransform: "capitalize", fontSize: "20px" }}
+                >
+                  {t("teachers")}
+                </div>
                 <div className="d-flex">
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => setCreateModal(true)}
+                    onClick={() => navigate("/teachers/create")}
                   >
-                    + New customers
+                    + New teacher
                   </button>
                 </div>
               </div>
@@ -48,10 +52,9 @@ const Customers = () => {
                     <thead>
                       <tr>
                         <th>Name</th>
-                        <th>ID</th>
-                        <th>Date of birth</th>
-                        <th>Phone Number</th>
-                        <th>Passport</th>
+                        <th>School</th>
+                        <th>Email</th>
+                        <th>Login</th>
                         <th className="text-end">Action</th>
                       </tr>
                     </thead>
@@ -64,24 +67,17 @@ const Customers = () => {
                             </div>
                           </td>
                           <td>
-                            <span className="text-primary font-w600">
-                              {item.id}
-                            </span>
+                            <h6 className="mb-0">{item.schoolName}</h6>
                           </td>
                           <td>
-                            <div className="date">
-                              {item.dateOfBirth?.slice(0, 10)}
-                            </div>
+                            <h6 className="mb-0">{item.email}</h6>
                           </td>
                           <td>
-                            <h6 className="mb-0">{item.phoneNumber}</h6>
-                          </td>
-                          <td>
-                            <h6 className="mb-0">{item.passport}</h6>
+                            <h6 className="mb-0">{item.login}</h6>
                           </td>
                           <td
                             style={{
-                              textAlign: "right",
+                              justifyContent: "right",
                               display: "flex",
                               gap: "10px",
                             }}
@@ -89,10 +85,7 @@ const Customers = () => {
                             <i
                               className="material-icons"
                               style={{ cursor: "pointer" }}
-                              onClick={() => {
-                                setEditUser(item);
-                                setCreateModal(true);
-                              }}
+                              onClick={() => navigate(`/teachers/${item.id}`)}
                             >
                               edit
                             </i>
@@ -114,17 +107,12 @@ const Customers = () => {
           </div>
         </div>
       </div>
-      <AddUserModal
-        user={editUser}
-        isCreate={createModal}
-        onClose={() => {
-          setCreateModal(false);
-          setEditUser(false);
-        }}
+      <DeleteTeacher
+        isOpen={deleteModal}
+        onClose={() => setDeleteModal(null)}
       />
-      <DeleteModal isOpen={deleteModal} onClose={() => setDeleteModal(null)} />
     </>
   );
 };
 
-export default Customers;
+export default Teachers;

@@ -29,7 +29,7 @@ function Login(props) {
     if (error) {
       return;
     }
-    loginAPI({ email: login, password })
+    loginAPI({ login, password })
       .then((res) => {
         console.log(res);
         localStorage.setItem("token", res.result);

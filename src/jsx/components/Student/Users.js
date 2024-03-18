@@ -22,7 +22,12 @@ const Students = () => {
           <div className="row">
             <div className="col-xl-12">
               <div className="page-title flex-wrap">
-                <div />
+                <div
+                  className="dashboard_bar header-left"
+                  style={{ textTransform: "capitalize", fontSize: "20px" }}
+                >
+                  {t("users")}
+                </div>
                 <div className="d-flex">
                   <button
                     type="button"
@@ -47,12 +52,10 @@ const Students = () => {
                   >
                     <thead>
                       <tr>
-                        <th>Name</th>
-                        <th>ID</th>
+                        <th>{t("name")}</th>
                         <th>Date</th>
-                        <th>Role</th>
                         <th>Email</th>
-                        <th>Level</th>
+                        <th>Login</th>
                         <th className="text-end">Action</th>
                       </tr>
                     </thead>
@@ -65,37 +68,19 @@ const Students = () => {
                             </div>
                           </td>
                           <td>
-                            <span className="text-primary font-w600">
-                              {item.id}
-                            </span>
-                          </td>
-                          <td>
                             <div className="date">
                               {item.createdAt.slice(0, 10)}
                             </div>
                           </td>
                           <td>
-                            <h6 className="mb-0">{item.role?.name}</h6>
-                          </td>
-                          <td>
                             <h6 className="mb-0">{item.email}</h6>
                           </td>
                           <td>
-                            <div
-                              class={`badge bg-${
-                                item.grade === "0"
-                                  ? "secondary"
-                                  : item.grade === "1"
-                                  ? "primary"
-                                  : "warning"
-                              }`}
-                            >
-                              {item.level}
-                            </div>
+                            <h6 className="mb-0">{item.login}</h6>
                           </td>
                           <td
                             style={{
-                              textAlign: "right",
+                              justifyContent: "right",
                               display: "flex",
                               gap: "10px",
                             }}
@@ -128,14 +113,16 @@ const Students = () => {
           </div>
         </div>
       </div>
-      <AddUserModal
-        user={editUser}
-        isCreate={createModal}
-        onClose={() => {
-          setCreateModal(false);
-          setEditUser(false);
-        }}
-      />
+      {createModal && (
+        <AddUserModal
+          user={editUser}
+          isCreate={createModal}
+          onClose={() => {
+            setCreateModal(false);
+            setEditUser(false);
+          }}
+        />
+      )}
       <DeleteModal isOpen={deleteModal} onClose={() => setDeleteModal(null)} />
     </>
   );

@@ -20,14 +20,38 @@ export const deleteUser = (id) => {
   return request({ method: "DELETE", url: `/users/${id}` });
 };
 
-export const getRoles = () => {
-  return request({ method: "GET", url: "/roles" });
-};
-
 export const getCustomers = (params) => {
   return request({ method: "GET", url: "/customer", params });
 };
 
 export const createCustomer = (data) => {
   return request({ method: "POST", url: "/customer", data });
+};
+
+export const getTeachers = (data) => {
+  return request({ method: "GET", url: "/teachers", data });
+};
+
+export const getClasses = (params) => {
+  return request({ method: "GET", url: "/classes", params });
+};
+
+export const getSchools = (params) => {
+  return request({ method: "GET", url: "/schools", params });
+};
+
+export const createTeacher = (data) => {
+  return request({ method: "POST", url: "/teachers", data });
+};
+
+export const updateTeacher = (data, id) => {
+  return request({ method: "PUT", url: `/teachers/${id}`, data });
+};
+
+export const getTeacher = (id) => {
+  return request({ method: "GET", url: `/teachers/${id}` });
+};
+
+export const deleteTeacher = (id) => {
+  return request({ method: "DELETE", url: `/teachers/${id}` });
 };

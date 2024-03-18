@@ -1,4 +1,10 @@
-import { getUsers, getRoles, getCustomers } from "../api";
+import {
+  getUsers,
+  getCustomers,
+  getTeachers,
+  getClasses,
+  getSchools,
+} from "../api";
 
 export function getUsersQuery() {
   return {
@@ -7,16 +13,30 @@ export function getUsersQuery() {
   };
 }
 
-export function getRolesQuery() {
-  return {
-    queryKey: ["roles"],
-    queryFn: async () => getRoles(),
-  };
-}
-
 export function getCustomersQuery(params) {
   return {
     queryKey: ["customers", params],
     queryFn: async () => getCustomers(params),
+  };
+}
+
+export function getTeachersQuery(params) {
+  return {
+    queryKey: ["teachers", params],
+    queryFn: async () => getTeachers(params),
+  };
+}
+
+export function getClassesQuery(params) {
+  return {
+    queryKey: ["classes", params],
+    queryFn: async () => getClasses(params),
+  };
+}
+
+export function getSchoolsQuery(params) {
+  return {
+    queryKey: ["schools", params],
+    queryFn: async () => getSchools(params),
   };
 }
