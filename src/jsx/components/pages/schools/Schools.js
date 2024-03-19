@@ -44,6 +44,21 @@ const Schools = () => {
                   >
                     + New school
                   </button>
+                  {/* <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setExcelModal(true)}
+                    style={{ margin: "0 5px" }}
+                  >
+                    Excel Upload
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => ImportExcelButton()}
+                  >
+                    Import Excel
+                  </button> */}
                 </div>
               </div>
             </div>
@@ -81,6 +96,7 @@ const Schools = () => {
                             <h6 className="mb-0">
                               {item.region.cities[0].name}
                             </h6>
+                            z{" "}
                           </td>
                           <td
                             style={{
