@@ -4,11 +4,14 @@ import { useTranslation } from "react-i18next";
 import { getUsersQuery } from "../../../queries/index";
 import AddUserModal from "./AddUserModal";
 import DeleteModal from "./DeleteUser";
+import FileUpload from "./StudentExcelUpload";
+import ImportExcelButton from "../../../utils/importExcel";
 
 const Schools = () => {
   const [editUser, setEditUser] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
   const [createModal, setCreateModal] = useState(false);
+  const [excelModal, setExcelModal] = useState(false);
   const { t } = useTranslation();
 
   const { data: users } = useQuery({
@@ -35,6 +38,21 @@ const Schools = () => {
                     onClick={() => setCreateModal(true)}
                   >
                     + New school
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setExcelModal(true)}
+                    style={{ margin: "0 5px" }}
+                  >
+                    Excel Upload
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => ImportExcelButton()}
+                  >
+                    Import Excel
                   </button>
                 </div>
               </div>
@@ -134,6 +152,15 @@ const Schools = () => {
           onClose={() => {
             setCreateModal(false);
             setEditUser(false);
+          }}
+        />
+      )}
+      {excelModal && (
+        <FileUpload
+          user={editUser}
+          isCreate={excelModal}
+          onClose={() => {
+            setExcelModal(false);
           }}
         />
       )}

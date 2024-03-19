@@ -1,1 +1,26 @@
-{}
+{
+  "profile": "Profil",
+  "message": "Xabarlar",
+  "inbox": "Bildirishnomalar",
+  "settings": "Sozlamalar",
+  "login": "Kirish",
+  "logout": "Chiqish",
+  "userName": "Foydalanuvchi nomi",
+  "password": "Parol",
+  "LoginMessage1": "O'z akkauntizga kiring",
+  "LoginMessage2": "Ro'yxatdan o'tgan ma'lumotlarni kiriting",
+  "action": "Harakat",
+  "Users": "Foydalanuvchilar",
+  "addUser": "Foydalanuvchi Qo'shish",
+  "name": "Ism",
+  "id": "Id",
+  "dateOfRegistration": "Ro'yxatdan O'tish Sanasi",
+  "role": "Rol",
+  "email": "Elektron Pochta",
+  "level": "Daraja",
+  "Customers": "Mijozlar",
+  "addCustomer": "Mijoz Qo'shish",
+  "dateOfBirth": "Tug'ilgan Sana",
+  "phoneNumber": "Telefon Raqam",
+  "passport": "Pasport"
+}
