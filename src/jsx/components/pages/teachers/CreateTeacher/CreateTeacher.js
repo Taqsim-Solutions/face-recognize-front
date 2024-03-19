@@ -5,7 +5,7 @@ import StepOne from "./StepOne";
 import StepTwo from "./StepTwo";
 
 const CreateTeacher = () => {
-  const [goSteps, setGoSteps] = useState(1);
+  const [goSteps, setGoSteps] = useState(0);
 
   return (
     <Fragment>

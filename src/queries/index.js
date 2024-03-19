@@ -4,6 +4,7 @@ import {
   getTeachers,
   getClasses,
   getSchools,
+  getRegions,
 } from "../api";
 
 export function getUsersQuery() {
@@ -38,5 +39,12 @@ export function getSchoolsQuery(params) {
   return {
     queryKey: ["schools", params],
     queryFn: async () => getSchools(params),
+  };
+}
+
+export function getRegionsQuery(params) {
+  return {
+    queryKey: ["regions", params],
+    queryFn: async () => getRegions(params),
   };
 }

@@ -55,3 +55,19 @@ export const getTeacher = (id) => {
 export const deleteTeacher = (id) => {
   return request({ method: "DELETE", url: `/teachers/${id}` });
 };
+
+export const getRegions = () => {
+  return request({ method: "GET", url: "/regions" });
+};
+
+export const createSchool = (data) => {
+  return request({ method: "POST", url: "/schools", data });
+};
+
+export const editSchool = (data, id) => {
+  return request({ method: "PUT", url: `/schools/${id}`, data });
+};
+
+export const deleteSchool = (id) => {
+  return request({ method: "DELETE", url: `/schools/${id}` });
+};

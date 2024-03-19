@@ -1,23 +1,31 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { getSchoolsQuery } from "../../../../queries/index";
 import { useTranslation } from "react-i18next";
-import { getUsersQuery } from "../../../queries/index";
-import AddUserModal from "./AddUserModal";
-import DeleteModal from "./DeleteUser";
+import { DeleteSchool } from "./DeleteSchool";
+import SchoolForm from "./SchoolForm";
 
 const Schools = () => {
-  const [editUser, setEditUser] = useState(null);
+  const [selectedSchoolForEdit, setSelectedSchoolForEdit] = useState(null);
+  const [createModal, setCreateModal] = useState();
   const [deleteModal, setDeleteModal] = useState(null);
-  const [createModal, setCreateModal] = useState(false);
   const { t } = useTranslation();
 
-  const { data: users } = useQuery({
-    ...getUsersQuery(),
+  const { data: schools } = useQuery({
+    ...getSchoolsQuery(),
   });
 
   return (
     <>
       <div className="row">
+        <SchoolForm
+          school={selectedSchoolForEdit}
+          isCreate={createModal}
+          onClose={() => {
+            setCreateModal(false);
+            setSelectedSchoolForEdit(false);
+          }}
+        />
         <div className="col-xl-12">
           <div className="row">
             <div className="col-xl-12">
@@ -26,7 +34,7 @@ const Schools = () => {
                   className="dashboard_bar header-left"
                   style={{ textTransform: "capitalize", fontSize: "20px" }}
                 >
-                  {t("Schools")}
+                  {t("schools")}
                 </div>
                 <div className="d-flex">
                   <button
@@ -45,52 +53,34 @@ const Schools = () => {
                   id="example-student_wrapper"
                   className="dataTables_wrapper no-footer"
                 >
-                  {/* <table
+                  <table
                     style={{ paddingBottom: "100px" }}
                     className="table-responsive-lg table display dataTablesCard student-tab dataTable no-footer"
                     id="example-student"
                   >
                     <thead>
                       <tr>
-                        <th>{t("name")}</th>
-                        <th>Date</th>
-                        <th>Email</th>
-                        <th>Login</th>
-                        <th>Level</th>
+                        <th>Name</th>
+                        <th>Region</th>
+                        <th>District</th>
                         <th className="text-end">Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {users?.result.map((item, ind) => (
+                      {schools?.result?.data.map((item, ind) => (
                         <tr key={ind}>
                           <td>
                             <div className="trans-list">
-                              <h4>{`${item.firstName} ${item.lastName}`}</h4>
+                              <h4>{item.name}</h4>
                             </div>
                           </td>
                           <td>
-                            <div className="date">
-                              {item.createdAt.slice(0, 10)}
-                            </div>
+                            <h6 className="mb-0">{item.region.name}</h6>
                           </td>
                           <td>
-                            <h6 className="mb-0">{item.email}</h6>
-                          </td>
-                          <td>
-                            <h6 className="mb-0">{item.login}</h6>
-                          </td>
-                          <td>
-                            <div
-                              class={`badge bg-${
-                                item.grade === "0"
-                                  ? "secondary"
-                                  : item.grade === "1"
-                                  ? "primary"
-                                  : "warning"
-                              }`}
-                            >
-                              {item.level}
-                            </div>
+                            <h6 className="mb-0">
+                              {item.region.cities[0].name}
+                            </h6>
                           </td>
                           <td
                             style={{
@@ -102,10 +92,7 @@ const Schools = () => {
                             <i
                               className="material-icons"
                               style={{ cursor: "pointer" }}
-                              onClick={() => {
-                                setEditUser(item);
-                                setCreateModal(true);
-                              }}
+                              onClick={() => setSelectedSchoolForEdit(item)}
                             >
                               edit
                             </i>
@@ -120,24 +107,14 @@ const Schools = () => {
                         </tr>
                       ))}
                     </tbody>
-                  </table> */}
+                  </table>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {createModal && (
-        <AddUserModal
-          user={editUser}
-          isCreate={createModal}
-          onClose={() => {
-            setCreateModal(false);
-            setEditUser(false);
-          }}
-        />
-      )}
-      <DeleteModal isOpen={deleteModal} onClose={() => setDeleteModal(null)} />
+      <DeleteSchool isOpen={deleteModal} onClose={() => setDeleteModal(null)} />
     </>
   );
 };

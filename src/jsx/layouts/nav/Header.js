@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import { changeLanguage, language } from "../../../utils/i18n";
 
 import { Link } from "react-router-dom";
 /// Scroll
@@ -8,23 +9,10 @@ import LogoutPage from "./Logout";
 
 /// Image
 import profile from "../../../images/user.jpg";
-import avatar from "../../../images/avatar/1.jpg";
-import avatar2 from "../../../images/avatar/2.jpg";
-import avatar3 from "../../../images/avatar/3.jpg";
-import avatar4 from "../../../images/avatar/4.jpg";
+import Uz from "../../../images/uz.png";
+import Ru from "../../../images/ru.png";
 
 import { ThemeContext } from "../../../context/ThemeContext";
-
-const searchList = [
-  { image: avatar, title: "Benjamin" },
-  { image: avatar2, title: "Oliver" },
-  { image: avatar3, title: "Lucas" },
-  { image: avatar4, title: "Harry" },
-  { image: avatar2, title: "Oliver" },
-  { image: avatar4, title: "Harry" },
-  { image: avatar, title: "Benjamin" },
-  { image: avatar3, title: "Lucas" },
-];
 
 const Header = ({ onNote }) => {
   //For header fixed
@@ -73,32 +61,7 @@ const Header = ({ onNote }) => {
       }
     }
   };
-  var path = window.location.pathname.split("/");
-  var name = path[path.length - 1].split("-");
-  var filterName = name.length >= 3 ? name.filter((n, i) => i > 0) : name;
-  var finalName = filterName.includes("app")
-    ? filterName.filter((f) => f !== "app")
-    : filterName.includes("ui")
-    ? filterName.filter((f) => f !== "ui")
-    : filterName.includes("uc")
-    ? filterName.filter((f) => f !== "uc")
-    : filterName.includes("basic")
-    ? filterName.filter((f) => f !== "basic")
-    : filterName.includes("jquery")
-    ? filterName.filter((f) => f !== "jquery")
-    : filterName.includes("table")
-    ? filterName.filter((f) => f !== "table")
-    : filterName.includes("page")
-    ? filterName.filter((f) => f !== "page")
-    : filterName.includes("email")
-    ? filterName.filter((f) => f !== "email")
-    : filterName.includes("ecom")
-    ? filterName.filter((f) => f !== "ecom")
-    : filterName.includes("chart")
-    ? filterName.filter((f) => f !== "chart")
-    : filterName.includes("editor")
-    ? filterName.filter((f) => f !== "editor")
-    : filterName;
+
   return (
     <div className={`header ${headerFix ? "sticky" : ""}`}>
       <div className="header-content">
@@ -106,6 +69,24 @@ const Header = ({ onNote }) => {
           <div className="collapse navbar-collapse justify-content-between">
             <div className="header-left"></div>
             <ul className="navbar-nav header-right">
+              <li className="nav-item dropdown notification_dropdown">
+                <Link
+                  to={"#"}
+                  className={`nav-link dz-theme-mode ${
+                    background.value === "dark" ? "active" : ""
+                  }`}
+                  onClick={() => {
+                    changeLanguage(language === "ru" ? "uz" : "ru");
+                    localStorage.setItem(
+                      "lang",
+                      language === "ru" ? "uz" : "ru"
+                    );
+                  }}
+                >
+                  {language !== "ru" && <img src={Uz} alt="uz" width="25px" />}
+                  {language !== "uz" && <img src={Ru} alt="uz" width="25px" />}
+                </Link>
+              </li>
               <li className="nav-item dropdown notification_dropdown">
                 <Link
                   to={"#"}

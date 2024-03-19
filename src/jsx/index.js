@@ -22,7 +22,7 @@ import DashboardDark from "./components/Dashboard/DashboardDark";
 //student
 import Teachers from "./components/pages/teachers/Teachers.js";
 import TeachersCreate from "./components/pages/teachers/CreateTeacher/CreateTeacher.js";
-import Schools from "./components/Student/Schools";
+import Schools from "./components/pages/schools/Schools.js";
 import Users from "./components/Student/Users.js";
 import CustomersForm from "./components/Forms/Wizard/Wizard.js";
 import StudentDetails from "./components/Student/StudentDetails";
