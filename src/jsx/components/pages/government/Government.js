@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getGovernmentsQuery } from "../../../../queries/index";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { DeleteGovernment } from "./DeleteGovernment";
+import GovernmentModal from "./GovernmentForm";
 
 const Governments = () => {
+  const [editUser, setEditUser] = useState(null);
+  const [createModal, setCreateModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
-  const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const { data: customers } = useQuery({
     ...getGovernmentsQuery(),
@@ -16,6 +15,16 @@ const Governments = () => {
 
   return (
     <>
+      {createModal && (
+        <GovernmentModal
+          user={editUser}
+          isCreate={createModal}
+          onClose={() => {
+            setCreateModal(false);
+            setEditUser(false);
+          }}
+        />
+      )}
       <div className="row">
         <div className="col-xl-12">
           <div className="row">
@@ -31,7 +40,7 @@ const Governments = () => {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => navigate("/governments/create")}
+                    onClick={() => setCreateModal(true)}
                   >
                     + New government
                   </button>
@@ -85,9 +94,10 @@ const Governments = () => {
                             <i
                               className="material-icons"
                               style={{ cursor: "pointer" }}
-                              onClick={() =>
-                                navigate(`/governments/${item.id}`)
-                              }
+                              onClick={() => {
+                                setEditUser(item);
+                                setCreateModal(true);
+                              }}
                             >
                               edit
                             </i>

@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next";
 
 const Students = () => {
   const [editUser, setEditUser] = useState(null);
-  const [deleteModal, setDeleteModal] = useState(null);
   const [createModal, setCreateModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(null);
   const { t } = useTranslation();
 
   const { data: users } = useQuery({

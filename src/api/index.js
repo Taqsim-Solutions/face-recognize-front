@@ -115,7 +115,7 @@ export const getGovernment = (params) => {
 export const uploadPhoto = (data, id) => {
   return request({
     method: "POST",
-    url: `/students/${id}/photo`,
+    url: `/users/photo/${id}`,
     data,
     headers: {
       "Content-Type": "multipart/form-data",

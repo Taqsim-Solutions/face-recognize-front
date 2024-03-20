@@ -4,6 +4,7 @@ import { getTeachersQuery } from "../../../../queries/index";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { DeleteTeacher } from "./DeleteTeacher";
+import settings from "../../../../settings/settings";
 
 const Teachers = () => {
   const [page, setPage] = useState(0);
@@ -52,6 +53,7 @@ const Teachers = () => {
                   >
                     <thead>
                       <tr>
+                        <td>Image</td>
                         <th>Name</th>
                         <th>School</th>
                         <th>Email</th>
@@ -62,6 +64,13 @@ const Teachers = () => {
                     <tbody>
                       {customers?.result?.data.map((item, ind) => (
                         <tr key={ind}>
+                          <td>
+                            <img
+                              src={`${settings.baseURL}/images?filename=${item.mainImageName}`}
+                              alt=""
+                              style={{ width: "50px", borderRadius: "8px" }}
+                            />
+                          </td>
                           <td>
                             <div className="trans-list">
                               <h4>{`${item.firstName} ${item.lastName}`}</h4>

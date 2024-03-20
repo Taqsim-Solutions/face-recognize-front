@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import swal from "sweetalert";
 import { uploadPhoto } from "../../../../../api";
+import { useNavigate, useParams } from "react-router-dom";
 
 function StepTwo({ uploadProps, id }) {
   const [step, setStep] = useState(1);
@@ -10,6 +11,8 @@ function StepTwo({ uploadProps, id }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const navigate = useNavigate();
+  const { teacherId } = useParams();
 
   const startCamera = async (facingMode) => {
     if (
@@ -84,22 +87,16 @@ function StepTwo({ uploadProps, id }) {
     const uploadPromises = imageFiles.map(async (imageFile, index) => {
       const formData = new FormData();
       formData.append("file", imageFile);
-      return uploadPhoto(formData, id)
+      return uploadPhoto(formData, id || teacherId)
         .then((response) => {
-          console.log(
-            `Image ${index + 1} uploaded successfully. Response:`,
-            response.data
-          );
           return response.data;
         })
         .catch((error) => {
-          // Handle errors for individual uploads
-          console.error(`Error uploading image ${index + 1}:`, error);
           throw error;
         });
     });
     const uploadResults = await Promise.all(uploadPromises);
-    console.log(uploadResults);
+    navigate("/teachers");
   };
 
   return (

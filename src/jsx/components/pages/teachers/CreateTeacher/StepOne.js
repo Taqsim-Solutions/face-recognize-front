@@ -4,7 +4,7 @@ import swal from "sweetalert";
 import { useQuery } from "@tanstack/react-query";
 import { getClassesQuery, getSchoolsQuery } from "../../../../../queries/index";
 import { createTeacher, updateTeacher, getTeacher } from "../../../../../api";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const StepOne = ({ setGoSteps }) => {
   const [loading, setLoading] = useState(false);
@@ -27,6 +27,7 @@ const StepOne = ({ setGoSteps }) => {
   const { teacherId } = useParams();
   const [errors, setErrors] = useState(errorsObj);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [classesValues, setClassesValues] = useState([]);
   const [schoolValues, setSchoolValues] = useState([]);
@@ -98,10 +99,10 @@ const StepOne = ({ setGoSteps }) => {
     )
       .then((res) => {
         queryClient.invalidateQueries(["teachers"]);
-        if (teacherId) {
-          setGoSteps(teacherId);
+        if (res.result.mainImageName) {
+          navigate("/teachers");
         } else {
-          setGoSteps(res.result.id);
+          setGoSteps(teacherId);
         }
       })
       .catch((err) => {
