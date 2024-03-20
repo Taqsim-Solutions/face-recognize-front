@@ -21,9 +21,13 @@ import DashboardDark from "./components/Dashboard/DashboardDark";
 
 //student
 import Teachers from "./components/pages/teachers/Teachers.js";
+import Governments from "./components/pages/government/Government.js";
+import CreateGovernments from "./components/pages/government/CreateGovernment.js";
 import TeachersCreate from "./components/pages/teachers/CreateTeacher/CreateTeacher.js";
 import Schools from "./components/pages/schools/Schools.js";
 import Users from "./components/Student/Users.js";
+import Students from "./components/pages/students/Students.js";
+import StudentsCreate from "./components/pages/students/CreateStudent/CreateStudent.js";
 import CustomersForm from "./components/Forms/Wizard/Wizard.js";
 import StudentDetails from "./components/Student/StudentDetails";
 import AddNewStudent from "./components/Student/AddNewStudent";
@@ -124,7 +128,13 @@ const Markup = () => {
     { url: "users", component: <Users /> },
     { url: "teachers", component: <Teachers /> },
     { url: "teachers/create", component: <TeachersCreate /> },
+    { url: "governments", component: <Governments /> },
     { url: "teachers/:teacherId", component: <TeachersCreate /> },
+    { url: "governments/create", component: <CreateGovernments /> },
+    { url: "governments/:governmentId", component: <CreateGovernments /> },
+    { url: "students", component: <Students /> },
+    { url: "students/create", component: <StudentsCreate /> },
+    { url: "students/:studentId", component: <StudentsCreate /> },
     { url: "schools", component: <Schools /> },
     { url: "customers/create", component: <CustomersForm /> },
     { url: "student-detail", component: <StudentDetails /> },

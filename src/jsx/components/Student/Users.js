@@ -60,7 +60,7 @@ const Students = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {users?.result.map((item, ind) => (
+                      {users?.result?.data.map((item, ind) => (
                         <tr key={ind}>
                           <td>
                             <div className="trans-list">

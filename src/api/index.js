@@ -28,8 +28,8 @@ export const createCustomer = (data) => {
   return request({ method: "POST", url: "/customer", data });
 };
 
-export const getTeachers = (data) => {
-  return request({ method: "GET", url: "/teachers", data });
+export const getTeachers = (params) => {
+  return request({ method: "GET", url: "/teachers", params });
 };
 
 export const getClasses = (params) => {
@@ -70,4 +70,66 @@ export const editSchool = (data, id) => {
 
 export const deleteSchool = (id) => {
   return request({ method: "DELETE", url: `/schools/${id}` });
+};
+
+export const getMe = () => {
+  return request({ method: "GET", url: "/users/get-me" });
+};
+
+export const getStudents = () => {
+  return request({ method: "GET", url: "/students" });
+};
+
+export const getStudent = (id) => {
+  return request({ method: "GET", url: `/students/${id}` });
+};
+
+export const deleteStudent = (id) => {
+  return request({ method: "DELETE", url: `/students/${id}` });
+};
+
+export const editStudent = (data, id) => {
+  return request({ method: "PUT", url: `/students/${id}`, data });
+};
+
+export const createStudent = (data) => {
+  return request({ method: "POST", url: "/students", data });
+};
+
+export const updateGovernment = (data) => {
+  return request({ method: "POST", url: "/governments", data });
+};
+
+export const createGovernment = (data, id) => {
+  return request({ method: "PUT", url: `/governments/${id}`, data });
+};
+
+export const deleteGovernment = (id) => {
+  return request({ method: "DELETE", url: `/governments/${id}` });
+};
+
+export const getGovernment = (params) => {
+  return request({ method: "GET", url: "/governments", params });
+};
+
+export const uploadPhoto = (data, id) => {
+  return request({
+    method: "POST",
+    url: `/students/${id}/photo`,
+    data,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export const uploadStudentPhoto = (data, id) => {
+  return request({
+    method: "POST",
+    url: `/students/${id}/photo`,
+    data,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };

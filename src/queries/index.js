@@ -5,6 +5,9 @@ import {
   getClasses,
   getSchools,
   getRegions,
+  getMe,
+  getStudents,
+  getGovernment,
 } from "../api";
 
 export function getUsersQuery() {
@@ -46,5 +49,26 @@ export function getRegionsQuery(params) {
   return {
     queryKey: ["regions", params],
     queryFn: async () => getRegions(params),
+  };
+}
+
+export function getMeQuery() {
+  return {
+    queryKey: ["me"],
+    queryFn: async () => getMe(),
+  };
+}
+
+export function getStudentsQuery() {
+  return {
+    queryKey: ["students"],
+    queryFn: async () => getStudents(),
+  };
+}
+
+export function getGovernmentsQuery() {
+  return {
+    queryKey: ["governments"],
+    queryFn: async () => getGovernment(),
   };
 }

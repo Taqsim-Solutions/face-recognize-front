@@ -20,37 +20,39 @@ export const MenuList = [
   //     ],
   //   },
   {
-    title: "Schools",
-    classsChange: "mm-collapse",
-    iconStyle: <i className="material-icons">person</i>,
-    content: [
-      {
-        title: "Schools",
-        to: "schools",
-      },
-    ],
-  },
-  {
     title: "Users",
     classsChange: "mm-collapse",
-    iconStyle: <i className="material-icons">person</i>,
-    content: [
-      {
-        title: "Users",
-        to: "users",
-      },
-    ],
+    iconStyle: <i className="material-icons">engineering</i>,
+    to: "users",
+    level: [5],
+  },
+  {
+    title: "Governments",
+    classsChange: "mm-collapse",
+    iconStyle: <i className="material-icons">apartment</i>,
+    to: "governments",
+    level: [5],
+  },
+  {
+    title: "Schools",
+    classsChange: "mm-collapse",
+    iconStyle: <i className="material-icons">business</i>,
+    to: "schools",
+    level: [4, 3, 5],
   },
   {
     title: "Teachers",
     classsChange: "mm-collapse",
     iconStyle: <i className="material-icons">school</i>,
-    content: [
-      {
-        title: "Teachers",
-        to: "teachers",
-      },
-    ],
+    to: "/teachers",
+    level: [2, 3, 4, 5],
+  },
+  {
+    title: "Students",
+    classsChange: "mm-collapse",
+    iconStyle: <i className="material-icons">group</i>,
+    to: "students",
+    level: [1, 2, 3, 4, 5],
   },
   // {
   //   title: "Teacher",

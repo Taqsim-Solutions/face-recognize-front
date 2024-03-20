@@ -4,9 +4,9 @@ import swal from "sweetalert";
 import { useQuery } from "@tanstack/react-query";
 import { getClassesQuery, getSchoolsQuery } from "../../../../../queries/index";
 import { createTeacher, updateTeacher, getTeacher } from "../../../../../api";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-const StepOne = () => {
+const StepOne = ({ setGoSteps }) => {
   const [loading, setLoading] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [login, setLogin] = useState("");
@@ -16,7 +16,6 @@ const StepOne = () => {
   const [schoolId, setSchoolId] = useState("");
   const [password, setPassword] = useState("");
   const [isDirector, setIsDirector] = useState(false);
-  const navigate = useNavigate();
   let errorsObj = {
     firstName: "",
     lastName: "",
@@ -97,9 +96,13 @@ const StepOne = () => {
           },
       teacherId
     )
-      .then(() => {
+      .then((res) => {
         queryClient.invalidateQueries(["teachers"]);
-        navigate("/teachers");
+        if (teacherId) {
+          setGoSteps(teacherId);
+        } else {
+          setGoSteps(res.result.id);
+        }
       })
       .catch((err) => {
         setLoading(false);

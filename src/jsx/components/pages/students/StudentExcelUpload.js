@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
 
-const FileUpload = ({ isCreate, user, onClose }) => {
+const FileUpload = ({ isOpen, user, onClose }) => {
   const [file, setFile] = useState(null);
 
   const handleFileChange = (event) => {
@@ -40,7 +40,7 @@ const FileUpload = ({ isCreate, user, onClose }) => {
 
   return (
     <>
-      <Modal onHide={onClose} show={isCreate} centered>
+      <Modal onHide={onClose} show={isOpen} centered>
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="exampleModalLabel">
