@@ -96,11 +96,11 @@ export const createStudent = (data) => {
   return request({ method: "POST", url: "/students", data });
 };
 
-export const updateGovernment = (data) => {
+export const createGovernment = (data) => {
   return request({ method: "POST", url: "/governments", data });
 };
 
-export const createGovernment = (data, id) => {
+export const updateGovernment = (data, id) => {
   return request({ method: "PUT", url: `/governments/${id}`, data });
 };
 
@@ -131,5 +131,16 @@ export const uploadStudentPhoto = (data, id) => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+  });
+};
+
+export const getAttendances = (date) => {
+  return request({ method: "GET", url: `/Attendances/date/${date}` });
+};
+
+export const getAttendancesDetail = (date, classId) => {
+  return request({
+    method: "GET",
+    url: `/Attendances/date/${date}/class/${classId}`,
   });
 };

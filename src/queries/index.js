@@ -8,6 +8,7 @@ import {
   getMe,
   getStudents,
   getGovernment,
+  getAttendances,
 } from "../api";
 
 export function getUsersQuery() {
@@ -70,5 +71,12 @@ export function getGovernmentsQuery() {
   return {
     queryKey: ["governments"],
     queryFn: async () => getGovernment(),
+  };
+}
+
+export function getAttendancesQuery(date) {
+  return {
+    queryKey: ["attendances", date],
+    queryFn: async () => getAttendances(date),
   };
 }

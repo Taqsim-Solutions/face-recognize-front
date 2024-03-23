@@ -11,6 +11,8 @@ function isValidEmail(email) {
 }
 
 const GovernmentModal = ({ isCreate, user, onClose }) => {
+  const [isTop, setIsTop] = useState(false);
+  const [avatar, setAvatar] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -68,7 +70,10 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
         email,
         password,
         login,
-        level: 5,
+        regionId,
+        cityId: isTop ? cityId : "",
+        ConfirmPassword: password,
+        level: isTop ? 3 : 4,
       },
       user?.id
     )
@@ -89,6 +94,8 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
       setLastName(user.lastName);
       setEmail(user.email);
       setLogin(user.login);
+      setRegionId(user.region?.id);
+      setCityId(user.city?.id);
     }
   }, [user]);
 
@@ -107,6 +114,18 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
             ></button>
           </div>
           <div className="modal-body">
+            <div className="mb-3">
+              <label htmlFor="formFile" className="form-label">
+                Upload image
+              </label>
+              <input
+                accept="image/*"
+                className="form-control"
+                type="file"
+                id="formFile"
+                onChange={(e) => setAvatar(e.target.files[0])}
+              />
+            </div>
             <div className="mb-3 d-block">
               <label htmlFor="basic-url" className="form-label d-block">
                 First name
@@ -198,6 +217,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
                 onChange={(e) => setRegionId(e.target.value)}
                 value={regionId}
               >
+                <option value="">Select region</option>
                 {regions?.result?.map((option) => (
                   <option value={option.id} key={option.name}>
                     {option.name}
@@ -218,6 +238,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
                   onChange={(e) => setCityId(e.target.value)}
                   value={cityId}
                 >
+                  <option value="">Select district</option>
                   {regions?.result
                     .filter(
                       (currentRegion) => +regionId === currentRegion.id
@@ -231,6 +252,21 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
                 {errors.class && (
                   <div className="text-danger fs-12">{errors.class}</div>
                 )}
+              </div>
+            )}
+            {!user && (
+              <div className="col-lg-6 mb-2">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    value={isTop}
+                    onChange={(e) => setIsTop(e.target.checked)}
+                  />
+                  <label className="form-check-label font-w400">
+                    Region government
+                  </label>
+                </div>
               </div>
             )}
           </div>

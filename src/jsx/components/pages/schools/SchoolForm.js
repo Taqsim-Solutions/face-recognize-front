@@ -102,6 +102,7 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
                 onChange={(e) => setRegion(e.target.value)}
                 value={region}
               >
+                <option value="">Select region</option>
                 {regions?.result?.map((option) => (
                   <option value={option.id} key={option.name}>
                     {option.name}
@@ -122,6 +123,7 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
                   onChange={(e) => setCityId(e.target.value)}
                   value={cityId}
                 >
+                  <option value="">Select district</option>
                   {regions?.result
                     .filter((currentRegion) => +region === currentRegion.id)[0]
                     ?.cities?.map((option) => (

@@ -20,6 +20,7 @@ import Finance from "./components/Dashboard/Finance";
 import DashboardDark from "./components/Dashboard/DashboardDark";
 
 //student
+import { OnlineTable } from "./components/pages/online-table/online-table.jsx";
 import Teachers from "./components/pages/teachers/Teachers.js";
 import Governments from "./components/pages/government/Government.js";
 import CreateGovernments from "./components/pages/government/CreateGovernment.js";
@@ -127,6 +128,7 @@ const Markup = () => {
     { url: "finance", component: <Finance /> },
     { url: "users", component: <Users /> },
     { url: "teachers", component: <Teachers /> },
+    { url: "online-table", component: <OnlineTable /> },
     { url: "teachers/create", component: <TeachersCreate /> },
     { url: "governments", component: <Governments /> },
     { url: "teachers/:teacherId", component: <TeachersCreate /> },

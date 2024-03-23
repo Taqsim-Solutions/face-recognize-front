@@ -54,6 +54,13 @@ export const MenuList = [
     to: "students",
     level: [1, 2, 3, 4, 5],
   },
+  {
+    title: "Online Table",
+    classsChange: "mm-collapse",
+    iconStyle: <i className="material-icons">group</i>,
+    to: "online-table",
+    level: [1, 2, 3, 4],
+  },
   // {
   //   title: "Teacher",
   //   classsChange: "mm-collapse",
