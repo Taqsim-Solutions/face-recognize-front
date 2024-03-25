@@ -14,7 +14,7 @@ const NavHader = () => {
   };
   return (
     <div className="nav-header">
-      <Link to="/users" className="brand-logo">
+      <Link to="/" className="brand-logo">
         <svg
           className="logo-abbr"
           width="40"

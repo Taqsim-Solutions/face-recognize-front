@@ -23,6 +23,9 @@ const FileUpload = ({ isOpen, user, onClose }) => {
         {
           method: "POST",
           body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
 
@@ -64,6 +67,17 @@ const FileUpload = ({ isOpen, user, onClose }) => {
                 onChange={handleFileChange}
               />
             </div>
+            <a
+              href="https://face.taqsim.uz/api/students/excel-example"
+              target="_blank"
+              style={{
+                textDecoration: "underline",
+                color: "var(--primary)",
+                cursor: "pointer",
+              }}
+            >
+              Click here for an example
+            </a>
           </div>
           <div className="modal-footer">
             <button

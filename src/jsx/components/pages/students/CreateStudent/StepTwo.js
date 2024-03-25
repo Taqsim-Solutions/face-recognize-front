@@ -82,7 +82,18 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
     }
   };
 
+  const stopCamera = () => {
+    // Stop the camera stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+      setCamera(false);
+    }
+  };
+
   const onSubmit = async () => {
+    stopCamera();
     const uploadPromises = imageFiles.map(async (imageFile, index) => {
       const formData = new FormData();
       formData.append("file", imageFile);

@@ -46,8 +46,6 @@ const Home = () => {
     ...getPerformanceQuery({}),
   });
 
-  console.log(performance);
-
   const [startDate, setStartDate] = useState(null);
   return (
     <>

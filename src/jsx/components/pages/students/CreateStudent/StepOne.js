@@ -160,7 +160,6 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
               type="date"
               name="dateOfBirth"
               className="form-control"
-              required
             />
             {errors.dateOfBirth && (
               <div className="text-danger fs-12">{errors.dateOfBirth}</div>

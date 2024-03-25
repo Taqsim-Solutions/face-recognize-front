@@ -45,6 +45,16 @@ function StepTwo({ uploadProps, id }) {
     }
   };
 
+  const stopCamera = () => {
+    // Stop the camera stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+      setCamera(false);
+    }
+  };
+
   const takePhoto = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
@@ -84,6 +94,7 @@ function StepTwo({ uploadProps, id }) {
   };
 
   const onSubmit = async () => {
+    stopCamera();
     const uploadPromises = imageFiles.map(async (imageFile, index) => {
       const formData = new FormData();
       formData.append("file", imageFile);

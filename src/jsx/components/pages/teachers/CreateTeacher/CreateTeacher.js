@@ -3,9 +3,11 @@ import { Stepper, Step } from "react-form-stepper";
 import PageTitle from "../../../../layouts/PageTitle";
 import StepOne from "./StepOne";
 import StepTwo from "./StepTwo";
+import { useParams } from "react-router-dom";
 
 const CreateTeacher = () => {
   const [goSteps, setGoSteps] = useState(0);
+  const { teacherId } = useParams();
 
   return (
     <Fragment>
@@ -24,7 +26,10 @@ const CreateTeacher = () => {
                   activeStep={goSteps}
                   label={false}
                 >
-                  <Step className="nav-link" onClick={() => setGoSteps(0)} />
+                  <Step
+                    className="nav-link"
+                    onClick={() => teacherId && setGoSteps(0)}
+                  />
                   <Step className="nav-link" onClick={() => setGoSteps(1)} />
                 </Stepper>
                 {goSteps === 0 && <StepOne setGoSteps={setGoSteps} />}
