@@ -1,16 +1,24 @@
 import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import swal from "sweetalert";
-import { createStudent, editStudent, getStudent } from "../../../../../api";
+import {
+  createStudent,
+  deleteStudentPhoto,
+  editStudent,
+  getStudent,
+} from "../../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
+import settings from "../../../../../settings/settings";
 
 const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
+  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [fatherName, setFatherNamee] = useState("");
+  const [reflesh, setReflesh] = useState(0);
   const navigate = useNavigate();
   let errorsObj = {
     firstName: "",
@@ -22,6 +30,13 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
   const { studentId } = useParams();
   const [errors, setErrors] = useState(errorsObj);
   const queryClient = useQueryClient();
+
+  const onDeleteImage = (imageName) => {
+    deleteStudentPhoto(imageName).then(() => {
+      queryClient.invalidateQueries(["teachers"]);
+      setReflesh(reflesh + 1);
+    });
+  };
 
   const onSubmit = () => {
     let error = false;
@@ -80,9 +95,10 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
         setFatherNamee(res.result.fatherName);
         setDateOfBirth(res.result.dateOfBirth.slice(0, 10));
         setPhone(res.result.phoneNumber);
+        setImages(res.result.imageIds);
       });
     }
-  }, [studentId]);
+  }, [studentId, reflesh]);
 
   return (
     <section>
@@ -166,7 +182,34 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
               <div className="text-danger fs-12">{errors.phone}</div>
             )}
           </div>
-        </div>
+        </div>{" "}
+        {studentId && images?.length > 0 && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
+              gap: "18px",
+              marginBottom: "20px",
+            }}
+          >
+            {images.map((image) => (
+              <div key={image}>
+                <img
+                  src={`${settings.baseURL}/images?filename=${image}`}
+                  alt=""
+                  style={{ width: "100%", borderRadius: "8px" }}
+                />
+                <button
+                  className="btn btn-danger sw-btn-next ms-1 mt-3"
+                  style={{ width: "100%" }}
+                  onClick={() => onDeleteImage(image)}
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         <button
           className="btn btn-primary sw-btn-next ms-1"
           onClick={onSubmit}

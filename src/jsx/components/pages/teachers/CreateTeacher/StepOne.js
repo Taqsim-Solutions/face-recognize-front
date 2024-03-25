@@ -3,10 +3,17 @@ import React, { useEffect, useState } from "react";
 import swal from "sweetalert";
 import { useQuery } from "@tanstack/react-query";
 import { getClassesQuery, getSchoolsQuery } from "../../../../../queries/index";
-import { createTeacher, updateTeacher, getTeacher } from "../../../../../api";
+import {
+  createTeacher,
+  updateTeacher,
+  getTeacher,
+  deleteUserPhoto,
+} from "../../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
+import settings from "../../../../../settings/settings";
 
 const StepOne = ({ setGoSteps }) => {
+  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [login, setLogin] = useState("");
@@ -15,6 +22,7 @@ const StepOne = ({ setGoSteps }) => {
   const [classId, setClassId] = useState("");
   const [schoolId, setSchoolId] = useState("");
   const [password, setPassword] = useState("");
+  const [reflesh, setReflesh] = useState(0);
   const [isDirector, setIsDirector] = useState(false);
   let errorsObj = {
     firstName: "",
@@ -33,7 +41,7 @@ const StepOne = ({ setGoSteps }) => {
   const [schoolValues, setSchoolValues] = useState([]);
 
   const { data: classes } = useQuery({
-    ...getClassesQuery({ size: "100" }),
+    ...getClassesQuery({ size: "100", SchoolId: schoolId }),
   });
 
   const { data: schools } = useQuery({
@@ -112,6 +120,13 @@ const StepOne = ({ setGoSteps }) => {
       .finally(() => setLoading(false));
   };
 
+  const onDeleteImage = (imageName) => {
+    deleteUserPhoto(imageName).then(() => {
+      queryClient.invalidateQueries(["teachers"]);
+      setReflesh(reflesh + 1);
+    });
+  };
+
   useEffect(() => {
     if (classes?.result) {
       const options = classes.result.data.map((option) => ({
@@ -140,9 +155,10 @@ const StepOne = ({ setGoSteps }) => {
         setEmail(res.result.email);
         setSchoolId(`${schoolId}`);
         setLogin(res.result.login);
+        setImages(res.result.imageIds);
       });
     }
-  }, [teacherId]);
+  }, [teacherId, reflesh]);
 
   return (
     <section>
@@ -234,29 +250,6 @@ const StepOne = ({ setGoSteps }) => {
           <div className="col-lg-6 mb-2">
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
-                Class
-              </label>
-              <select
-                className="form-control form-control-md"
-                value={classId}
-                onChange={(e) => setClassId(e.target.value)}
-              >
-                {classesValues.map((option) => (
-                  <option value={option.value} key={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              {errors.class && (
-                <div className="text-danger fs-12">{errors.class}</div>
-              )}
-            </div>
-          </div>
-        )}
-        {!teacherId && (
-          <div className="col-lg-6 mb-2">
-            <div className="form-group mb-3">
-              <label htmlFor="basic-url" className="form-label d-block">
                 School
               </label>
               <select
@@ -278,6 +271,29 @@ const StepOne = ({ setGoSteps }) => {
         )}
         {!teacherId && (
           <div className="col-lg-6 mb-2">
+            <div className="form-group mb-3">
+              <label htmlFor="basic-url" className="form-label d-block">
+                Class
+              </label>
+              <select
+                className="form-control form-control-md"
+                value={classId}
+                onChange={(e) => setClassId(e.target.value)}
+              >
+                {classesValues.map((option) => (
+                  <option value={option.value} key={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              {errors.class && (
+                <div className="text-danger fs-12">{errors.class}</div>
+              )}
+            </div>
+          </div>
+        )}
+        {!teacherId && (
+          <div className="col-lg-6 mb-2">
             <div className="form-check">
               <input
                 className="form-check-input"
@@ -287,6 +303,33 @@ const StepOne = ({ setGoSteps }) => {
               />
               <label className="form-check-label font-w400">Director</label>
             </div>
+          </div>
+        )}
+        {teacherId && images?.length > 0 && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
+              gap: "18px",
+              marginBottom: "20px",
+            }}
+          >
+            {images.map((image) => (
+              <div key={image}>
+                <img
+                  src={`${settings.baseURL}/images?filename=${image}`}
+                  alt=""
+                  style={{ width: "100%", borderRadius: "8px" }}
+                />
+                <button
+                  className="btn btn-danger sw-btn-next ms-1 mt-3"
+                  style={{ width: "100%" }}
+                  onClick={() => onDeleteImage(image)}
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
           </div>
         )}
         <button

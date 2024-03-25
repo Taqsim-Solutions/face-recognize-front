@@ -120,7 +120,7 @@ function StepTwo({ uploadProps, id }) {
         </div>
       )}
       <div position="relative" mt="20px">
-        {showCamera && step !== 6 && (
+        {showCamera && step !== 2 && (
           <>
             <video
               id="video"
@@ -163,7 +163,7 @@ function StepTwo({ uploadProps, id }) {
           </>
         )}
       </div>
-      {step === 6 && (
+      {step === 2 && (
         <div
           style={{
             display: "grid",
@@ -176,7 +176,7 @@ function StepTwo({ uploadProps, id }) {
           ))}
         </div>
       )}
-      {step === 6 && (
+      {step === 2 && (
         <button
           className="btn btn-primary sw-btn-next ms-1"
           style={{ margin: "40px auto", width: "100%" }}

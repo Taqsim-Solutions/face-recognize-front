@@ -112,6 +112,14 @@ export const getGovernment = (params) => {
   return request({ method: "GET", url: "/governments", params });
 };
 
+export const deleteUserPhoto = (id) => {
+  return request({ method: "DELETE", url: `/users/photo/${id}` });
+};
+
+export const deleteStudentPhoto = (id) => {
+  return request({ method: "DELETE", url: `/students/photo/${id}` });
+};
+
 export const uploadPhoto = (data, id) => {
   return request({
     method: "POST",
