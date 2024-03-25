@@ -36,7 +36,7 @@ const Students = () => {
                   {t("students")}
                 </div>
                 <div className="d-flex">
-                  {user?.result.level === 1 && (
+                  {(user?.result.level === 1 || user?.result.level === 5) && (
                     <>
                       <button
                         type="button"
@@ -114,7 +114,8 @@ const Students = () => {
                               gap: "10px",
                             }}
                           >
-                            {user?.result.level === 1 && (
+                            {(user?.result.level === 1 ||
+                              user?.result.level === 5) && (
                               <i
                                 className="material-icons"
                                 style={{ cursor: "pointer" }}

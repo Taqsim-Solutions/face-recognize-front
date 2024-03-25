@@ -8,6 +8,10 @@ export const getUsers = () => {
   return request({ method: "GET", url: "/users" });
 };
 
+export const getPerformance = (params) => {
+  return request({ method: "GET", url: "/dashboard/performance", params });
+};
+
 export const createUser = (data) => {
   return request({ method: "POST", url: "/users", data });
 };

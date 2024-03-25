@@ -54,8 +54,21 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
       errorObj.password = "Password is Required";
       error = true;
     }
+    if (regionId && !isTop && !cityId) {
+      errorObj.cityId = "City is Required";
+      error = true;
+    }
     if (login === "") {
       errorObj.login = "Login is Required";
+      error = true;
+    }
+    if (regionId === "") {
+      errorObj.regionId = "Region is Required";
+      error = true;
+    }
+
+    if (password.length < 6) {
+      errorObj.password = "Password have 6 elements";
       error = true;
     }
     setErrors(errorObj);
@@ -71,7 +84,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
         password,
         login,
         regionId,
-        cityId: isTop ? cityId : "",
+        cityId: isTop ? cityId : null,
         ConfirmPassword: password,
         level: isTop ? 3 : 4,
       },
@@ -224,10 +237,25 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
                   </option>
                 ))}
               </select>
-              {errors.class && (
-                <div className="text-danger fs-12">{errors.class}</div>
+              {errors.regionId && (
+                <div className="text-danger fs-12">{errors.regionId}</div>
               )}
             </div>
+            {!user && (
+              <div className="col-lg-6 mb-2">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    value={isTop}
+                    onChange={(e) => setIsTop(e.target.checked)}
+                  />
+                  <label className="form-check-label font-w400">
+                    Please check, if District Government
+                  </label>
+                </div>
+              </div>
+            )}
             {regionId && (
               <div class="mb-3 d-block">
                 <label htmlFor="basic-url" className="form-label d-block">
@@ -249,24 +277,9 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
                       </option>
                     ))}
                 </select>
-                {errors.class && (
-                  <div className="text-danger fs-12">{errors.class}</div>
+                {errors.cityId && (
+                  <div className="text-danger fs-12">{errors.cityId}</div>
                 )}
-              </div>
-            )}
-            {!user && (
-              <div className="col-lg-6 mb-2">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value={isTop}
-                    onChange={(e) => setIsTop(e.target.checked)}
-                  />
-                  <label className="form-check-label font-w400">
-                    Region government
-                  </label>
-                </div>
               </div>
             )}
           </div>

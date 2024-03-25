@@ -7,7 +7,7 @@ import { DeleteTeacher } from "./DeleteTeacher";
 import settings from "../../../../settings/settings";
 
 const Teachers = () => {
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [deleteModal, setDeleteModal] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -148,8 +148,8 @@ const Teachers = () => {
                 .map((number, i) => (
                   <li
                     key={i}
-                    className={`page-item  ${page === i ? "active" : ""} `}
-                    onClick={() => setPage(i)}
+                    className={`page-item  ${page === i + 1 ? "active" : ""} `}
+                    onClick={() => setPage(i + 1)}
                   >
                     <p className="page-link" to="/email-inbox">
                       {i + 1}

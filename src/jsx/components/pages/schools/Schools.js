@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getSchoolsQuery } from "../../../../queries/index";
+import { getSchoolsQuery, getMeQuery } from "../../../../queries/index";
 import { useTranslation } from "react-i18next";
 import { DeleteSchool } from "./DeleteSchool";
 import SchoolForm from "./SchoolForm";
@@ -13,6 +13,10 @@ const Schools = () => {
 
   const { data: schools } = useQuery({
     ...getSchoolsQuery(),
+  });
+
+  const { data: user } = useQuery({
+    ...getMeQuery(),
   });
 
   return (
@@ -39,13 +43,15 @@ const Schools = () => {
                   {t("schools")}
                 </div>
                 <div className="d-flex">
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => setCreateModal(true)}
-                  >
-                    + New school
-                  </button>
+                  {user?.result.level === 5 && (
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => setCreateModal(true)}
+                    >
+                      + New school
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -91,13 +97,15 @@ const Schools = () => {
                               gap: "10px",
                             }}
                           >
-                            <i
-                              className="material-icons"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => setSelectedSchoolForEdit(item)}
-                            >
-                              edit
-                            </i>
+                            {user?.result.level === 5 && (
+                              <i
+                                className="material-icons"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => setSelectedSchoolForEdit(item)}
+                              >
+                                edit
+                              </i>
+                            )}
                             <i
                               className="material-icons"
                               style={{ cursor: "pointer" }}

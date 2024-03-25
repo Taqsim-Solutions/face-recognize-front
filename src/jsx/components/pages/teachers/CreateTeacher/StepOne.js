@@ -11,8 +11,11 @@ import {
 } from "../../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
 import settings from "../../../../../settings/settings";
+import { getRegionsQuery, getMeQuery } from "../../../../../queries/index";
 
 const StepOne = ({ setGoSteps }) => {
+  const [region, setRegion] = useState("");
+  const [cityId, setCityId] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -40,12 +43,20 @@ const StepOne = ({ setGoSteps }) => {
   const [classesValues, setClassesValues] = useState([]);
   const [schoolValues, setSchoolValues] = useState([]);
 
+  const { data: regions } = useQuery({
+    ...getRegionsQuery(),
+  });
+
   const { data: classes } = useQuery({
     ...getClassesQuery({ size: "100", SchoolId: schoolId }),
   });
 
   const { data: schools } = useQuery({
-    ...getSchoolsQuery({ size: "100" }),
+    ...getSchoolsQuery({ size: "100", RegionId: region, CityId: cityId }),
+  });
+
+  const { data: user } = useQuery({
+    ...getMeQuery(),
   });
 
   const onSubmit = () => {
@@ -67,7 +78,7 @@ const StepOne = ({ setGoSteps }) => {
       errorObj.login = "Login is Required";
       error = true;
     }
-    if (classId === "" && !teacherId) {
+    if (classId === "" && !teacherId && !isDirector) {
       errorObj.class = "Class is Required";
       error = true;
     }
@@ -110,7 +121,7 @@ const StepOne = ({ setGoSteps }) => {
         if (res.result.mainImageName) {
           navigate("/teachers");
         } else {
-          setGoSteps(teacherId);
+          setGoSteps(teacherId || res?.result?.id);
         }
       })
       .catch((err) => {
@@ -159,6 +170,18 @@ const StepOne = ({ setGoSteps }) => {
       });
     }
   }, [teacherId, reflesh]);
+
+  useEffect(() => {
+    if (user?.result?.region?.id) {
+      setRegion(user.result.region.id);
+    }
+    if (user?.result?.city?.id) {
+      setCityId(user.result.city.id);
+    }
+    if (user?.result?.school?.id) {
+      setSchoolId(user.result.school.id);
+    }
+  }, [user]);
 
   return (
     <section>
@@ -237,7 +260,6 @@ const StepOne = ({ setGoSteps }) => {
               type="password"
               className="form-control"
               id="exampleFormControlInput2"
-              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -246,7 +268,53 @@ const StepOne = ({ setGoSteps }) => {
             )}
           </div>
         )}
-        {!teacherId && (
+        {!user?.result?.region?.id && !teacherId && (
+          <div className="col-lg-6 mb-2">
+            <label htmlFor="basic-url" className="form-label d-block">
+              Region
+            </label>
+            <select
+              className="form-control form-control-md"
+              onChange={(e) => setRegion(e.target.value)}
+              value={region}
+            >
+              <option value="">Select region</option>
+              {regions?.result?.map((option) => (
+                <option value={option.id} key={option.name}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+            {errors.class && (
+              <div className="text-danger fs-12">{errors.regionId}</div>
+            )}
+          </div>
+        )}
+        {region && !user?.result?.region?.id && (
+          <div className="col-lg-6 mb-2">
+            <label htmlFor="basic-url" className="form-label d-block">
+              District
+            </label>
+            <select
+              className="form-control form-control-md"
+              onChange={(e) => setCityId(e.target.value)}
+              value={cityId}
+            >
+              <option value="">Select district</option>
+              {regions?.result
+                .filter((currentRegion) => +region === currentRegion.id)[0]
+                ?.cities?.map((option) => (
+                  <option value={option.id} key={option.name}>
+                    {option.name}
+                  </option>
+                ))}
+            </select>
+            {errors.class && (
+              <div className="text-danger fs-12">{errors.cityId}</div>
+            )}
+          </div>
+        )}
+        {!teacherId && cityId && !user?.result?.school?.id && (
           <div className="col-lg-6 mb-2">
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
@@ -257,6 +325,7 @@ const StepOne = ({ setGoSteps }) => {
                 value={schoolId}
                 onChange={(e) => setSchoolId(e.target.value)}
               >
+                <option value="">Select school</option>
                 {schoolValues.map((option) => (
                   <option value={option.value} key={option.value}>
                     {option.label}
@@ -269,7 +338,7 @@ const StepOne = ({ setGoSteps }) => {
             </div>
           </div>
         )}
-        {!teacherId && (
+        {!teacherId && !isDirector && schoolId && (
           <div className="col-lg-6 mb-2">
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
@@ -280,6 +349,7 @@ const StepOne = ({ setGoSteps }) => {
                 value={classId}
                 onChange={(e) => setClassId(e.target.value)}
               >
+                <option value="">Select class</option>
                 {classesValues.map((option) => (
                   <option value={option.value} key={option.value}>
                     {option.label}
@@ -335,6 +405,7 @@ const StepOne = ({ setGoSteps }) => {
         <button
           className="btn btn-primary sw-btn-next ms-1"
           onClick={onSubmit}
+          style={{ marginTop: "20px" }}
           disabled={loading}
         >
           Next
