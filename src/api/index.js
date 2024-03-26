@@ -12,6 +12,10 @@ export const getPerformance = (params) => {
   return request({ method: "GET", url: "/dashboard/performance", params });
 };
 
+export const getSchoolsOverview = (params) => {
+  return request({ method: "GET", url: "/dashboard/school-details", params });
+};
+
 export const createUser = (data) => {
   return request({ method: "POST", url: "/users", data });
 };
@@ -116,6 +120,10 @@ export const getGovernment = (params) => {
   return request({ method: "GET", url: "/governments", params });
 };
 
+export const getDashboardOverview = (params) => {
+  return request({ method: "GET", url: "/dashboard/overview", params });
+};
+
 export const deleteUserPhoto = (id) => {
   return request({ method: "DELETE", url: `/users/photo/${id}` });
 };
@@ -155,4 +163,8 @@ export const getAttendancesDetail = (date, classId) => {
     method: "GET",
     url: `/Attendances/date/${date}/class/${classId}`,
   });
+};
+
+export const getDashboardAbsents = (params) => {
+  return request({ method: "GET", url: "/dashboard/absents", params });
 };

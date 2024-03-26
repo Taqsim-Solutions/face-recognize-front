@@ -1,24 +1,12 @@
 export const MenuList = [
   //Dashboard
-  //   {
-  //     title: "Dashboard",
-  //     classsChange: "mm-collapse",
-  //     iconStyle: <i className="material-symbols-outlined">home</i>,
-  //     content: [
-  //       {
-  //         title: "Dashboard Light",
-  //         to: "dashboard",
-  //       },
-  //       {
-  //         title: "Dashboard Dark",
-  //         to: "dashboard-dark",
-  //       },
-  //       {
-  //         title: "Finance",
-  //         to: "finance",
-  //       },
-  //     ],
-  //   },
+  {
+    title: "Dashboard",
+    classsChange: "mm-collapse",
+    iconStyle: <i className="material-symbols-outlined">home</i>,
+    to: "dashboard",
+    level: [1, 2, 3, 4, 5],
+  },
   {
     title: "Users",
     classsChange: "mm-collapse",

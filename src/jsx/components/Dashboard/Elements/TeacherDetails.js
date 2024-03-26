@@ -1,109 +1,103 @@
-import React,{useState} from 'react';
-import {Link} from 'react-router-dom';
+import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { getDashboardAbsentsQuery } from "../../../../queries/index";
 
-const tableData = [
-	{id:'1', name:'Yatin Xarma', subject:'Programming', qualification:'B.Tech', fee:'117.00', status:'Good'},
-	{id:'2', name:'Hanu Chang', subject:'Basic Algorithm', qualification:'B.E', fee:'215.50', status:'Good'},
-	{id:'3', name:'Jordan Nico', subject:'English', qualification:'B.A', fee:'210.70', status:'Good'},
-	{id:'4', name:'Nadila Adja', subject:'History', qualification:'B.A', fee:'204.50', status:'Bad'},
-	{id:'5', name:'James Brown', subject:'Commarce', qualification:'B.Com', fee:'217.70', status:'Good'},
-	{id:'6', name:'Jack John', subject:'Software Engg', qualification:'B.Tech', fee:'200.10', status:'Bad'},
-	{id:'7', name:'Tony Soap', subject:'It Engg', qualification:'B.Tech', fee:'217.70', status:'Good'},
-	{id:'8', name:'Yatin Xarma', subject:'Programming', qualification:'B.Tech', fee:'117.00', status:'Good'},
-	{id:'9', name:'Hanu Chang', subject:'Basic Algorithm', qualification:'B.E', fee:'215.50', status:'Bad'},
-	{id:'10', name:'Jordan Nico', subject:'English', qualification:'B.A', fee:'210.70', status:'Good'},
-	{id:'11', name:'Nadila Adja', subject:'History', qualification:'B.A', fee:'204.50', status:'Bad'},
-	{id:'12', name:'James Brown', subject:'Commarce', qualification:'B.Com', fee:'217.70', status:'Good'},
-	{id:'13', name:'Jack John', subject:'Software Engg', qualification:'B.Tech', fee:'200.10', status:'Bad'},
-	{id:'14', name:'Tony Soap', subject:'It Engg', qualification:'B.Tech', fee:'217.70', status:'Good'},
-	{id:'15', name:'Jordan Nico', subject:'English', qualification:'B.A', fee:'210.70', status:'Bad'},
-	{id:'16', name:'Kohni Pandye', subject:'Sanskrit', qualification:'B.Tech', fee:'150.50', status:'Good'}	
-];
+export const TeacherDetails = ({ filter }) => {
+  const [page, setPage] = useState(1);
 
-export const TeacherDetails = () => {
-    const [currentPage , setCurrentPage] = useState(1);  
-    const recordsPage = 8;
-    const lastIndex = currentPage * recordsPage;
-    const firstIndex = lastIndex - recordsPage;   
-    const records = tableData.slice(firstIndex, lastIndex);
-    const npage = Math.ceil(tableData.length / recordsPage)
-    const number = [...Array(npage + 1).keys()].slice(1)
-    function prePage (){
-        if(currentPage !== 1){
-            setCurrentPage(currentPage - 1)
-        }
-    }
-    function changeCPage (id){
-        setCurrentPage(id);
-    }
-    function nextPage (){
-        if(currentPage !== npage){
-            setCurrentPage(currentPage + 1)
-        }
-    }
-    return (
-        <div className="table-responsive basic-tbl">
-            <div id="teacher-table_wrapper" className="dataTables_wrapper no-footer">
-                <table id="teacher-table" className="tech-data dataTable no-footer" style={{ minWidth: "798px"}}>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Subject</th>
-                            <th>Qulification</th>
-                            <th>Fee</th>
-                            <th className="text-end">Performance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {records.map((item, ind)=>(
-                            <tr key={ind}>
-                                <td>{item.name}</td>
-                                <td>{item.subject}</td>
-                                <td>{item.qualification}</td>
-                                <td>${item.fee}</td>
-                                <td className="text-end"><span className={`badge badge-sm light badge-${item.status === "Good" ?  'success' : 'danger' }`}>{item.status}</span></td>
-                            </tr>
-                        ))}
-                        
-                    </tbody>
-                </table>
-                <div className="d-sm-flex text-center justify-content-between align-items-center">                           
-                    <div className='dataTables_info'>
-                        Showing {lastIndex-recordsPage + 1} to{" "}
-                        {tableData.length < lastIndex ? tableData.length : lastIndex}
-                        {" "}of {tableData.length} entries
-                    </div>
-                    <div
-                        className="dataTables_paginate paging_simple_numbers justify-content-center"
-                        id="example2_paginate"
+  const { data: absents } = useQuery({
+    ...getDashboardAbsentsQuery({
+      ...filter,
+      DateFrom: "2023-09-01Z",
+      DateTo: "2024-03-26Z",
+    }),
+  });
+
+  return (
+    <div className="table-responsive basic-tbl">
+      <div id="teacher-table_wrapper" className="dataTables_wrapper no-footer">
+        <table
+          id="teacher-table"
+          className="tech-data dataTable no-footer"
+          style={{ minWidth: "798px" }}
+        >
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>School</th>
+              <th>Class</th>
+              <th className="text-end">Date of birth</th>
+            </tr>
+          </thead>
+          <tbody>
+            {absents?.result?.data.map((item, ind) => (
+              <tr key={ind}>
+                <td>
+                  {item.firstName} {item.lastName}
+                </td>
+                <td>{item.schoolName}</td>
+                <td>{item.className}</td>
+                <td>{item.dateOfBirth.slice(0, 10)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {absents?.result.totalPages > 1 && (
+          <div>
+            <div className="col-12 ps-3">
+              <nav>
+                <ul
+                  className="pagination pagination-gutter pagination-primary pagination-sm no-bg"
+                  style={{
+                    margin: "30px 0",
+                    display: "flex",
+                    justifyContent: "right",
+                  }}
+                >
+                  <li className="page-item page-indicator">
+                    <p
+                      className="page-link"
+                      to="/email-inbox"
+                      onClick={() => page > 0 && setPage(page - 1)}
                     >
-                        <Link
-                            className="paginate_button previous disabled"
-                            to="#"                                        
-                            onClick={prePage}
-                        >
-                            <i className="fa-solid fa-angle-left" />
-                        </Link>
-                        <span>                                      
-                            {number.map((n , i )=>(
-                                <Link className={`paginate_button ${currentPage === n ? 'current' :  '' } `} key={i}                                            
-                                    onClick={()=>changeCPage(n)}
-                                > 
-                                    {n}                                                
+                      <i className="la la-angle-left"></i>
+                    </p>
+                  </li>
+                  {"page"
+                    .repeat(absents?.result.totalPages - 1)
+                    .split("page")
+                    .map((number, i) => (
+                      <li
+                        key={i}
+                        className={`page-item  ${
+                          page === i + 1 ? "active" : ""
+                        } `}
+                        onClick={() => setPage(i + 1)}
+                      >
+                        <p className="page-link" to="/email-inbox">
+                          {i + 1}
+                        </p>
+                      </li>
+                    ))}
 
-                                </Link>
-                            ))}
-                        </span>
-                        <Link
-                            className="paginate_button next"
-                            to="#"                                        
-                            onClick={nextPage}
-                        >
-                            <i className="fa-solid fa-angle-right" />
-                        </Link>
-                    </div>
-                </div> 
-            </div>	
-        </div>
-    )
-}
+                  <li className="page-item page-indicator">
+                    <p
+                      className="page-link"
+                      to="/email-inbox"
+                      onClick={() =>
+                        page + 1 < absents?.result.totalPages &&
+                        setPage(page + 1)
+                      }
+                    >
+                      <i className="la la-angle-right"></i>
+                    </p>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

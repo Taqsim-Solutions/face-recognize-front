@@ -78,13 +78,13 @@ export function OnlineTable() {
                   <tr>
                     <th>Image</th>
                     <th>Name</th>
-                    <th>School</th>
+                    <th>Date of birth</th>
                     <th>Phone number</th>
                     <th>Class name</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {students?.result?.data?.map((item, ind) => (
+                  {students?.result?.map((item, ind) => (
                     <tr key={ind}>
                       <td>
                         <img
@@ -99,7 +99,9 @@ export function OnlineTable() {
                         </div>
                       </td>
                       <td>
-                        <h6 className="mb-0">{item.schoolName}</h6>
+                        <h6 className="mb-0">
+                          {item.dateOfBirth.slice(0, 10)}
+                        </h6>
                       </td>
                       <td>
                         <h6 className="mb-0">{item.phoneNumber}</h6>

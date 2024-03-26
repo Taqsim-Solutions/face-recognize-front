@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import loadable from "@loadable/component";
 import pMinDelay from "p-min-delay";
@@ -7,9 +6,15 @@ import pMinDelay from "p-min-delay";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { SVGICON } from "./Content";
 import { TeacherDetails } from "./Elements/TeacherDetails";
-import { UnpaidStudentTable } from "./Elements/UnpaidStudentTable";
 import { useQuery } from "@tanstack/react-query";
-import { getPerformanceQuery } from "../../../queries/index";
+import {
+  getPerformanceQuery,
+  geSchoolOverviewQuery,
+  getRegionsQuery,
+  getSchoolsQuery,
+  getDashboardOverviewQuery,
+  getMeQuery,
+} from "../../../queries/index";
 
 const SchoolPerformance = loadable(() =>
   pMinDelay(import("./Elements/SchoolPerformance"), 500)
@@ -19,23 +24,37 @@ const SchoolOverView = loadable(() =>
 );
 
 const cardBlog = [
-  { title: "Students", svg: SVGICON.user, number: "93K", change: "std-data" },
   {
-    title: "Teachers",
-    svg: SVGICON.user2,
-    number: "74K",
-    change: "teach-data",
+    title: "Students",
+    svg: SVGICON.user,
+    change: "std-data",
+    key: "totalStudents",
   },
-  { title: "Events", svg: SVGICON.event, number: "40K", change: "event-data" },
   {
-    title: "Foods",
-    svg: SVGICON.food,
-    number: "32K",
-    change: "food-data bg-dark",
+    title: "Boys",
+    svg: SVGICON.user2,
+    change: "event-data",
+    key: "boysCount",
+  },
+  {
+    title: "Girls",
+    svg: SVGICON.user2,
+    change: "event-data",
+    key: "girlsCount",
+  },
+  {
+    title: "Absents",
+    svg: SVGICON.event,
+    change: "event-data",
+    key: "absentsCount",
   },
 ];
 
 const Home = () => {
+  const [schoolValues, setSchoolValues] = useState([]);
+  const [region, setRegion] = useState("");
+  const [cityId, setCityId] = useState("");
+  const [schoolId, setSchoolId] = useState("");
   const [performanceWeek, setPerformanceWeek] = useState("this"); // this && last
   const { changeBackground } = useContext(ThemeContext);
   useEffect(() => {
@@ -43,12 +62,133 @@ const Home = () => {
   }, []);
 
   const { data: performance } = useQuery({
-    ...getPerformanceQuery({}),
+    ...getPerformanceQuery({
+      RegionId: region,
+      CityId: cityId,
+      SchoolId: schoolId,
+    }),
   });
 
-  const [startDate, setStartDate] = useState(null);
+  const { data: user } = useQuery({
+    ...getMeQuery(),
+  });
+
+  const { data: schoolOverview } = useQuery({
+    ...geSchoolOverviewQuery({
+      RegionId: region,
+      CityId: cityId,
+      SchoolId: schoolId,
+    }),
+  });
+
+  const { data: overview } = useQuery({
+    ...getDashboardOverviewQuery({
+      RegionId: region,
+      CityId: cityId,
+      SchoolId: schoolId,
+      DateFrom: "2023-09-01Z",
+      DateTo: "2024-03-26Z",
+    }),
+  });
+
+  const { data: regions } = useQuery({
+    ...getRegionsQuery(),
+  });
+
+  const { data: schools } = useQuery({
+    ...getSchoolsQuery({ size: "100", RegionId: region, CityId: cityId }),
+  });
+
+  useEffect(() => {
+    if (schools?.result) {
+      const options = schools.result.data.map((option) => ({
+        label: option.name,
+        value: option.id,
+      }));
+      setSchoolValues(options);
+    }
+  }, [schools]);
+
+  useEffect(() => {
+    if (user?.result.region?.id) {
+      setRegion(user.result.region.id);
+    }
+    if (user?.result.city?.id) {
+      setCityId(user.result.city.id);
+    }
+    if (user?.result.school?.id) {
+      setSchoolId(user.result.school.id);
+    }
+  }, [user]);
+
   return (
     <>
+      <div className="row">
+        {!user?.result.region?.id && (
+          <div className="form-group mb-4 col-xl-3">
+            <label htmlFor="basic-url" className="form-label d-block">
+              Region
+            </label>
+            <select
+              className="form-control form-control-md"
+              onChange={(e) => {
+                setRegion(e.target.value);
+                setCityId("");
+              }}
+              value={region}
+            >
+              <option value="">Select region</option>
+              {regions?.result?.map((option) => (
+                <option value={option.id} key={option.name}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        {region && !user?.result.city?.id && (
+          <div className="form-group mb-4 col-xl-3">
+            <label htmlFor="basic-url" className="form-label d-block">
+              District
+            </label>
+            <select
+              className="form-control form-control-md"
+              onChange={(e) => setCityId(e.target.value)}
+              value={cityId}
+            >
+              <option value="">Select district</option>
+              {regions?.result
+                .filter((currentRegion) => +region === currentRegion.id)[0]
+                ?.cities?.map((option) => (
+                  <option value={option.id} key={option.name}>
+                    {option.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+        )}
+        {cityId && region && !user?.result.school?.id && (
+          <div className="col-xl-3 mb-2">
+            <div className="form-group mb-3">
+              <label htmlFor="basic-url" className="form-label d-block">
+                School
+              </label>
+              <select
+                className="form-control form-control-md"
+                value={schoolId}
+                onChange={(e) => setSchoolId(e.target.value)}
+              >
+                <option value="">Select school</option>
+                {schoolValues.map((option) => (
+                  <option value={option.value} key={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+      </div>
       <div className="row">
         <div className="col-xl-12">
           <div className="card">
@@ -62,7 +202,9 @@ const Home = () => {
                       </div>
                       <div className="chart-num">
                         <p>{item.title}</p>
-                        <h2 className="font-w700 mb-0">{item.number}</h2>
+                        <h2 className="font-w700 mb-0">
+                          {schoolOverview?.result?.data?.[0]?.[item.key]}
+                        </h2>
                       </div>
                     </div>
                   </div>
@@ -135,48 +277,33 @@ const Home = () => {
         </div>
         <div className="col-xl-6">
           <div className="card h-auto">
-            <SchoolOverView />
+            {" "}
+            <div className="card-header pb-0 border-0 flex-wrap">
+              <div>
+                <div className="mb-3">
+                  <h2 className="heading mb-0">School Overview</h2>
+                </div>
+              </div>
+            </div>
+            <SchoolOverView data={overview?.result?.overview} />
           </div>
         </div>
       </div>
       <div className="row">
-        <div className="col-xl-4 wow fadeInUp" data-wow-delay="1.5s">
-          <div className="card">
-            <div className="card-header pb-0 border-0 flex-wrap">
-              <div>
-                <div className="mb-3">
-                  <h2 className="heading mb-0">School Calendar</h2>
-                </div>
-              </div>
-            </div>
-            <div className="card-body text-center event-calender dz-calender py-0 px-1">
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                inline
-                fixedHeight
-              />
-            </div>
-          </div>
-        </div>
         <div className="col-xl-8">
           <div className="card">
             <div className="card-header py-3 border-0 px-3">
-              <h4 className="heading m-0">Teacher Deatails</h4>
+              <h4 className="heading m-0">Latest absents</h4>
             </div>
             <div className="card-body p-0">
-              <TeacherDetails />
+              <TeacherDetails
+                filter={{
+                  RegionId: region,
+                  CityId: cityId,
+                  SchoolId: schoolId,
+                }}
+              />
             </div>
-          </div>
-        </div>
-      </div>
-      <div className="col-xl-12">
-        <div className="card">
-          <div className="card-header border-0 p-3">
-            <h4 className="heading mb-0">Unpaid Student Intuition</h4>
-          </div>
-          <div className="card-body p-0">
-            <UnpaidStudentTable />
           </div>
         </div>
       </div>

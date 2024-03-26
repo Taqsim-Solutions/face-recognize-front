@@ -10,6 +10,9 @@ import {
   getGovernment,
   getAttendances,
   getPerformance,
+  getSchoolsOverview,
+  getDashboardAbsents,
+  getDashboardOverview,
 } from "../api";
 
 export function getUsersQuery() {
@@ -75,6 +78,13 @@ export function getPerformanceQuery(params) {
   };
 }
 
+export function geSchoolOverviewQuery(params) {
+  return {
+    queryKey: ["school-overview", params],
+    queryFn: async () => getSchoolsOverview(params),
+  };
+}
+
 export function getGovernmentsQuery() {
   return {
     queryKey: ["governments"],
@@ -86,5 +96,19 @@ export function getAttendancesQuery(date) {
   return {
     queryKey: ["attendances", date],
     queryFn: async () => getAttendances(date),
+  };
+}
+
+export function getDashboardAbsentsQuery(params) {
+  return {
+    queryKey: ["absents-dashbord", params],
+    queryFn: async () => getDashboardAbsents(params),
+  };
+}
+
+export function getDashboardOverviewQuery(params) {
+  return {
+    queryKey: ["overview-dashbord", params],
+    queryFn: async () => getDashboardOverview(params),
   };
 }

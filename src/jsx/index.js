@@ -266,18 +266,16 @@ function Layout1() {
         sideMenu ? "menu-toggle" : ""
       }`}
     >
-      <div className={`wallet-open  ${windowsize > 1199 ? "active" : ""}`}>
-        <Nav2 />
+      <div className={`${windowsize > 1199 ? "active" : ""}`}>
+        <Nav />
         <div
           className="content-body"
-          style={{ minHeight: window.screen.height + 20 }}
+          style={{ minHeight: window.screen.height + 20, paddingRight: 0 }}
         >
           <div className="container-fluid">
             <Outlet />
           </div>
         </div>
-        <Footer changeFooter="footer-outer" />
-        <WalletBar />
       </div>
     </div>
   );

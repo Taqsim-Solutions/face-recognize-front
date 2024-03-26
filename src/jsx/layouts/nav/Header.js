@@ -220,7 +220,6 @@ const Header = ({ onNote }) => {
                           <li>
                             <img src={profile} className="ms-0" alt="" />
                           </li>
-                          {console.log(user)}
                           <li className="ms-2">
                             <h4 className="mb-0">{`${user?.result.firstName} ${user?.result.lastName}`}</h4>
                             <span>
