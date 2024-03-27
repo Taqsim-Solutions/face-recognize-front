@@ -13,7 +13,7 @@ const Schools = () => {
   const { t } = useTranslation();
 
   const { data: schools } = useQuery({
-    ...getSchoolsQuery({ PageIndex: page }),
+    ...getSchoolsQuery({ PageIndex: page, PageSize: 10 }),
   });
 
   const { data: user } = useQuery({

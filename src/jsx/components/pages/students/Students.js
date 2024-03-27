@@ -15,7 +15,7 @@ const Students = () => {
   const navigate = useNavigate();
 
   const { data: students } = useQuery({
-    ...getStudentsQuery({ PageIndex: page }),
+    ...getStudentsQuery({ PageIndex: page, PageSize: 10 }),
   });
 
   const { data: user } = useQuery({

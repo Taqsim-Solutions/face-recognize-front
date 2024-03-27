@@ -7,7 +7,7 @@ const SchoolOverView = ({ data }) => {
   useEffect(() => {
     const payload = [
       {
-        name: "Attented",
+        name: "Not attented",
         data: [],
       },
     ];

@@ -13,7 +13,7 @@ const Teachers = () => {
   const navigate = useNavigate();
 
   const { data: customers } = useQuery({
-    ...getTeachersQuery({ PageIndex: page }),
+    ...getTeachersQuery({ PageIndex: page, PageSize: 10 }),
   });
 
   return (
