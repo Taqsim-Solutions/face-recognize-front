@@ -15,6 +15,7 @@ import Ru from "../../../images/ru.png";
 
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useQuery } from "@tanstack/react-query";
+import settings from "../../../settings/settings";
 
 const Header = ({ onNote }) => {
   //For header fixed
@@ -207,7 +208,14 @@ const Header = ({ onNote }) => {
                     className="nav-link i-false c-pointer ms-0"
                   >
                     <div className="header-info2 d-flex align-items-center">
-                      <img src={profile} alt="" />
+                      <img
+                        src={
+                          user?.result.mainImageName
+                            ? `${settings.baseURL}/images?filename=${user?.result.mainImageName}`
+                            : profile
+                        }
+                        alt=""
+                      />
                     </div>
                   </Dropdown.Toggle>
                   <Dropdown.Menu
@@ -218,26 +226,34 @@ const Header = ({ onNote }) => {
                       <div className="card-header p-3">
                         <ul className="d-flex align-items-center">
                           <li>
-                            <img src={profile} className="ms-0" alt="" />
+                            <img
+                              src={
+                                user?.result.mainImageName
+                                  ? `${settings.baseURL}/images?filename=${user?.result.mainImageName}`
+                                  : profile
+                              }
+                              className="ms-0"
+                              alt=""
+                            />
                           </li>
                           <li className="ms-2">
                             <h4 className="mb-0">{`${user?.result.firstName} ${user?.result.lastName}`}</h4>
                             <span>
                               {user?.result.level === 1
-                                ? "teacher"
+                                ? "Teacher"
                                 : user?.result.level === 2
-                                ? "direktor"
+                                ? "Director"
                                 : user?.result.level === 3
-                                ? "government-district"
+                                ? "District government"
                                 : user?.result.level === 4
-                                ? "government-region"
-                                : "admin"}
+                                ? "Region government"
+                                : "Admin"}
                             </span>
                           </li>
                         </ul>
                       </div>
                       <div className="card-body p-3">
-                        <Link to="#" className="dropdown-item ai-icon ">
+                        <Link to="/profile" className="dropdown-item ai-icon ">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24px"
@@ -265,7 +281,7 @@ const Header = ({ onNote }) => {
                               />
                             </g>
                           </svg>
-                          <span className="ms-2">Settings </span>
+                          <span className="ms-2">View</span>
                         </Link>
                         {user?.result?.school && (
                           <p>
