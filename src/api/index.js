@@ -124,6 +124,14 @@ export const getDashboardOverview = (params) => {
   return request({ method: "GET", url: "/dashboard/overview", params });
 };
 
+export const getOverallStatistics = (params) => {
+  return request({
+    method: "GET",
+    url: "/dashboard/overall-statistics",
+    params,
+  });
+};
+
 export const deleteUserPhoto = (id) => {
   return request({ method: "DELETE", url: `/users/photo/${id}` });
 };

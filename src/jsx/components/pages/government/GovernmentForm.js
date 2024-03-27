@@ -11,7 +11,7 @@ function isValidEmail(email) {
 }
 
 const GovernmentModal = ({ isCreate, user, onClose }) => {
-  const [isTop, setIsTop] = useState(false);
+  const [isDistrict, setIsDistrict] = useState(false);
   const [avatar, setAvatar] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -54,7 +54,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
       errorObj.password = "Password is Required";
       error = true;
     }
-    if (regionId && !isTop && !cityId) {
+    if (regionId && isDistrict && !cityId) {
       errorObj.cityId = "City is Required";
       error = true;
     }
@@ -84,9 +84,9 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
         password,
         login,
         regionId,
-        cityId: isTop ? cityId : null,
+        cityId: isDistrict ? cityId : null,
         ConfirmPassword: password,
-        level: isTop ? 3 : 4,
+        level: isDistrict ? 3 : 4,
       },
       user?.id
     )
@@ -118,7 +118,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="exampleModalLabel">
-              New user
+              Add government
             </h5>
             <button
               type="button"
@@ -247,8 +247,8 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
                   <input
                     className="form-check-input"
                     type="checkbox"
-                    value={isTop}
-                    onChange={(e) => setIsTop(e.target.checked)}
+                    value={isDistrict}
+                    onChange={(e) => setIsDistrict(e.target.checked)}
                   />
                   <label className="form-check-label font-w400">
                     Please check, if District Government
@@ -256,7 +256,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
                 </div>
               </div>
             )}
-            {regionId && (
+            {regionId && isDistrict && (
               <div class="mb-3 d-block">
                 <label htmlFor="basic-url" className="form-label d-block">
                   District

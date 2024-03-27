@@ -13,6 +13,7 @@ import {
   getSchoolsOverview,
   getDashboardAbsents,
   getDashboardOverview,
+  getOverallStatistics,
 } from "../api";
 
 export function getUsersQuery() {
@@ -110,5 +111,12 @@ export function getDashboardOverviewQuery(params) {
   return {
     queryKey: ["overview-dashbord", params],
     queryFn: async () => getDashboardOverview(params),
+  };
+}
+
+export function getOverallStatisticsQuery(params) {
+  return {
+    queryKey: ["overall-dashbord", params],
+    queryFn: async () => getOverallStatistics(params),
   };
 }

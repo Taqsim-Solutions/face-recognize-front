@@ -14,6 +14,7 @@ import {
   getSchoolsQuery,
   getDashboardOverviewQuery,
   getMeQuery,
+  getOverallStatisticsQuery,
 } from "../../../queries/index";
 
 const SchoolPerformance = loadable(() =>
@@ -71,6 +72,14 @@ const Home = () => {
 
   const { data: user } = useQuery({
     ...getMeQuery(),
+  });
+
+  const { data: overall } = useQuery({
+    ...getOverallStatisticsQuery({
+      RegionId: region,
+      CityId: cityId,
+      SchoolId: schoolId,
+    }),
   });
 
   const { data: schoolOverview } = useQuery({
@@ -203,7 +212,7 @@ const Home = () => {
                       <div className="chart-num">
                         <p>{item.title}</p>
                         <h2 className="font-w700 mb-0">
-                          {schoolOverview?.result?.data?.[0]?.[item.key]}
+                          {overall?.result?.[item.key]}
                         </h2>
                       </div>
                     </div>
@@ -306,6 +315,41 @@ const Home = () => {
             </div>
           </div>
         </div>
+        {schoolId && (
+          <div className="col-xl-4">
+            <div className="card">
+              <div className="card-header py-3 border-0 px-3">
+                <h4 className="heading m-0">School overview</h4>
+              </div>
+              <div className="card-body p-0">
+                <p className="px-3">
+                  <span style={{ color: "#000" }}>School: </span>
+                  {schoolOverview?.result?.data?.[0]?.name}
+                </p>
+                <p className="px-3">
+                  <span style={{ color: "#000" }}>Total students: </span>
+                  {schoolOverview?.result?.data?.[0]?.totalStudents}
+                </p>
+                <p className="px-3">
+                  <span style={{ color: "#000" }}>Boys: </span>
+                  {schoolOverview?.result?.data?.[0]?.boysCount}
+                </p>
+                <p className="px-3">
+                  <span style={{ color: "#000" }}>Students: </span>
+                  {schoolOverview?.result?.data?.[0]?.girlsCount}
+                </p>
+                <p className="px-3">
+                  <span style={{ color: "#000" }}>Percentage of absents: </span>
+                  {schoolOverview?.result?.data?.[0]?.percentage}
+                </p>
+                <p className="px-3">
+                  <span style={{ color: "#000" }}>Count of absents: </span>
+                  {schoolOverview?.result?.data?.[0]?.absentsCount}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
