@@ -52,6 +52,7 @@ const cardBlog = [
 ];
 
 const Home = () => {
+  const [schoolOverviewPage, setOverviewPage] = useState(1);
   const [schoolValues, setSchoolValues] = useState([]);
   const [region, setRegion] = useState("");
   const [cityId, setCityId] = useState("");
@@ -299,7 +300,7 @@ const Home = () => {
         </div>
       </div>
       <div className="row">
-        <div className="col-xl-8">
+        <div className="col-xl-12">
           <div className="card">
             <div className="card-header py-3 border-0 px-3">
               <h4 className="heading m-0">Latest absents</h4>
@@ -315,41 +316,105 @@ const Home = () => {
             </div>
           </div>
         </div>
-        {schoolId && (
-          <div className="col-xl-4">
-            <div className="card">
-              <div className="card-header py-3 border-0 px-3">
-                <h4 className="heading m-0">School overview</h4>
-              </div>
-              <div className="card-body p-0">
-                <p className="px-3">
-                  <span style={{ color: "#000" }}>School: </span>
-                  {schoolOverview?.result?.data?.[0]?.name}
-                </p>
-                <p className="px-3">
-                  <span style={{ color: "#000" }}>Total students: </span>
-                  {schoolOverview?.result?.data?.[0]?.totalStudents}
-                </p>
-                <p className="px-3">
-                  <span style={{ color: "#000" }}>Boys: </span>
-                  {schoolOverview?.result?.data?.[0]?.boysCount}
-                </p>
-                <p className="px-3">
-                  <span style={{ color: "#000" }}>Students: </span>
-                  {schoolOverview?.result?.data?.[0]?.girlsCount}
-                </p>
-                <p className="px-3">
-                  <span style={{ color: "#000" }}>Percentage of absents: </span>
-                  {schoolOverview?.result?.data?.[0]?.percentage}
-                </p>
-                <p className="px-3">
-                  <span style={{ color: "#000" }}>Count of absents: </span>
-                  {schoolOverview?.result?.data?.[0]?.absentsCount}
-                </p>
-              </div>
+        <div className="table-responsive basic-tbl">
+          <div className="card">
+            <div className="card-header py-3 border-0 px-3">
+              <h4 className="heading m-0">Schools overview</h4>
+            </div>
+            <div
+              id="teacher-table_wrapper"
+              className="dataTables_wrapper no-footer"
+            >
+              <table
+                id="teacher-table"
+                className="tech-data dataTable no-footer"
+                style={{ width: "100%" }}
+              >
+                <thead>
+                  <tr>
+                    <th>School</th>
+                    <th>Totsl students</th>
+                    <th>Boys</th>
+                    <th>Girls</th>
+                    <th>Percentage</th>
+                    <th className="text-end">Absents count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {schoolOverview?.result?.data?.map((item, ind) => (
+                    <tr key={ind}>
+                      <td>{item.name}</td>
+                      <td>{item.totalStudents}</td>
+                      <td>{item.boysCount}</td>
+                      <td>{item.girlsCount}</td>
+                      <td>{item.percentage}%</td>
+                      <td>{item.absentsCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {schoolOverview?.result.totalPages > 1 && (
+                <div>
+                  <div className="col-12 ps-3">
+                    <nav>
+                      <ul
+                        className="pagination pagination-gutter pagination-primary pagination-sm no-bg"
+                        style={{
+                          margin: "30px 0",
+                          display: "flex",
+                          justifyContent: "right",
+                        }}
+                      >
+                        <li className="page-item page-indicator">
+                          <p
+                            className="page-link"
+                            to="/email-inbox"
+                            onClick={() =>
+                              schoolOverview > 0 &&
+                              setOverviewPage(schoolOverview - 1)
+                            }
+                          >
+                            <i className="la la-angle-left"></i>
+                          </p>
+                        </li>
+                        {"page"
+                          .repeat(schoolOverview?.result.totalPages - 1)
+                          .split("page")
+                          .map((number, i) => (
+                            <li
+                              key={i}
+                              className={`page-item  ${
+                                schoolOverviewPage === i + 1 ? "active" : ""
+                              } `}
+                              onClick={() => setOverviewPage(i + 1)}
+                            >
+                              <p className="page-link" to="/email-inbox">
+                                {i + 1}
+                              </p>
+                            </li>
+                          ))}
+
+                        <li className="page-item page-indicator">
+                          <p
+                            className="page-link"
+                            to="/email-inbox"
+                            onClick={() =>
+                              setOverviewPage + 1 <
+                                schoolOverview?.result.totalPages &&
+                              setOverviewPage(schoolOverviewPage + 1)
+                            }
+                          >
+                            <i className="la la-angle-right"></i>
+                          </p>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </>
   );
