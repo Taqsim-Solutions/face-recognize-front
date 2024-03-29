@@ -12,6 +12,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import settings from "../../../../../settings/settings";
 import { getRegionsQuery, getMeQuery } from "../../../../../queries/index";
+import { useTranslation } from "react-i18next";
 
 const StepOne = ({ setGoSteps }) => {
   const [region, setRegion] = useState("");
@@ -26,6 +27,7 @@ const StepOne = ({ setGoSteps }) => {
   const [schoolId, setSchoolId] = useState("");
   const [password, setPassword] = useState("");
   const [reflesh, setReflesh] = useState(0);
+  const { t } = useTranslation();
   const [isDirector, setIsDirector] = useState(false);
   let errorsObj = {
     firstName: "",
@@ -63,31 +65,35 @@ const StepOne = ({ setGoSteps }) => {
     let error = false;
     const errorObj = { ...errorsObj };
     if (firstName === "") {
-      errorObj.firstName = "First Name is Required";
+      errorObj.firstName = `${t("firstName")} ${t("isRequired")}`;
       error = true;
     }
     if (lastName === "") {
-      errorObj.lastName = "Last Name is Required";
+      errorObj.lastName = `${t("lastName")} ${t("isRequired")}`;
       error = true;
     }
     if (email === "") {
-      errorObj.email = "Email is Required";
+      errorObj.email = `${t("email")} ${t("isRequired")}`;
       error = true;
     }
     if (login === "") {
-      errorObj.login = "Login is Required";
+      errorObj.login = `${t("username")} ${t("isRequired")}`;
       error = true;
     }
     if (classId === "" && !teacherId && !isDirector) {
-      errorObj.class = "Class is Required";
+      errorObj.class = `${t("class")} ${t("isRequired")}`;
       error = true;
     }
     if (schoolId === "" && !teacherId) {
-      errorObj.school = "Class is Required";
+      errorObj.school = `${t("school")} ${t("isRequired")}`;
       error = true;
     }
     if (password === "" && !teacherId) {
-      errorObj.password = "Password is Required";
+      errorObj.password = `${t("password")} ${t("isRequired")}`;
+      error = true;
+    }
+    if (region === "" && !teacherId) {
+      errorObj.region = `${t("region")} ${t("isRequired")}`;
       error = true;
     }
 
@@ -188,7 +194,7 @@ const StepOne = ({ setGoSteps }) => {
       <div className="row">
         <div className="col-lg-6 mb-2">
           <div className="form-group mb-3">
-            <label className="text-label">First Name*</label>
+            <label className="text-label">{t("firstName")}*</label>
             <input
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
@@ -204,7 +210,7 @@ const StepOne = ({ setGoSteps }) => {
         </div>
         <div className="col-lg-6 mb-2">
           <div className="form-group mb-3">
-            <label className="text-label">Last Name*</label>
+            <label className="text-label">{t("lastName")}*</label>
             <input
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
@@ -221,7 +227,7 @@ const StepOne = ({ setGoSteps }) => {
         <div className="col-lg-6 mb-2">
           <div className="mb-3 d-block">
             <label htmlFor="basic-url" className="form-label d-block">
-              Login
+              {t("username")}
             </label>
             <input
               type="text"
@@ -237,7 +243,7 @@ const StepOne = ({ setGoSteps }) => {
         <div className="col-lg-6 mb-2">
           <div class="mb-3 d-block">
             <label htmlFor="exampleFormControlInput2" class="form-label mb-2">
-              Email
+              {t("email")}
             </label>
             <input
               type="email"
@@ -254,7 +260,7 @@ const StepOne = ({ setGoSteps }) => {
         {!teacherId && (
           <div class="mb-3 d-block col-lg-6">
             <label htmlFor="exampleFormControlInput2" class="form-label mb-2">
-              Password
+              {t("password")}
             </label>
             <input
               type="password"
@@ -271,21 +277,21 @@ const StepOne = ({ setGoSteps }) => {
         {!user?.result?.region?.id && !teacherId && (
           <div className="col-lg-6 mb-2">
             <label htmlFor="basic-url" className="form-label d-block">
-              Region
+              {t("region")}
             </label>
             <select
               className="form-control form-control-md"
               onChange={(e) => setRegion(e.target.value)}
               value={region}
             >
-              <option value="">Select region</option>
+              <option value="">{t("select")}</option>
               {regions?.result?.map((option) => (
                 <option value={option.id} key={option.name}>
                   {option.name}
                 </option>
               ))}
             </select>
-            {errors.class && (
+            {errors.region && (
               <div className="text-danger fs-12">{errors.regionId}</div>
             )}
           </div>
@@ -293,14 +299,14 @@ const StepOne = ({ setGoSteps }) => {
         {region && !user?.result?.region?.id && (
           <div className="col-lg-6 mb-2">
             <label htmlFor="basic-url" className="form-label d-block">
-              District
+              {t("district")}
             </label>
             <select
               className="form-control form-control-md"
               onChange={(e) => setCityId(e.target.value)}
               value={cityId}
             >
-              <option value="">Select district</option>
+              <option value="">{t("district")}</option>
               {regions?.result
                 .filter((currentRegion) => +region === currentRegion.id)[0]
                 ?.cities?.map((option) => (
@@ -318,14 +324,14 @@ const StepOne = ({ setGoSteps }) => {
           <div className="col-lg-6 mb-2">
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
-                School
+                {t("school")}
               </label>
               <select
                 className="form-control form-control-md"
                 value={schoolId}
                 onChange={(e) => setSchoolId(e.target.value)}
               >
-                <option value="">Select school</option>
+                <option value="">{t("select")}</option>
                 {schoolValues.map((option) => (
                   <option value={option.value} key={option.value}>
                     {option.label}
@@ -342,14 +348,14 @@ const StepOne = ({ setGoSteps }) => {
           <div className="col-lg-6 mb-2">
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
-                Class
+                {t("class")}
               </label>
               <select
                 className="form-control form-control-md"
                 value={classId}
                 onChange={(e) => setClassId(e.target.value)}
               >
-                <option value="">Select class</option>
+                <option value="">{t("select")}</option>
                 {classesValues.map((option) => (
                   <option value={option.value} key={option.value}>
                     {option.label}
@@ -371,7 +377,9 @@ const StepOne = ({ setGoSteps }) => {
                 value={isDirector}
                 onChange={(e) => setIsDirector(e.target.checked)}
               />
-              <label className="form-check-label font-w400">Director</label>
+              <label className="form-check-label font-w400">
+                {t("isDirector")}
+              </label>
             </div>
           </div>
         )}
@@ -396,7 +404,7 @@ const StepOne = ({ setGoSteps }) => {
                   style={{ width: "100%" }}
                   onClick={() => onDeleteImage(image)}
                 >
-                  Delete
+                  {t("delete")}
                 </button>
               </div>
             ))}
@@ -408,7 +416,7 @@ const StepOne = ({ setGoSteps }) => {
           style={{ marginTop: "20px" }}
           disabled={loading}
         >
-          Next
+          {t("nextButton")}
         </button>
       </div>
     </section>

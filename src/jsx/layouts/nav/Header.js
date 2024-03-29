@@ -16,9 +16,11 @@ import Ru from "../../../images/ru.png";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useQuery } from "@tanstack/react-query";
 import settings from "../../../settings/settings";
+import { useLangContext } from "../../../context/LangContext";
 
 const Header = ({ onNote }) => {
   //For header fixed
+  const { changeLang, lang } = useLangContext();
   const [headerFix, setheaderFix] = useState(false);
   useEffect(() => {
     window.addEventListener("scroll", () => {
@@ -84,15 +86,13 @@ const Header = ({ onNote }) => {
                     background.value === "dark" ? "active" : ""
                   }`}
                   onClick={() => {
-                    changeLanguage(language === "ru" ? "uz" : "ru");
-                    localStorage.setItem(
-                      "lang",
-                      language === "ru" ? "uz" : "ru"
-                    );
+                    changeLang(lang === "ru" ? "uz" : "ru");
+                    changeLanguage(lang === "ru" ? "uz" : "ru");
+                    localStorage.setItem("lang", lang === "ru" ? "uz" : "ru");
                   }}
                 >
-                  {language !== "ru" && <img src={Uz} alt="uz" width="20px" />}
-                  {language !== "uz" && <img src={Ru} alt="uz" width="20px" />}
+                  {lang !== "ru" && <img src={Uz} alt="uz" width="20px" />}
+                  {lang !== "uz" && <img src={Ru} alt="uz" width="20px" />}
                 </Link>
               </li>
               <li className="nav-item dropdown notification_dropdown">

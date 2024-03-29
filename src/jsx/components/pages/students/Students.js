@@ -43,7 +43,7 @@ const Students = () => {
                         className="btn btn-primary"
                         onClick={() => navigate("/students/create")}
                       >
-                        + New student
+                        + {t("createButton")}
                       </button>
                       <button
                         type="button"
@@ -51,7 +51,7 @@ const Students = () => {
                         onClick={() => setExcelModal(true)}
                         style={{ margin: "0 5px" }}
                       >
-                        Excel Upload
+                        {t("excelUploadButton")}
                       </button>
                     </>
                   )}
@@ -75,12 +75,12 @@ const Students = () => {
                   >
                     <thead>
                       <tr>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>School</th>
-                        <th>Phone number</th>
-                        <th>Class name</th>
-                        <th className="text-end">Action</th>
+                        <th>{t("image")}</th>
+                        <th>{t("name")}</th>
+                        <th>{t("school")}</th>
+                        <th>{t("phoneNumber")}</th>
+                        <th>{t("class")}</th>
+                        <th className="text-end">{t("action")}</th>
                       </tr>
                     </thead>
                     <tbody>

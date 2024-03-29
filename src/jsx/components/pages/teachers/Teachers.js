@@ -35,7 +35,7 @@ const Teachers = () => {
                     className="btn btn-primary"
                     onClick={() => navigate("/teachers/create")}
                   >
-                    + New teacher
+                    + {t("createButton")}
                   </button>
                 </div>
               </div>
@@ -53,12 +53,12 @@ const Teachers = () => {
                   >
                     <thead>
                       <tr>
-                        <td>Image</td>
-                        <th>Name</th>
-                        <th>School</th>
-                        <th>Email</th>
-                        <th>Login</th>
-                        <th className="text-end">Action</th>
+                        <td>{t("image")}</td>
+                        <th>{t("name")}</th>
+                        <th>{t("school")}</th>
+                        <th>{t("email")}</th>
+                        <th>{t("username")}</th>
+                        <th className="text-end">{t("action")}</th>
                       </tr>
                     </thead>
                     <tbody>

@@ -16,6 +16,7 @@ import {
   getMeQuery,
   getOverallStatisticsQuery,
 } from "../../../queries/index";
+import { useTranslation } from "react-i18next";
 
 const SchoolPerformance = loadable(() =>
   pMinDelay(import("./Elements/SchoolPerformance"), 500)
@@ -26,25 +27,25 @@ const SchoolOverView = loadable(() =>
 
 const cardBlog = [
   {
-    title: "Students",
+    title: "students",
     svg: SVGICON.user,
     change: "std-data",
     key: "totalStudents",
   },
   {
-    title: "Boys",
+    title: "boys",
     svg: SVGICON.user2,
     change: "event-data",
     key: "boysCount",
   },
   {
-    title: "Girls",
+    title: "girls",
     svg: SVGICON.user2,
     change: "event-data",
     key: "girlsCount",
   },
   {
-    title: "Absents",
+    title: "absents",
     svg: SVGICON.event,
     change: "event-data",
     key: "absentsCount",
@@ -59,6 +60,7 @@ const Home = () => {
   const [schoolId, setSchoolId] = useState("");
   const [performanceWeek, setPerformanceWeek] = useState("this"); // this && last
   const { changeBackground } = useContext(ThemeContext);
+  const { t } = useTranslation();
   useEffect(() => {
     changeBackground({ value: "light", label: "Light" });
   }, []);
@@ -137,7 +139,7 @@ const Home = () => {
         {!user?.result.region?.id && (
           <div className="form-group mb-4 col-xl-3">
             <label htmlFor="basic-url" className="form-label d-block">
-              Region
+              {t("region")}
             </label>
             <select
               className="form-control form-control-md"
@@ -147,7 +149,7 @@ const Home = () => {
               }}
               value={region}
             >
-              <option value="">Select region</option>
+              <option value="">{t("region")}</option>
               {regions?.result?.map((option) => (
                 <option value={option.id} key={option.name}>
                   {option.name}
@@ -159,14 +161,14 @@ const Home = () => {
         {region && !user?.result.city?.id && (
           <div className="form-group mb-4 col-xl-3">
             <label htmlFor="basic-url" className="form-label d-block">
-              District
+              {t("district")}
             </label>
             <select
               className="form-control form-control-md"
               onChange={(e) => setCityId(e.target.value)}
               value={cityId}
             >
-              <option value="">Select district</option>
+              <option value="">{t("select")}</option>
               {regions?.result
                 .filter((currentRegion) => +region === currentRegion.id)[0]
                 ?.cities?.map((option) => (
@@ -181,14 +183,14 @@ const Home = () => {
           <div className="col-xl-3 mb-2">
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
-                School
+                {t("school")}
               </label>
               <select
                 className="form-control form-control-md"
                 value={schoolId}
                 onChange={(e) => setSchoolId(e.target.value)}
               >
-                <option value="">Select school</option>
+                <option value=""> {t("select")}</option>
                 {schoolValues.map((option) => (
                   <option value={option.value} key={option.value}>
                     {option.label}
@@ -211,7 +213,7 @@ const Home = () => {
                         {item.svg}
                       </div>
                       <div className="chart-num">
-                        <p>{item.title}</p>
+                        <p>{t(item.title)}</p>
                         <h2 className="font-w700 mb-0">
                           {overall?.result?.[item.key]}
                         </h2>
@@ -230,7 +232,7 @@ const Home = () => {
             <div className="card-header pb-0 border-0 flex-wrap">
               <div className="mb-sm-0">
                 <div className="chart-title">
-                  <h2 className="heading mb-0">School Performance</h2>
+                  <h2 className="heading mb-0">{t("schoolPerfomance")}</h2>
                 </div>
               </div>
               <div className="p-static">
@@ -249,7 +251,7 @@ const Home = () => {
                         : { padding: "0.5rem 1rem" }
                     }
                   >
-                    <span className="fs-14">This Week</span>
+                    <span className="fs-14">{t("thisWeek")}</span>
                     {/* <h4 className="fs-5 font-w700 mb-0">1.245</h4> */}
                   </div>
                   <div
@@ -266,7 +268,7 @@ const Home = () => {
                         : { padding: "0.5rem 1rem" }
                     }
                   >
-                    <span className="fs-14">Last Week</span>
+                    <span className="fs-14">{t("lastWeek")}</span>
                     {/* <h4 className="fs-5 font-w700 mb-0">1.356</h4> */}
                   </div>
                 </div>
@@ -291,7 +293,7 @@ const Home = () => {
             <div className="card-header pb-0 border-0 flex-wrap">
               <div>
                 <div className="mb-3">
-                  <h2 className="heading mb-0">School Overview</h2>
+                  <h2 className="heading mb-0">{t("schoolOverwiew")}</h2>
                 </div>
               </div>
             </div>
@@ -303,7 +305,7 @@ const Home = () => {
         <div className="col-xl-12">
           <div className="card">
             <div className="card-header py-3 border-0 px-3">
-              <h4 className="heading m-0">Latest absents</h4>
+              <h4 className="heading m-0">{t("latestAbsents")}</h4>
             </div>
             <div className="card-body p-0">
               <TeacherDetails
@@ -319,7 +321,7 @@ const Home = () => {
         <div className="table-responsive basic-tbl">
           <div className="card">
             <div className="card-header py-3 border-0 px-3">
-              <h4 className="heading m-0">Schools overview</h4>
+              <h4 className="heading m-0">{t("school")}</h4>
             </div>
             <div
               id="teacher-table_wrapper"
@@ -332,12 +334,12 @@ const Home = () => {
               >
                 <thead>
                   <tr>
-                    <th>School</th>
-                    <th>Totsl students</th>
-                    <th>Boys</th>
-                    <th>Girls</th>
-                    <th>Percentage</th>
-                    <th className="text-end">Absents count</th>
+                    <th>{t("school")}</th>
+                    <th>{t("totalStudents")}</th>
+                    <th>{t("boys")}</th>
+                    <th>{t("girls")}</th>
+                    <th>{t("percentage")}</th>
+                    <th className="text-end">{t("absents")}</th>
                   </tr>
                 </thead>
                 <tbody>

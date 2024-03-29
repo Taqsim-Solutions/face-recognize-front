@@ -50,7 +50,7 @@ const Schools = () => {
                       className="btn btn-primary"
                       onClick={() => setCreateModal(true)}
                     >
-                      + New school
+                      + {t("createButton")}
                     </button>
                   )}
                 </div>
@@ -69,10 +69,10 @@ const Schools = () => {
                   >
                     <thead>
                       <tr>
-                        <th>Name</th>
-                        <th>Region</th>
-                        <th>District</th>
-                        <th className="text-end">Action</th>
+                        <th>{t("name")}</th>
+                        <th>{t("region")}</th>
+                        <th>{t("district")}</th>
+                        <th className="text-end">{t("action")}</th>
                       </tr>
                     </thead>
                     <tbody>

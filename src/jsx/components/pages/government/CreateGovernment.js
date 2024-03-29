@@ -9,6 +9,7 @@ import {
   getGovernment,
 } from "../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const GovernmentCreate = () => {
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,7 @@ const GovernmentCreate = () => {
   const { governmentsId } = useParams();
   const [errors, setErrors] = useState(errorsObj);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data: regions } = useQuery({
     ...getRegionsQuery(),
@@ -104,7 +106,7 @@ const GovernmentCreate = () => {
       <div className="row">
         <div className="col-lg-6 mb-2">
           <div className="form-group mb-3">
-            <label className="text-label">First Name*</label>
+            <label className="text-label">{t("firstName")}*</label>
             <input
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}

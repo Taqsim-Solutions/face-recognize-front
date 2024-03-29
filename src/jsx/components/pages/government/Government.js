@@ -3,11 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { getGovernmentsQuery } from "../../../../queries/index";
 import { DeleteGovernment } from "./DeleteGovernment";
 import GovernmentModal from "./GovernmentForm";
+import { useTranslation } from "react-i18next";
 
 const Governments = () => {
   const [editUser, setEditUser] = useState(null);
   const [createModal, setCreateModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
+  const { t } = useTranslation();
 
   const { data: customers } = useQuery({
     ...getGovernmentsQuery(),
@@ -34,7 +36,7 @@ const Governments = () => {
                   className="dashboard_bar header-left"
                   style={{ textTransform: "capitalize", fontSize: "20px" }}
                 >
-                  Government
+                  {t("government")}
                 </div>
                 <div className="d-flex">
                   <button
@@ -42,7 +44,7 @@ const Governments = () => {
                     className="btn btn-primary"
                     onClick={() => setCreateModal(true)}
                   >
-                    + New government
+                    + {`${t("createButton")}`}
                   </button>
                 </div>
               </div>
@@ -60,11 +62,10 @@ const Governments = () => {
                   >
                     <thead>
                       <tr>
-                        <th>Name</th>
-                        <th>Id</th>
-                        <th>Level</th>
-                        <th>Login</th>
-                        <th className="text-end">Action</th>
+                        <th>{t("name")}</th>
+                        <th>{t("username")}</th>
+                        <th>{t("region")}</th>
+                        <th className="text-end">{t("action")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -76,13 +77,10 @@ const Governments = () => {
                             </div>
                           </td>
                           <td>
-                            <h6 className="mb-0">{item.id}</h6>
-                          </td>
-                          <td>
-                            <h6 className="mb-0">{item.level}</h6>
-                          </td>
-                          <td>
                             <h6 className="mb-0">{item.login}</h6>
+                          </td>
+                          <td>
+                            <h6 className="mb-0">{item.region?.name}</h6>
                           </td>
                           <td
                             style={{

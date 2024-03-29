@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import swal from "sweetalert";
 import { createGovernment, updateGovernment } from "../../../../api/index";
 import { getRegionsQuery } from "../../../../queries/index";
+import { useTranslation } from "react-i18next";
 
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,6 +22,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
   const [cityId, setCityId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
   let errorsObj = {
     firstName: "",
     lastName: "",
@@ -39,36 +41,36 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
     let error = false;
     const errorObj = { ...errorsObj };
     if (firstName === "") {
-      errorObj.firstName = "First Name is Required";
+      errorObj.firstName = `${t("firstName")} ${t("isRequired")}`;
       error = true;
     }
     if (lastName === "") {
-      errorObj.lastName = "Last Name is Required";
+      errorObj.lastName = `${t("lastName")} ${t("isRequired")}`;
       error = true;
     }
     if (!isValidEmail(email)) {
-      errorObj.email = "Email is Required";
+      errorObj.email = `${t("email")} ${t("isRequired")}`;
       error = true;
     }
     if (password === "" && !user) {
-      errorObj.password = "Password is Required";
+      errorObj.password = `${t("password")} ${t("isRequired")}`;
       error = true;
     }
     if (regionId && isDistrict && !cityId) {
-      errorObj.cityId = "City is Required";
+      errorObj.cityId = `${t("city")} ${t("isRequired")}`;
       error = true;
     }
     if (login === "") {
-      errorObj.login = "Login is Required";
+      errorObj.login = `${t("username")} ${t("isRequired")}`;
       error = true;
     }
     if (regionId === "") {
-      errorObj.regionId = "Region is Required";
+      errorObj.regionId = `${t("region")} ${t("isRequired")}`;
       error = true;
     }
 
     if (password.length < 6) {
-      errorObj.password = "Password have 6 elements";
+      errorObj.password = `${t("passwordLength")}`;
       error = true;
     }
     setErrors(errorObj);
@@ -118,7 +120,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="exampleModalLabel">
-              Add government
+              {`${t("createButton")}`}
             </h5>
             <button
               type="button"
@@ -129,7 +131,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
           <div className="modal-body">
             <div className="mb-3">
               <label htmlFor="formFile" className="form-label">
-                Upload image
+                {t("uploadImage")}
               </label>
               <input
                 accept="image/*"
@@ -141,12 +143,12 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
             </div>
             <div className="mb-3 d-block">
               <label htmlFor="basic-url" className="form-label d-block">
-                First name
+                {t("firstName")}
               </label>
               <input
                 type="text"
                 className="form-control w-100"
-                placeholder="First name"
+                placeholder={t("firstName")}
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
@@ -156,12 +158,12 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
             </div>
             <div className="mb-3 d-block">
               <label htmlFor="basic-url" className="form-label d-block">
-                Last name
+                {t("lastName")}
               </label>
               <input
                 type="text"
                 className="form-control w-100"
-                placeholder="Last name"
+                placeholder={t("lastName")}
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
               />
@@ -171,12 +173,12 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
             </div>
             <div className="mb-3 d-block">
               <label htmlFor="basic-url" className="form-label d-block">
-                Login
+                {t("username")}
               </label>
               <input
                 type="text"
                 className="form-control w-100"
-                placeholder="Login"
+                placeholder={t("username")}
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
               />
@@ -186,13 +188,13 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
             </div>
             <div class="mb-3 d-block">
               <label htmlFor="exampleFormControlInput2" class="form-label mb-2">
-                Email
+                {t("email")}
               </label>
               <input
                 type="email"
                 className="form-control"
                 id="exampleFormControlInput2"
-                placeholder="Email"
+                placeholder={t("email")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -206,13 +208,13 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
                   htmlFor="exampleFormControlInput2"
                   class="form-label mb-2"
                 >
-                  Password
+                  {t("password")}
                 </label>
                 <input
                   type="password"
                   className="form-control"
                   id="exampleFormControlInput2"
-                  placeholder="Password"
+                  placeholder={t("password")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -223,14 +225,14 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
             )}
             <div class="mb-3 d-block">
               <label htmlFor="basic-url" className="form-label d-block">
-                Region
+                {t("region")}
               </label>
               <select
                 className="form-control form-control-md"
                 onChange={(e) => setRegionId(e.target.value)}
                 value={regionId}
               >
-                <option value="">Select region</option>
+                <option value="">{t("select")}</option>
                 {regions?.result?.map((option) => (
                   <option value={option.id} key={option.name}>
                     {option.name}
@@ -251,7 +253,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
                     onChange={(e) => setIsDistrict(e.target.checked)}
                   />
                   <label className="form-check-label font-w400">
-                    Please check, if District Government
+                    {t("checkDistrictGovernment")}
                   </label>
                 </div>
               </div>
@@ -259,14 +261,14 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
             {regionId && isDistrict && (
               <div class="mb-3 d-block">
                 <label htmlFor="basic-url" className="form-label d-block">
-                  District
+                  {t("district")}
                 </label>
                 <select
                   className="form-control form-control-md"
                   onChange={(e) => setCityId(e.target.value)}
                   value={cityId}
                 >
-                  <option value="">Select district</option>
+                  <option value="">{t("select")}</option>
                   {regions?.result
                     .filter(
                       (currentRegion) => +regionId === currentRegion.id
@@ -289,7 +291,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
               className="btn btn-danger light"
               onClick={onClose}
             >
-              Close
+              {t("closeButton")}
             </button>
             <button
               type="button"
@@ -297,7 +299,7 @@ const GovernmentModal = ({ isCreate, user, onClose }) => {
               onClick={onSubmit}
               disabled={loading}
             >
-              {user ? "Save" : "Create"}
+              {user ? t("saveButton") : t("createButton")}
             </button>
           </div>
         </div>

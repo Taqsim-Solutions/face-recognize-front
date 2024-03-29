@@ -2,13 +2,13 @@
 // import Metismenu from "metismenujs";
 import React, { useReducer, useContext, useEffect, useState } from "react";
 /// Scroll
-import { Collapse } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { MenuList } from "./Menu";
 import { useScrollPosition } from "@n8tb1t/use-scroll-position";
 import { ThemeContext } from "../../../context/ThemeContext";
 import { useQuery } from "@tanstack/react-query";
 import { getMeQuery } from "../../../queries/index";
+import { useTranslation } from "react-i18next";
 
 const reducer = (previousState, updatedState) => ({
   ...previousState,
@@ -21,6 +21,7 @@ const initialState = {
 };
 
 const SideBar = () => {
+  const { t } = useTranslation();
   //  let d = new Date();
   const {
     iconHover,
@@ -120,7 +121,7 @@ const SideBar = () => {
                         window.location.href === data.title ? "mm-active" : ""
                       } `}
                     >
-                      {data.title}
+                      {t(data.title)}
                     </li>
                   )
                 );
@@ -133,115 +134,13 @@ const SideBar = () => {
                       } `}
                       key={index}
                     >
-                      {data.content && data.content.length > 0 ? (
-                        <>
-                          <Link
-                            to={"#"}
-                            className="has-arrow"
-                            onClick={() => {
-                              handleMenuActive(data.title);
-                            }}
-                          >
-                            {data.iconStyle}
-                            <span className="nav-text">{data.title}</span>
-                            <span className="ms-1 badge badge-xs style-1 badge-danger">
-                              {data.update}
-                            </span>
-                          </Link>
-                          <Collapse
-                            in={state.active === data.title ? true : false}
-                          >
-                            <ul
-                              className={`${
-                                menuClass === "mm-collapse" ? "mm-show" : ""
-                              }`}
-                            >
-                              {data.content &&
-                                data.content.map((data, index) => {
-                                  return (
-                                    <li
-                                      key={index}
-                                      className={`${
-                                        state.activeSubmenu === data.title
-                                          ? "mm-active"
-                                          : ""
-                                      }`}
-                                    >
-                                      {data.content &&
-                                      data.content.length > 0 ? (
-                                        <>
-                                          <Link
-                                            to={data.to}
-                                            className={
-                                              data.hasMenu ? "has-arrow" : ""
-                                            }
-                                            onClick={() => {
-                                              handleSubmenuActive(data.title);
-                                            }}
-                                          >
-                                            {data.title}
-                                          </Link>
-                                          <Collapse
-                                            in={
-                                              state.activeSubmenu === data.title
-                                                ? true
-                                                : false
-                                            }
-                                          >
-                                            <ul
-                                              className={`${
-                                                menuClass === "mm-collapse"
-                                                  ? "mm-show"
-                                                  : ""
-                                              }`}
-                                            >
-                                              {data.content &&
-                                                data.content.map(
-                                                  (data, index) => {
-                                                    return (
-                                                      <li key={index}>
-                                                        <Link
-                                                          className={`${
-                                                            path === data.to
-                                                              ? "mm-active"
-                                                              : ""
-                                                          }`}
-                                                          to={data.to}
-                                                        >
-                                                          {data.title}
-                                                        </Link>
-                                                      </li>
-                                                    );
-                                                  }
-                                                )}
-                                            </ul>
-                                          </Collapse>
-                                        </>
-                                      ) : (
-                                        <Link
-                                          to={data.to}
-                                          className={`${
-                                            data.to === path ? "mm-active" : ""
-                                          }`}
-                                        >
-                                          {data.title}
-                                        </Link>
-                                      )}
-                                    </li>
-                                  );
-                                })}
-                            </ul>
-                          </Collapse>
-                        </>
-                      ) : (
-                        <Link
-                          to={data.to}
-                          className={`${data.to === path ? "mm-active" : ""}`}
-                        >
-                          {data.iconStyle}
-                          <span className="nav-text">{data.title}</span>
-                        </Link>
-                      )}
+                      <Link
+                        to={data.to}
+                        className={`${data.to === path ? "mm-active" : ""}`}
+                      >
+                        {data.iconStyle}
+                        <span className="nav-text">{t(data.title)}</span>
+                      </Link>
                     </li>
                   )
                 );

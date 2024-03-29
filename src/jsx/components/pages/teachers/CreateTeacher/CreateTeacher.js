@@ -4,10 +4,12 @@ import PageTitle from "../../../../layouts/PageTitle";
 import StepOne from "./StepOne";
 import StepTwo from "./StepTwo";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const CreateTeacher = () => {
   const [goSteps, setGoSteps] = useState(0);
   const { teacherId } = useParams();
+  const { t } = useTranslation();
 
   return (
     <Fragment>
@@ -17,7 +19,9 @@ const CreateTeacher = () => {
         <div className="col-xl-12 col-xxl-12">
           <div className="card">
             <div className="card-header">
-              <h4 className="card-title">Create teacher</h4>
+              <h4 className="card-title">
+                {t(teacherId ? "editButton" : "createButton")}
+              </h4>
             </div>
             <div className="card-body">
               <div className="form-wizard ">

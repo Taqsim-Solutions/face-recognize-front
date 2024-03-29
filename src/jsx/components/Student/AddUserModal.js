@@ -3,6 +3,7 @@ import { Modal } from "react-bootstrap";
 import { useQueryClient } from "@tanstack/react-query";
 import swal from "sweetalert";
 import { createUser, editUser } from "../../../api";
+import { useTranslation } from "react-i18next";
 
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -10,6 +11,7 @@ function isValidEmail(email) {
 }
 
 const AddUserModal = ({ isCreate, user, onClose }) => {
+  const { t } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -30,23 +32,23 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
     let error = false;
     const errorObj = { ...errorsObj };
     if (firstName === "") {
-      errorObj.firstName = "First Name is Required";
+      errorObj.firstName = `${t("firstName")} ${t("isRequired")}`;
       error = true;
     }
     if (lastName === "") {
-      errorObj.lastName = "Last Name is Required";
+      errorObj.lastName = `${t("lastName")} ${t("isRequired")}`;
       error = true;
     }
     if (!isValidEmail(email)) {
-      errorObj.email = "Email is Required";
+      errorObj.email = `${t("email")} ${t("isRequired")}`;
       error = true;
     }
     if (password === "" && !user) {
-      errorObj.password = "Password is Required";
+      errorObj.password = `${t("passport")} ${t("isRequired")}`;
       error = true;
     }
     if (login === "") {
-      errorObj.login = "Login is Required";
+      errorObj.login = `${t("username")} ${t("isRequired")}`;
       error = true;
     }
     setErrors(errorObj);
@@ -91,7 +93,9 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="exampleModalLabel">
-              New user
+              {user
+                ? `${t("editButton")} ${t("user")}`
+                : `${t("createButton")} ${t("user")}`}
             </h5>
             <button
               type="button"
@@ -102,12 +106,12 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
           <div className="modal-body">
             <div className="mb-3 d-block">
               <label htmlFor="basic-url" className="form-label d-block">
-                First name
+                {t("firstName")}
               </label>
               <input
                 type="text"
                 className="form-control w-100"
-                placeholder="First name"
+                placeholder={t("firstName")}
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
@@ -117,12 +121,12 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
             </div>
             <div className="mb-3 d-block">
               <label htmlFor="basic-url" className="form-label d-block">
-                Last name
+                {t("lastName")}
               </label>
               <input
                 type="text"
                 className="form-control w-100"
-                placeholder="Last name"
+                placeholder={t("lastName")}
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
               />
@@ -132,12 +136,12 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
             </div>
             <div className="mb-3 d-block">
               <label htmlFor="basic-url" className="form-label d-block">
-                Login
+                {t("username")}
               </label>
               <input
                 type="text"
                 className="form-control w-100"
-                placeholder="Login"
+                placeholder={t("username")}
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
               />
@@ -147,13 +151,13 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
             </div>
             <div class="mb-3 d-block">
               <label htmlFor="exampleFormControlInput2" class="form-label mb-2">
-                Email
+                {t("email")}
               </label>
               <input
                 type="email"
                 className="form-control"
                 id="exampleFormControlInput2"
-                placeholder="Email"
+                placeholder={t("email")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -167,13 +171,13 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
                   htmlFor="exampleFormControlInput2"
                   class="form-label mb-2"
                 >
-                  Password
+                  {t("password")}
                 </label>
                 <input
                   type="password"
                   className="form-control"
                   id="exampleFormControlInput2"
-                  placeholder="Password"
+                  placeholder={t("password")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -189,7 +193,7 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
               className="btn btn-danger light"
               onClick={onClose}
             >
-              Close
+              {t("closeButton")}
             </button>
             <button
               type="button"
@@ -197,7 +201,7 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
               onClick={onSubmit}
               disabled={loading}
             >
-              {user ? "Save" : "Create"}
+              {user ? t("saveButton") : t("createButton")}
             </button>
           </div>
         </div>

@@ -34,7 +34,7 @@ const Students = () => {
                     className="btn btn-primary"
                     onClick={() => setCreateModal(true)}
                   >
-                    + New users
+                    + {`${t("createButton")} ${t("user")}`}
                   </button>
                 </div>
               </div>
@@ -53,10 +53,10 @@ const Students = () => {
                     <thead>
                       <tr>
                         <th>{t("name")}</th>
-                        <th>Date</th>
-                        <th>Email</th>
-                        <th>Login</th>
-                        <th className="text-end">Action</th>
+                        <th>{t("dateOfRegistration")}</th>
+                        <th>{t("email")}</th>
+                        <th>{t("login")}</th>
+                        <th className="text-end">{t("action")}</th>
                       </tr>
                     </thead>
                     <tbody>

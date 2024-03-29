@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 
 const FileUpload = ({ isOpen, user, onClose }) => {
   const [file, setFile] = useState(null);
+  const { t } = useTranslation();
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -47,7 +49,7 @@ const FileUpload = ({ isOpen, user, onClose }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="exampleModalLabel">
-              Add Excel File
+              {t("addExcelfile")}
             </h5>
             <button
               type="button"
@@ -58,7 +60,7 @@ const FileUpload = ({ isOpen, user, onClose }) => {
           <div className="modal-body">
             <div className="mb-3">
               <label htmlFor="formFile" className="form-label">
-                Default file input example
+                {t("defaultFileExample")}
               </label>
               <input
                 className="form-control"
@@ -76,7 +78,7 @@ const FileUpload = ({ isOpen, user, onClose }) => {
                 cursor: "pointer",
               }}
             >
-              Click here for an example
+              {t("clickForDownloadExample")}
             </a>
           </div>
           <div className="modal-footer">
@@ -85,14 +87,14 @@ const FileUpload = ({ isOpen, user, onClose }) => {
               className="btn btn-danger light"
               onClick={onClose}
             >
-              Close
+              {t("closeButton")}
             </button>
             <button
               type="button"
               className="btn btn-primary"
               onClick={handleUpload}
             >
-              {user ? "Save" : "Create"}
+              {user ? t("saveButton") : t("createButton")}
             </button>
           </div>
         </div>

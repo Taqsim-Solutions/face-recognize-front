@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import swal from "sweetalert";
 import { uploadStudentPhoto } from "../../../../../api";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function StepTwo({ uploadProps, studentId, createdStudentId }) {
   const [step, setStep] = useState(1);
@@ -12,6 +13,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const startCamera = async (facingMode) => {
     if (
@@ -128,7 +130,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
           <i className="material-icons" style={{ fontSize: "100px" }}>
             camera
           </i>
-          Open the camera
+          {t("openCamera")}
         </div>
       )}
       <div position="relative" mt="20px">
@@ -153,14 +155,14 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
                 onClick={takePhoto}
               >
                 {step === 1
-                  ? "Look right and click "
+                  ? t("lookRight")
                   : step === 2
-                  ? "Look left and click "
+                  ? t("lookLeft")
                   : step === 3
-                  ? "Look right again and click "
+                  ? t("lookRightAgain")
                   : step === 4
-                  ? "Look back and click "
-                  : "Look forward and click "}
+                  ? t("lookBack")
+                  : t("lookForward")}
               </button>
             </div>
             <canvas
@@ -194,7 +196,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
           style={{ margin: "40px auto", width: "100%" }}
           onClick={onSubmit}
         >
-          Send
+          {t("sendButton")}
         </button>
       )}
     </div>

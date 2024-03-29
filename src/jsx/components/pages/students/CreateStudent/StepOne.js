@@ -9,6 +9,7 @@ import {
 } from "../../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
 import settings from "../../../../../settings/settings";
+import { useTranslation } from "react-i18next";
 
 const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
   const [images, setImages] = useState([]);
@@ -20,6 +21,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
   const [fatherName, setFatherNamee] = useState("");
   const [reflesh, setReflesh] = useState(0);
   const navigate = useNavigate();
+  const { t } = useTranslation();
   let errorsObj = {
     firstName: "",
     lastName: "",
@@ -42,15 +44,15 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
     let error = false;
     const errorObj = { ...errorsObj };
     if (firstName === "") {
-      errorObj.firstName = "First Name is Required";
+      errorObj.firstName = `${t("firstName")} ${t("isRequired")}`;
       error = true;
     }
     if (lastName === "") {
-      errorObj.fatherName = "Father name is Required";
+      errorObj.lastName = `${t("lastName")} ${t("isRequired")}`;
       error = true;
     }
     if (phone === "") {
-      errorObj.phone = "Phone is Required";
+      errorObj.phone = `${t("phone")} ${t("isRequired")}`;
       error = true;
     }
 
@@ -105,7 +107,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
       <div className="row">
         <div className="col-lg-6 mb-2">
           <div className="form-group mb-3">
-            <label className="text-label">First Name*</label>
+            <label className="text-label">{t("firstName")}*</label>
             <input
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
@@ -121,7 +123,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
         </div>
         <div className="col-lg-6 mb-2">
           <div className="form-group mb-3">
-            <label className="text-label">Last Name*</label>
+            <label className="text-label">{t("lastName")}*</label>
             <input
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
@@ -137,7 +139,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
         </div>
         <div className="col-lg-6 mb-2">
           <div className="form-group mb-3">
-            <label className="text-label">Father Name*</label>
+            <label className="text-label">{t("fatherName")}*</label>
             <input
               value={fatherName}
               onChange={(e) => setFatherNamee(e.target.value)}
@@ -153,7 +155,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
         </div>
         <div className="col-lg-6 mb-2">
           <div className="form-group mb-3">
-            <label className="text-label">Date of birth*</label>
+            <label className="text-label">{t("dateOfBirth")}*</label>
             <input
               value={dateOfBirth}
               onChange={(e) => setDateOfBirth(e.target.value)}
@@ -168,7 +170,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
         </div>
         <div className="col-lg-6 mb-2">
           <div className="form-group mb-3">
-            <label className="text-label">Phone*</label>
+            <label className="text-label">{t("phone")}*</label>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -203,7 +205,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
                   style={{ width: "100%" }}
                   onClick={() => onDeleteImage(image)}
                 >
-                  Delete
+                  {t("delete")}
                 </button>
               </div>
             ))}
@@ -214,7 +216,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
           onClick={onSubmit}
           disabled={loading}
         >
-          Next
+          {t("nextButton")}
         </button>
       </div>
     </section>

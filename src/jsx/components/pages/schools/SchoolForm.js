@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import swal from "sweetalert";
 import { getRegionsQuery } from "../../../../queries/index";
 import { createSchool, editSchool } from "../../../../api";
+import { useTranslation } from "react-i18next";
 
 const SchoolForm = ({ isCreate, school, onClose }) => {
   const [name, setName] = useState("");
@@ -14,6 +15,7 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
     name: "",
     cityId: "",
   };
+  const { t } = useTranslation();
   const [errors, setErrors] = useState(errorsObj);
   const queryClient = useQueryClient();
 
@@ -25,11 +27,11 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
     let error = false;
     const errorObj = { ...errorsObj };
     if (cityId === "") {
-      errorObj.cityId = "City is Required";
+      errorObj.cityId = `${t("district")} ${t("isRequired")}`;
       error = true;
     }
     if (name === "") {
-      errorObj.name = "Name is Required";
+      errorObj.name = `${t("name")} ${t("isRequired")}`;
       error = true;
     }
     setErrors(errorObj);
@@ -69,7 +71,7 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="exampleModalLabel">
-              New school
+              {school ? t("editButton") : t("createButton")}
             </h5>
             <button
               type="button"
@@ -80,50 +82,50 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
           <div className="modal-body">
             <div className="mb-3 d-block">
               <label htmlFor="basic-url" className="form-label d-block">
-                Name
+                {t("name")}
               </label>
               <input
                 type="text"
                 className="form-control w-100"
-                placeholder="Name"
+                placeholder={t("name")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
-              {errors.firstName && (
+              {errors.name && (
                 <div className="text-danger fs-12">{errors.name}</div>
               )}
             </div>
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
-                Region
+                {t("region")}
               </label>
               <select
                 className="form-control form-control-md"
                 onChange={(e) => setRegion(e.target.value)}
                 value={region}
               >
-                <option value="">Select region</option>
+                <option value="">{t("select")}</option>
                 {regions?.result?.map((option) => (
                   <option value={option.id} key={option.name}>
                     {option.name}
                   </option>
                 ))}
               </select>
-              {errors.class && (
-                <div className="text-danger fs-12">{errors.class}</div>
+              {errors.cityId && (
+                <div className="text-danger fs-12">{errors.cityId}</div>
               )}
             </div>
             {region && (
               <div className="form-group mb-3">
                 <label htmlFor="basic-url" className="form-label d-block">
-                  District
+                  {t("district")}
                 </label>
                 <select
                   className="form-control form-control-md"
                   onChange={(e) => setCityId(e.target.value)}
                   value={cityId}
                 >
-                  <option value="">Select district</option>
+                  <option value="">{t("select")}</option>
                   {regions?.result
                     .filter((currentRegion) => +region === currentRegion.id)[0]
                     ?.cities?.map((option) => (
@@ -132,8 +134,8 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
                       </option>
                     ))}
                 </select>
-                {errors.class && (
-                  <div className="text-danger fs-12">{errors.class}</div>
+                {errors.cityId && (
+                  <div className="text-danger fs-12">{errors.cityId}</div>
                 )}
               </div>
             )}
@@ -144,7 +146,7 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
               className="btn btn-danger light"
               onClick={onClose}
             >
-              Close
+              {t("closeButton")}
             </button>
             <button
               type="button"
@@ -152,7 +154,7 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
               onClick={onSubmit}
               disabled={loading}
             >
-              {school ? "Save" : "Create"}
+              {school ? t("saveButton") : t("createButton")}
             </button>
           </div>
         </div>
