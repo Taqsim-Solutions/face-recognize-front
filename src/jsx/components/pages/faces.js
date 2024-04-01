@@ -1,14 +1,12 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { getFacesQuery } from "../../../queries/index";
 import { useState } from "react";
 import settings from "../../../settings/settings";
-import { deleteStudentPhoto, deleteUserPhoto } from "../../../api";
 
 function Faces() {
   const [page, setPage] = useState(1);
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   const { data: faces } = useQuery({
     ...getFacesQuery({
@@ -18,30 +16,19 @@ function Faces() {
     }),
   });
 
-  const onDeleteImage = (imageName, userType) => {
-    if (userType === "teacher") {
-      deleteUserPhoto(imageName).then(() => {
-        queryClient.invalidateQueries(["faces"]);
-        queryClient.invalidateQueries(["teachers"]);
-      });
-    } else {
-      deleteStudentPhoto(imageName).then(() => {
-        queryClient.invalidateQueries(["faces"]);
-        queryClient.invalidateQueries(["students"]);
-      });
-    }
-  };
-
   return (
     <>
       <div className="row">
         <div className="col-xl-12">
-          <div className="row" style={{ rowGap: "5px" }}>
+          <div className="row" style={{ rowGap: "10px" }}>
             <div className="col-xl-12">
               <div className="page-title flex-wrap">
                 <div
                   className="dashboard_bar header-left"
-                  style={{ textTransform: "capitalize", fontSize: "20px" }}
+                  style={{
+                    textTransform: "capitalize",
+                    fontSize: "20px",
+                  }}
                 >
                   {t("faces")}
                 </div>
@@ -66,18 +53,6 @@ function Faces() {
                 >
                   {image.imageName}
                 </p>
-                <button
-                  className="btn btn-danger sw-btn-next ms-1 mt-3"
-                  style={{ width: "100%" }}
-                  onClick={() =>
-                    onDeleteImage(
-                      image.imageName,
-                      image?.student ? "student" : "teacher"
-                    )
-                  }
-                >
-                  {t("delete")}
-                </button>
               </div>
             ))}
           </div>
