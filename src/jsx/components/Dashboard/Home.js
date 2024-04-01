@@ -99,7 +99,6 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
       DateFrom: "2023-09-01Z",
-      DateTo: "2024-03-26Z",
     }),
   });
 

@@ -124,6 +124,22 @@ export const getDashboardOverview = (params) => {
   return request({ method: "GET", url: "/dashboard/overview", params });
 };
 
+export const getFaces = (params) => {
+  return request({
+    method: "GET",
+    url: "/face-recognitons/face-images",
+    params,
+  });
+};
+
+export const getUnknownFaces = (params) => {
+  return request({
+    method: "GET",
+    url: "/face-recognitons/unknown-faces",
+    params,
+  });
+};
+
 export const getOverallStatistics = (params) => {
   return request({
     method: "GET",

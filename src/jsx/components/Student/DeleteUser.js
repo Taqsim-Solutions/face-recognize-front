@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteUser } from "../../../api";
+import { useTranslation } from "react-i18next";
 
 const DeleteModal = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const onSubmit = () => {
     setLoading(true);
@@ -23,7 +25,7 @@ const DeleteModal = ({ isOpen, onClose }) => {
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="exampleModalLabel">
-              Delete user
+              {t("deleteButton")}
             </h5>
             <button
               type="button"
@@ -31,14 +33,14 @@ const DeleteModal = ({ isOpen, onClose }) => {
               onClick={onClose}
             ></button>
           </div>
-          <div className="modal-body">Do you really want to delete user?</div>
+          <div className="modal-body">{t("deleteConfirmTxt")}</div>
           <div className="modal-footer">
             <button
               type="button"
               className="btn btn-danger light"
               onClick={onClose}
             >
-              Close
+              {t("closeButton")}
             </button>
             <button
               type="button"
@@ -46,7 +48,7 @@ const DeleteModal = ({ isOpen, onClose }) => {
               onClick={onSubmit}
               disabled={loading}
             >
-              Delete
+              {t("deleteButton")}
             </button>
           </div>
         </div>

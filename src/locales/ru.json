@@ -89,5 +89,7 @@
   "loginOrPasswordIncorrect": "Вы ввели не правильный пароль или логин",
   "select": "Выбирать",
   "totalStudents": "Всего студентов",
-  "Percentage": "Индикатор (%)"
+  "Percentage": "Индикатор (%)",
+  "faces": "Лица",
+  "unknown-faces": "Неизвестные лица"
 }

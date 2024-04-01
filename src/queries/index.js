@@ -14,6 +14,8 @@ import {
   getDashboardAbsents,
   getDashboardOverview,
   getOverallStatistics,
+  getFaces,
+  getUnknownFaces,
 } from "../api";
 
 export function getUsersQuery() {
@@ -118,5 +120,19 @@ export function getOverallStatisticsQuery(params) {
   return {
     queryKey: ["overall-dashbord", params],
     queryFn: async () => getOverallStatistics(params),
+  };
+}
+
+export function getFacesQuery(params) {
+  return {
+    queryKey: ["faces", params],
+    queryFn: async () => getFaces(params),
+  };
+}
+
+export function getUnknownFacesQuery(params) {
+  return {
+    queryKey: ["unknown-faces", params],
+    queryFn: async () => getUnknownFaces(params),
   };
 }

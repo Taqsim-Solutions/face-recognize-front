@@ -9,11 +9,9 @@ import "./step.css";
 
 /// Layout
 import Nav from "./layouts/nav";
-import Nav2 from "./layouts/nav/index2";
 import Footer from "./layouts/Footer";
 import ScrollToTop from "./layouts/ScrollToTop";
 // import Main from './layouts/Main';
-import WalletBar from "./layouts/WalletBar";
 /// Dashboard
 import Home from "./components/Dashboard/Home";
 import Finance from "./components/Dashboard/Finance";
@@ -22,6 +20,8 @@ import DashboardDark from "./components/Dashboard/DashboardDark";
 //student
 import { OnlineTable } from "./components/pages/online-table/online-table.jsx";
 import Teachers from "./components/pages/teachers/Teachers.js";
+import Faces from "./components/pages/faces.js";
+import UnknownFaces from "./components/pages/unknown-faces.js";
 import Governments from "./components/pages/government/Government.js";
 import CreateGovernments from "./components/pages/government/CreateGovernment.js";
 import TeachersCreate from "./components/pages/teachers/CreateTeacher/CreateTeacher.js";
@@ -126,6 +126,8 @@ import { ThemeContext } from "../context/ThemeContext";
 const Markup = () => {
   const routhPath = [
     { url: "finance", component: <Finance /> },
+    { url: "faces", component: <Faces /> },
+    { url: "unknown-faces", component: <UnknownFaces /> },
     { url: "users", component: <Users /> },
     { url: "teachers", component: <Teachers /> },
     { url: "online-table", component: <OnlineTable /> },
