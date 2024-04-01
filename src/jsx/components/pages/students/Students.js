@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getStudentsQuery, getMeQuery } from "../../../../queries/index";
+import {
+  getStudentsQuery,
+  getMeQuery,
+  getSchoolsQuery,
+  getRegionsQuery,
+} from "../../../../queries/index";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { DeleteStudent } from "./DeleteStudent";
@@ -8,6 +13,10 @@ import settings from "../../../../settings/settings";
 import FileUpload from "./StudentExcelUpload";
 
 const Students = () => {
+  const [firstName, setFirstName] = useState("");
+  const [region, setRegion] = useState("");
+  const [cityId, setCityId] = useState("");
+  const [schoolId, setSchoolId] = useState("");
   const [excelModal, setExcelModal] = useState(false);
   const [page, setPage] = useState(0);
   const [deleteModal, setDeleteModal] = useState(null);
@@ -15,11 +24,26 @@ const Students = () => {
   const navigate = useNavigate();
 
   const { data: students } = useQuery({
-    ...getStudentsQuery({ PageIndex: page, PageSize: 10 }),
+    ...getStudentsQuery({
+      PageIndex: page,
+      PageSize: 10,
+      FirstName: firstName,
+      RegionId: region,
+      CityId: cityId,
+      SchoolId: schoolId,
+    }),
   });
 
   const { data: user } = useQuery({
     ...getMeQuery(),
+  });
+
+  const { data: schools } = useQuery({
+    ...getSchoolsQuery({ size: "100", RegionId: region, CityId: cityId }),
+  });
+
+  const { data: regions } = useQuery({
+    ...getRegionsQuery(),
   });
 
   return (
@@ -35,7 +59,68 @@ const Students = () => {
                 >
                   {t("students")}
                 </div>
-                <div className="d-flex">
+                <div
+                  style={{
+                    gap: "20px",
+                    display: "grid",
+                    width: "80%",
+                    justifyContent: "right",
+                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr",
+                  }}
+                >
+                  <input
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    type="text"
+                    name="firstName"
+                    className="form-control"
+                    required
+                    placeholder={`${t("firstName")}`}
+                  />
+                  <select
+                    className="form-control form-control-md"
+                    onChange={(e) => {
+                      setRegion(e.target.value);
+                      setCityId("");
+                      setSchoolId("");
+                    }}
+                    value={region}
+                  >
+                    <option value="">{t("region")}</option>
+                    {regions?.result?.map((option) => (
+                      <option value={option.id} key={option.name}>
+                        {option.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="form-control form-control-md"
+                    onChange={(e) => setCityId(e.target.value)}
+                    value={cityId}
+                  >
+                    <option value="">{t("district")}</option>
+                    {regions?.result
+                      .filter(
+                        (currentRegion) => +region === currentRegion.id
+                      )[0]
+                      ?.cities?.map((option) => (
+                        <option value={option.id} key={option.name}>
+                          {option.name}
+                        </option>
+                      ))}
+                  </select>
+                  <select
+                    className="form-control form-control-md"
+                    value={schoolId}
+                    onChange={(e) => setSchoolId(e.target.value)}
+                  >
+                    <option value="">{t("select")}</option>
+                    {schools?.result.data?.map((option) => (
+                      <option value={option.id} key={option.id}>
+                        {option.name}
+                      </option>
+                    ))}
+                  </select>
                   {(user?.result.level === 1 || user?.result.level === 5) && (
                     <>
                       <button

@@ -1,11 +1,18 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getSchoolsQuery, getMeQuery } from "../../../../queries/index";
+import {
+  getSchoolsQuery,
+  getMeQuery,
+  getRegionsQuery,
+} from "../../../../queries/index";
 import { useTranslation } from "react-i18next";
 import { DeleteSchool } from "./DeleteSchool";
 import SchoolForm from "./SchoolForm";
 
 const Schools = () => {
+  const [name, setName] = useState("");
+  const [region, setRegion] = useState("");
+  const [cityId, setCityId] = useState("");
   const [page, setPage] = useState(1);
   const [selectedSchoolForEdit, setSelectedSchoolForEdit] = useState(null);
   const [createModal, setCreateModal] = useState();
@@ -13,11 +20,21 @@ const Schools = () => {
   const { t } = useTranslation();
 
   const { data: schools } = useQuery({
-    ...getSchoolsQuery({ PageIndex: page, PageSize: 10 }),
+    ...getSchoolsQuery({
+      PageIndex: page,
+      PageSize: 10,
+      Name: name,
+      RegionId: region,
+      CityId: cityId,
+    }),
   });
 
   const { data: user } = useQuery({
     ...getMeQuery(),
+  });
+
+  const { data: regions } = useQuery({
+    ...getRegionsQuery(),
   });
 
   return (
@@ -43,7 +60,56 @@ const Schools = () => {
                 >
                   {t("schools")}
                 </div>
-                <div className="d-flex">
+                <div
+                  style={{
+                    gap: "20px",
+                    display: "grid",
+                    width: "80%",
+                    justifyContent: "right",
+                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr",
+                  }}
+                >
+                  <div /> <div />
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    type="text"
+                    name="name"
+                    className="form-control"
+                    required
+                    placeholder={`${t("name")}`}
+                  />
+                  <select
+                    className="form-control form-control-md"
+                    onChange={(e) => {
+                      setRegion(e.target.value);
+                      setCityId("");
+                    }}
+                    value={region}
+                  >
+                    <option value="">{t("region")}</option>
+                    {regions?.result?.map((option) => (
+                      <option value={option.id} key={option.name}>
+                        {option.name}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="form-control form-control-md"
+                    onChange={(e) => setCityId(e.target.value)}
+                    value={cityId}
+                  >
+                    <option value="">{t("district")}</option>
+                    {regions?.result
+                      .filter(
+                        (currentRegion) => +region === currentRegion.id
+                      )[0]
+                      ?.cities?.map((option) => (
+                        <option value={option.id} key={option.name}>
+                          {option.name}
+                        </option>
+                      ))}
+                  </select>
                   {user?.result.level === 5 && (
                     <button
                       type="button"
@@ -125,56 +191,60 @@ const Schools = () => {
           </div>
         </div>
       </div>
-      <div>
-        <div className="col-12 ps-3">
-          <nav>
-            <ul
-              className="pagination pagination-gutter pagination-primary pagination-sm no-bg"
-              style={{
-                margin: "30px 0",
-                display: "flex",
-                justifyContent: "right",
-              }}
-            >
-              <li className="page-item page-indicator">
-                <p
-                  className="page-link"
-                  to="/email-inbox"
-                  onClick={() => page > 0 && setPage(page - 1)}
-                >
-                  <i className="la la-angle-left"></i>
-                </p>
-              </li>
-              {"page"
-                .repeat(schools?.result.totalPages - 1)
-                .split("page")
-                .map((number, i) => (
-                  <li
-                    key={i}
-                    className={`page-item  ${page === i + 1 ? "active" : ""} `}
-                    onClick={() => setPage(i + 1)}
+      {schools?.result.totalPages > 0 && (
+        <div>
+          <div className="col-12 ps-3">
+            <nav>
+              <ul
+                className="pagination pagination-gutter pagination-primary pagination-sm no-bg"
+                style={{
+                  margin: "30px 0",
+                  display: "flex",
+                  justifyContent: "right",
+                }}
+              >
+                <li className="page-item page-indicator">
+                  <p
+                    className="page-link"
+                    to="/email-inbox"
+                    onClick={() => page > 0 && setPage(page - 1)}
                   >
-                    <p className="page-link" to="/email-inbox">
-                      {i + 1}
-                    </p>
-                  </li>
-                ))}
+                    <i className="la la-angle-left"></i>
+                  </p>
+                </li>
+                {"page"
+                  .repeat(schools?.result.totalPages - 1)
+                  .split("page")
+                  .map((number, i) => (
+                    <li
+                      key={i}
+                      className={`page-item  ${
+                        page === i + 1 ? "active" : ""
+                      } `}
+                      onClick={() => setPage(i + 1)}
+                    >
+                      <p className="page-link" to="/email-inbox">
+                        {i + 1}
+                      </p>
+                    </li>
+                  ))}
 
-              <li className="page-item page-indicator">
-                <p
-                  className="page-link"
-                  to="/email-inbox"
-                  onClick={() =>
-                    page + 1 < schools?.result.totalPages && setPage(page + 1)
-                  }
-                >
-                  <i className="la la-angle-right"></i>
-                </p>
-              </li>
-            </ul>
-          </nav>
+                <li className="page-item page-indicator">
+                  <p
+                    className="page-link"
+                    to="/email-inbox"
+                    onClick={() =>
+                      page + 1 < schools?.result.totalPages && setPage(page + 1)
+                    }
+                  >
+                    <i className="la la-angle-right"></i>
+                  </p>
+                </li>
+              </ul>
+            </nav>
+          </div>
         </div>
-      </div>
+      )}
       <DeleteSchool isOpen={deleteModal} onClose={() => setDeleteModal(null)} />
     </>
   );

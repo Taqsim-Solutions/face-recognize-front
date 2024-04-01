@@ -67,10 +67,10 @@ export function getMeQuery() {
   };
 }
 
-export function getStudentsQuery() {
+export function getStudentsQuery(params) {
   return {
-    queryKey: ["students"],
-    queryFn: async () => getStudents(),
+    queryKey: ["students", params],
+    queryFn: async () => getStudents(params),
   };
 }
 

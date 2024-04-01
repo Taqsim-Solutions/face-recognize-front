@@ -84,8 +84,8 @@ export const getMe = () => {
   return request({ method: "GET", url: "/users/get-me" });
 };
 
-export const getStudents = () => {
-  return request({ method: "GET", url: "/students" });
+export const getStudents = (params) => {
+  return request({ method: "GET", url: "/students", params });
 };
 
 export const getStudent = (id) => {
