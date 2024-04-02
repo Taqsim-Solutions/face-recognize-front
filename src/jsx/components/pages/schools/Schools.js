@@ -64,12 +64,11 @@ const Schools = () => {
                   style={{
                     gap: "20px",
                     display: "grid",
-                    width: "80%",
+                    width: "85%",
                     justifyContent: "right",
                     gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr",
                   }}
                 >
-                  <div /> <div />
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -110,6 +109,7 @@ const Schools = () => {
                         </option>
                       ))}
                   </select>
+                  <div /> <div />
                   {user?.result.level === 5 && (
                     <button
                       type="button"

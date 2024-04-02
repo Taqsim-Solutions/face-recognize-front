@@ -47,8 +47,12 @@ const Teachers = () => {
             <div className="col-xl-12">
               <div className="page-title flex-wrap">
                 <div
-                  className="dashboard_bar header-left"
-                  style={{ textTransform: "capitalize", fontSize: "20px" }}
+                  className="dashboard_bar"
+                  style={{
+                    textTransform: "capitalize",
+                    fontSize: "20px",
+                    width: "15%",
+                  }}
                 >
                   {t("teachers")}
                 </div>
@@ -56,12 +60,11 @@ const Teachers = () => {
                   style={{
                     gap: "20px",
                     display: "grid",
-                    width: "80%",
+                    width: "85%",
                     justifyContent: "right",
                     gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr",
                   }}
                 >
-                  <div />
                   <input
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
@@ -111,9 +114,11 @@ const Teachers = () => {
                       </option>
                     ))}
                   </select>
+                  <div />
                   <button
                     type="button"
                     className="btn btn-primary"
+                    style={{ marginLeft: "auto" }}
                     onClick={() => navigate("/teachers/create")}
                   >
                     + {t("createButton")}

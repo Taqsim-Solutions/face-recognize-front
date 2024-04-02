@@ -1,12 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { getUnknownFacesQuery } from "../../../queries/index";
 import { useState } from "react";
 import settings from "../../../settings/settings";
+import { deleteUnknownImage } from "../../../api";
 
 function UnknownFaces() {
+  const [supportsPWA, setSupportsPWA] = useState(false);
+  const [promptInstall, setPromptInstall] = useState(null);
   const [page, setPage] = useState(1);
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const { data: faces } = useQuery({
     ...getUnknownFacesQuery({
@@ -16,7 +20,11 @@ function UnknownFaces() {
     }),
   });
 
-  const onDeleteImage = (imageName) => {};
+  const onDeleteImage = (imageName) => {
+    deleteUnknownImage(imageName).then(() => {
+      queryClient.invalidateQueries(["unknown-faces"]);
+    });
+  };
 
   return (
     <>
@@ -55,12 +63,7 @@ function UnknownFaces() {
                 <button
                   className="btn btn-danger sw-btn-next ms-1 mt-3"
                   style={{ width: "100%" }}
-                  onClick={() =>
-                    onDeleteImage(
-                      image.imageName,
-                      image?.student ? "student" : "teacher"
-                    )
-                  }
+                  onClick={() => onDeleteImage(image.id)}
                 >
                   {t("delete")}
                 </button>

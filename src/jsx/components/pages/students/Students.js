@@ -55,7 +55,11 @@ const Students = () => {
               <div className="page-title flex-wrap">
                 <div
                   className="dashboard_bar header-left"
-                  style={{ textTransform: "capitalize", fontSize: "20px" }}
+                  style={{
+                    textTransform: "capitalize",
+                    fontSize: "20px",
+                    width: "15%",
+                  }}
                 >
                   {t("students")}
                 </div>
@@ -63,9 +67,9 @@ const Students = () => {
                   style={{
                     gap: "20px",
                     display: "grid",
-                    width: "80%",
+                    width: "85%",
                     justifyContent: "right",
-                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr",
+                    gridTemplateColumns: "1fr 1fr 1fr 1fr 2fr",
                   }}
                 >
                   <input
@@ -122,11 +126,12 @@ const Students = () => {
                     ))}
                   </select>
                   {(user?.result.level === 1 || user?.result.level === 5) && (
-                    <>
+                    <div style={{ marginLeft: "auto" }}>
                       <button
                         type="button"
                         className="btn btn-primary"
                         onClick={() => navigate("/students/create")}
+                        style={{ marginRight: "15px" }}
                       >
                         + {t("createButton")}
                       </button>
@@ -134,11 +139,13 @@ const Students = () => {
                         type="button"
                         className="btn btn-secondary"
                         onClick={() => setExcelModal(true)}
-                        style={{ margin: "0 5px" }}
+                        style={{
+                          width: "100px",
+                        }}
                       >
                         {t("excelUploadButton")}
                       </button>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>

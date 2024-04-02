@@ -326,16 +326,6 @@ const Students = () => {
                   </span>
                 </div>
                 <div className="d-flex">
-                  <Dropdown className="drop-select me-3">
-                    <Dropdown.Toggle as="div" className="drop-select-btn ">
-                      Newest
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                      <Dropdown.Item>Newest</Dropdown.Item>
-                      <Dropdown.Item>Oldest</Dropdown.Item>
-                      <Dropdown.Item>Recent</Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
                   <button
                     type="button"
                     className="btn btn-primary"

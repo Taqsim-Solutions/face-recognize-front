@@ -96,6 +96,13 @@ export const deleteStudent = (id) => {
   return request({ method: "DELETE", url: `/students/${id}` });
 };
 
+export const deleteUnknownImage = (id) => {
+  return request({
+    method: "DELETE",
+    url: `/face-recognitons/unknown-faces/${id}`,
+  });
+};
+
 export const editStudent = (data, id) => {
   return request({ method: "PUT", url: `/students/${id}`, data });
 };

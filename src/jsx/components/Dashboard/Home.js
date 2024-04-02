@@ -52,6 +52,37 @@ const cardBlog = [
   },
 ];
 
+const cardBlog2 = [
+  {
+    title: " Всего школ",
+    svg: SVGICON.user,
+    change: "std-data",
+    key: "totalStudents",
+    count: 90,
+  },
+  {
+    title: "подключенные школы ",
+    svg: SVGICON.user2,
+    change: "event-data",
+    key: "boysCount",
+    count: 265,
+  },
+  {
+    title: "количество  всего учащихся",
+    svg: SVGICON.user2,
+    change: "event-data",
+    key: "girlsCount",
+    count: 190,
+  },
+  {
+    title: " отсутствующие",
+    svg: SVGICON.event,
+    change: "event-data",
+    key: "absentsCount",
+    count: 18,
+  },
+];
+
 const Home = () => {
   const [schoolOverviewPage, setOverviewPage] = useState(1);
   const [schoolValues, setSchoolValues] = useState([]);
@@ -199,6 +230,29 @@ const Home = () => {
             </div>
           </div>
         )}
+      </div>
+      <div className="row">
+        <div className="col-xl-12">
+          <div className="card">
+            <div className="card-body pb-xl-4 pb-sm-3 pb-0">
+              <div className="row">
+                {cardBlog2.map((item, ind) => (
+                  <div className="col-xl-3 col-6" key={ind}>
+                    <div className="content-box">
+                      <div className={`icon-box icon-box-xl ${item.change}`}>
+                        {item.svg}
+                      </div>
+                      <div className="chart-num">
+                        <p>{t(item.title)}</p>
+                        <h2 className="font-w700 mb-0">{item.count}</h2>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div className="row">
         <div className="col-xl-12">
