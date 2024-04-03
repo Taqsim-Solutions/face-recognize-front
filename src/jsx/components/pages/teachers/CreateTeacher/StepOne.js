@@ -13,6 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import settings from "../../../../../settings/settings";
 import { getRegionsQuery, getMeQuery } from "../../../../../queries/index";
 import { useTranslation } from "react-i18next";
+import Select from "react-select";
 
 const StepOne = ({ setGoSteps }) => {
   const [region, setRegion] = useState("");
@@ -50,11 +51,11 @@ const StepOne = ({ setGoSteps }) => {
   });
 
   const { data: classes } = useQuery({
-    ...getClassesQuery({ size: "100", SchoolId: schoolId }),
+    ...getClassesQuery({ PageSize: "1000", SchoolId: schoolId }),
   });
 
   const { data: schools } = useQuery({
-    ...getSchoolsQuery({ size: "100", RegionId: region, CityId: cityId }),
+    ...getSchoolsQuery({ PageSize: "1000", RegionId: region, CityId: cityId }),
   });
 
   const { data: user } = useQuery({
@@ -326,18 +327,12 @@ const StepOne = ({ setGoSteps }) => {
               <label htmlFor="basic-url" className="form-label d-block">
                 {t("school")}
               </label>
-              <select
-                className="form-control form-control-md"
-                value={schoolId}
-                onChange={(e) => setSchoolId(e.target.value)}
-              >
-                <option value="">{t("select")}</option>
-                {schoolValues.map((option) => (
-                  <option value={option.value} key={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <Select
+                defaultValue={schoolId}
+                onChange={(e) => setSchoolId(e.value)}
+                options={schoolValues}
+                placeholder={t("select")}
+              />
               {errors.school && (
                 <div className="text-danger fs-12">{errors.school}</div>
               )}
@@ -350,18 +345,12 @@ const StepOne = ({ setGoSteps }) => {
               <label htmlFor="basic-url" className="form-label d-block">
                 {t("class")}
               </label>
-              <select
-                className="form-control form-control-md"
-                value={classId}
-                onChange={(e) => setClassId(e.target.value)}
-              >
-                <option value="">{t("select")}</option>
-                {classesValues.map((option) => (
-                  <option value={option.value} key={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <Select
+                defaultValue={classId}
+                onChange={(e) => setSchoolId(e.value)}
+                options={classesValues}
+                placeholder={t("select")}
+              />
               {errors.class && (
                 <div className="text-danger fs-12">{errors.class}</div>
               )}

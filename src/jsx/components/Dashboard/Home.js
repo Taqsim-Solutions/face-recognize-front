@@ -17,6 +17,7 @@ import {
   getOverallStatisticsQuery,
 } from "../../../queries/index";
 import { useTranslation } from "react-i18next";
+import { Badge } from "react-bootstrap";
 
 const SchoolPerformance = loadable(() =>
   pMinDelay(import("./Elements/SchoolPerformance"), 500)
@@ -406,6 +407,187 @@ const Home = () => {
                       <td>{item.absentsCount}</td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+              {schoolOverview?.result.totalPages > 1 && (
+                <div>
+                  <div className="col-12 ps-3">
+                    <nav>
+                      <ul
+                        className="pagination pagination-gutter pagination-primary pagination-sm no-bg"
+                        style={{
+                          margin: "30px 0",
+                          display: "flex",
+                          justifyContent: "right",
+                        }}
+                      >
+                        <li className="page-item page-indicator">
+                          <p
+                            className="page-link"
+                            to="/email-inbox"
+                            onClick={() =>
+                              schoolOverview > 0 &&
+                              setOverviewPage(schoolOverview - 1)
+                            }
+                          >
+                            <i className="la la-angle-left"></i>
+                          </p>
+                        </li>
+                        {"page"
+                          .repeat(schoolOverview?.result.totalPages - 1)
+                          .split("page")
+                          .map((number, i) => (
+                            <li
+                              key={i}
+                              className={`page-item  ${
+                                schoolOverviewPage === i + 1 ? "active" : ""
+                              } `}
+                              onClick={() => setOverviewPage(i + 1)}
+                            >
+                              <p className="page-link" to="/email-inbox">
+                                {i + 1}
+                              </p>
+                            </li>
+                          ))}
+
+                        <li className="page-item page-indicator">
+                          <p
+                            className="page-link"
+                            to="/email-inbox"
+                            onClick={() =>
+                              setOverviewPage + 1 <
+                                schoolOverview?.result.totalPages &&
+                              setOverviewPage(schoolOverviewPage + 1)
+                            }
+                          >
+                            <i className="la la-angle-right"></i>
+                          </p>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>{" "}
+        <div className="table-responsive basic-tbl">
+          <div className="card">
+            <div className="card-header py-3 border-0 px-3">
+              <h4 className="heading m-0">{t("school")}</h4>
+            </div>
+            <div
+              id="teacher-table_wrapper"
+              className="dataTables_wrapper no-footer"
+            >
+              <table
+                id="teacher-table"
+                className="tech-data dataTable no-footer"
+                style={{ width: "100%" }}
+              >
+                <thead>
+                  <tr>
+                    <th>{t("category")}</th>
+                    <th>{t("percent")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ color: "red" }}>
+                      Плохое, неадекватное поведение
+                    </td>
+                    <td style={{ color: "red" }}>
+                      <Badge bg="" className="badge-danger light badge-lg">
+                        35%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "red" }}>
+                      Безвольность (потаканне плохому поведению)
+                    </td>
+                    <td style={{ color: "red" }}>
+                      <Badge bg="" className="badge-danger light badge-lg">
+                        15%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "red" }}>Вранье</td>
+                    <td style={{ color: "red" }}>
+                      <Badge bg="" className="badge-danger light badge-lg">
+                        15%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "red" }}>Прогулы</td>
+                    <td style={{ color: "red" }}>
+                      <Badge bg="" className="badge-danger light badge-lg">
+                        10%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "green" }}>Младший школьник</td>
+                    <td style={{ color: "green" }}>
+                      <Badge bg="" className="badge-success light badge-lg">
+                        20%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "green" }}>Подросток</td>
+                    <td style={{ color: "green" }}>
+                      <Badge bg="" className="badge-success light badge-lg">
+                        50%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "green" }}>Старший школьник</td>
+                    <td style={{ color: "green" }}>
+                      <Badge bg="" className="badge-success light badge-lg">
+                        30%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "orange" }}>Неполных семей</td>
+                    <td style={{ color: "orange" }}>
+                      <Badge bg="" className="badge-warning light badge-lg">
+                        30%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "orange" }}>Полныхсемей</td>
+                    <td style={{ color: "orange" }}>
+                      <Badge bg="" className="badge-warning light badge-lg">
+                        35%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "orange" }}>
+                      Проживающие, всемье с отчимом или мачехой
+                    </td>
+                    <td style={{ color: "orange" }}>
+                      <Badge bg="" className="badge-warning light badge-lg">
+                        15%
+                      </Badge>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "orange" }}>
+                      Воспитывающиеся одним родителем (мать)-одиночка
+                    </td>
+                    <td style={{ color: "orange" }}>
+                      <Badge bg="" className="badge-warning light badge-lg">
+                        25%
+                      </Badge>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
               {schoolOverview?.result.totalPages > 1 && (
