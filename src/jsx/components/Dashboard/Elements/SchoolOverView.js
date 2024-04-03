@@ -53,7 +53,7 @@ const SchoolOverView = ({ data }) => {
           fontWeight: 400,
         },
         formatter: function (value) {
-          return value % 1 === 0 ? value : "";
+          return `${value}%`;
         },
       },
     },
