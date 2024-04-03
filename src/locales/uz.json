@@ -88,5 +88,7 @@
   "username": "Foydalanuvchi nomi",
   "select": "Tanlash",
   "totalStudents": "Barcha o'quvchilar",
-  "Percentage": "Ko'rsatgich (%)"
+  "Percentage": "Ko'rsatgich (%)",
+  "attended": "Qatnashgan o'quvchilar",
+  "not_attended": "Qatnashmagan o'quvchilar"
 }
