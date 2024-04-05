@@ -18,10 +18,10 @@ import {
   getUnknownFaces,
 } from "../api";
 
-export function getUsersQuery() {
+export function getUsersQuery(params) {
   return {
-    queryKey: ["users"],
-    queryFn: async () => getUsers(),
+    queryKey: ["users", params],
+    queryFn: async () => getUsers(params),
   };
 }
 

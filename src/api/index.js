@@ -4,8 +4,8 @@ export const loginAPI = (data) => {
   return request({ method: "POST", url: "/authentication", data });
 };
 
-export const getUsers = () => {
-  return request({ method: "GET", url: "/users" });
+export const getUsers = (params) => {
+  return request({ method: "GET", url: "/users", params });
 };
 
 export const getPerformance = (params) => {

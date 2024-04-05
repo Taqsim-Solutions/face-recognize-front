@@ -9,12 +9,11 @@ export const TeacherDetails = ({ filter }) => {
     ...getDashboardAbsentsQuery({
       ...filter,
       DateFrom: "2023-09-01Z",
-      DateTo: "2024-03-26Z",
     }),
   });
 
   return (
-    absents?.result.totalPages > 1 && (
+    absents?.result.totalPages > 0 && (
       <div className="table-responsive basic-tbl">
         <div
           id="teacher-table_wrapper"
