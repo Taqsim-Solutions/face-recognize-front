@@ -9,6 +9,7 @@ export const TeacherDetails = ({ filter }) => {
     ...getDashboardAbsentsQuery({
       ...filter,
       DateFrom: "2023-09-01Z",
+      PageIndex: page,
     }),
   });
 
