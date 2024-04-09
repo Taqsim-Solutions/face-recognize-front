@@ -60,6 +60,16 @@ function UnknownFaces() {
                 >
                   {image.imageName}
                 </p>
+                <p
+                  style={{
+                    marginTop: "10px",
+                    marginBottom: "0",
+                    textAlign: "center",
+                  }}
+                >
+                  {image.createdAt.slice(0, 10).split("-").join(".")}-{" "}
+                  {image.createdAt.slice(11, 19)}
+                </p>
                 <button
                   className="btn btn-danger sw-btn-next ms-1 mt-3"
                   style={{ width: "100%" }}
