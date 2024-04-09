@@ -55,28 +55,28 @@ const cardBlog = [
 
 const cardBlog2 = [
   {
-    title: " Всего школ",
+    title: "total_schools",
     svg: SVGICON.user,
     change: "std-data",
     key: "totalStudents",
     count: 90,
   },
   {
-    title: "подключенные школы ",
+    title: "connected_schools",
     svg: SVGICON.user2,
     change: "event-data",
     key: "boysCount",
     count: 265,
   },
   {
-    title: "количество  всего учащихся",
+    title: "number_of_total_students",
     svg: SVGICON.user2,
     change: "event-data",
     key: "girlsCount",
     count: 190,
   },
   {
-    title: " отсутствующие",
+    title: "absents",
     svg: SVGICON.event,
     change: "event-data",
     key: "absentsCount",
@@ -493,9 +493,7 @@ const Home = () => {
                 </thead>
                 <tbody>
                   <tr>
-                    <td style={{ color: "red" }}>
-                      Плохое, неадекватное поведение
-                    </td>
+                    <td style={{ color: "red" }}>{t("category_1")}</td>
                     <td style={{ color: "red" }}>
                       <Badge bg="" className="badge-danger light badge-lg">
                         35%
@@ -503,9 +501,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "red" }}>
-                      Безвольность (потаканне плохому поведению)
-                    </td>
+                    <td style={{ color: "red" }}>{t("category_2")}</td>
                     <td style={{ color: "red" }}>
                       <Badge bg="" className="badge-danger light badge-lg">
                         15%
@@ -513,7 +509,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "red" }}>Вранье</td>
+                    <td style={{ color: "red" }}>{t("category_3")}</td>
                     <td style={{ color: "red" }}>
                       <Badge bg="" className="badge-danger light badge-lg">
                         15%
@@ -521,7 +517,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "red" }}>Прогулы</td>
+                    <td style={{ color: "red" }}>{t("category_4")}</td>
                     <td style={{ color: "red" }}>
                       <Badge bg="" className="badge-danger light badge-lg">
                         10%
@@ -529,7 +525,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "green" }}>Младший школьник</td>
+                    <td style={{ color: "green" }}>{t("category_5")}</td>
                     <td style={{ color: "green" }}>
                       <Badge bg="" className="badge-success light badge-lg">
                         20%
@@ -537,7 +533,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "green" }}>Подросток</td>
+                    <td style={{ color: "green" }}>{t("category_6")}</td>
                     <td style={{ color: "green" }}>
                       <Badge bg="" className="badge-success light badge-lg">
                         50%
@@ -545,7 +541,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "green" }}>Старший школьник</td>
+                    <td style={{ color: "green" }}>{t("category_7")}</td>
                     <td style={{ color: "green" }}>
                       <Badge bg="" className="badge-success light badge-lg">
                         30%
@@ -553,7 +549,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "orange" }}>Неполных семей</td>
+                    <td style={{ color: "orange" }}>{t("category_8")}</td>
                     <td style={{ color: "orange" }}>
                       <Badge bg="" className="badge-warning light badge-lg">
                         30%
@@ -561,7 +557,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "orange" }}>Полныхсемей</td>
+                    <td style={{ color: "orange" }}>{t("category_9")}</td>
                     <td style={{ color: "orange" }}>
                       <Badge bg="" className="badge-warning light badge-lg">
                         35%
@@ -569,9 +565,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "orange" }}>
-                      Проживающие, всемье с отчимом или мачехой
-                    </td>
+                    <td style={{ color: "orange" }}>{t("category_10")}</td>
                     <td style={{ color: "orange" }}>
                       <Badge bg="" className="badge-warning light badge-lg">
                         15%
@@ -579,9 +573,7 @@ const Home = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td style={{ color: "orange" }}>
-                      Воспитывающиеся одним родителем (мать)-одиночка
-                    </td>
+                    <td style={{ color: "orange" }}>{t("category_11")}</td>
                     <td style={{ color: "orange" }}>
                       <Badge bg="" className="badge-warning light badge-lg">
                         25%
