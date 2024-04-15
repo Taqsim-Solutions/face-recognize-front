@@ -51,7 +51,11 @@ function Faces() {
                     textAlign: "center",
                   }}
                 >
-                  {image.imageName}
+                  {image.student
+                    ? `${image.student.firstName} ${image.student.lastName}`
+                    : `${image.teacher?.firstName || ""} ${
+                        image.teacher?.lastName || ""
+                      }`}
                 </p>
                 <p
                   style={{

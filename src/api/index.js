@@ -119,6 +119,10 @@ export const updateGovernment = (data, id) => {
   return request({ method: "PUT", url: `/governments/${id}`, data });
 };
 
+export const studentParent = (id, data) => {
+  return request({ method: "PUT", url: `/students/${id}/parent`, data });
+};
+
 export const deleteGovernment = (id) => {
   return request({ method: "DELETE", url: `/governments/${id}` });
 };

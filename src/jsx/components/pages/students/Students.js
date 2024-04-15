@@ -167,11 +167,11 @@ const Students = () => {
                   >
                     <thead>
                       <tr>
-                        <th>{t("image")}</th>
                         <th>{t("name")}</th>
-                        <th>{t("school")}</th>
                         <th>{t("phoneNumber")}</th>
-                        <th>{t("class")}</th>
+                        <th>{t("dateOfBirth")}</th>
+                        <th>{t("father_of_student")}</th>
+                        <th>{t("mother_of_student")}</th>
                         <th className="text-end">{t("action")}</th>
                       </tr>
                     </thead>
@@ -179,25 +179,51 @@ const Students = () => {
                       {students?.result?.data.map((item, ind) => (
                         <tr key={ind}>
                           <td>
-                            <img
-                              src={`${settings.baseURL}/images?filename=${item.mainImageName}`}
-                              alt=""
-                              style={{ width: "50px", borderRadius: "8px" }}
-                            />
-                          </td>
-                          <td>
-                            <div className="trans-list">
-                              <h4>{`${item.firstName} ${item.lastName}`}</h4>
+                            <div className="trans-list" style={{ gap: "15px" }}>
+                              <img
+                                src={`${settings.baseURL}/images?filename=${item.mainImageName}`}
+                                alt=""
+                                style={{ width: "50px", borderRadius: "8px" }}
+                              />
+                              <div>
+                                <h4>{`${item.firstName} ${item.lastName}`}</h4>
+                                <h6 className="mb-0">
+                                  {item.schoolName} ({item.className})
+                                </h6>
+                              </div>
                             </div>
-                          </td>
-                          <td>
-                            <h6 className="mb-0">{item.schoolName}</h6>
                           </td>
                           <td>
                             <h6 className="mb-0">{item.phoneNumber}</h6>
                           </td>
                           <td>
-                            <h6 className="mb-0">{item.className}</h6>
+                            <h6 className="mb-0">
+                              {item.dateOfBirth.slice(0, 10)}
+                            </h6>
+                          </td>
+                          <td>
+                            <div className="trans-list" style={{ gap: "15px" }}>
+                              <div>
+                                <h4>{`${item.parents?.[0]?.firstName || ""} ${
+                                  item.parents?.[0]?.lastName || ""
+                                }`}</h4>
+                                <h6 className="mb-0">
+                                  {item.parents?.[0]?.phoneNumber}
+                                </h6>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="trans-list" style={{ gap: "15px" }}>
+                              <div>
+                                <h4>{`${item.parents?.[1]?.firstName || ""} ${
+                                  item.parents?.[1]?.lastName || ""
+                                }`}</h4>
+                                <h6 className="mb-0">
+                                  {item.parents?.[1]?.phoneNumber}
+                                </h6>
+                              </div>
+                            </div>
                           </td>
                           <td
                             style={{
