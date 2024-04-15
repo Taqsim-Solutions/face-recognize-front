@@ -93,5 +93,7 @@
   "not_attended": "Qatnashmagan o'quvchilar",
   "total_schools": "Maktablar soni",
   "connected_schools": "Ulangan maktablar",
-  "number_of_total_students": "O’quvchilar soni"
+  "number_of_total_students": "O’quvchilar soni",
+  "father_of_student": "O'quvchining otasi",
+  "mother_of_student": "O'quvchining onasi"
 }

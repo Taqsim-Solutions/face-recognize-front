@@ -6,12 +6,31 @@ import {
   deleteStudentPhoto,
   editStudent,
   getStudent,
+  studentParent,
 } from "../../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
 import settings from "../../../../../settings/settings";
 import { useTranslation } from "react-i18next";
 
 const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
+  const [father, setFather] = useState({
+    firstName: "",
+    lastName: "",
+    fatherName: "",
+    dateOfBirth: "",
+    phoneNumber: "",
+    passport: "",
+    gender: 0,
+  });
+  const [mother, setMother] = useState({
+    firstName: "",
+    lastName: "",
+    fatherName: "",
+    dateOfBirth: "",
+    phoneNumber: "",
+    passport: "",
+    gender: 1,
+  });
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -38,6 +57,14 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
       queryClient.invalidateQueries(["teachers"]);
       setReflesh(reflesh + 1);
     });
+  };
+
+  const changeFatherInfo = (key, value) => {
+    setFather({ ...father, [key]: value });
+  };
+
+  const changeMotherInfo = (key, value) => {
+    setMother({ ...mother, [key]: value });
   };
 
   const onSubmit = () => {
@@ -75,6 +102,18 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
     )
       .then((res) => {
         queryClient.invalidateQueries(["students"]);
+        if (res.result.id) {
+          studentParent(res.result.id, {
+            ...father,
+            passport: "",
+            dateOfBirth: `${father.dateOfBirth}T12:45:33.613Z`,
+          });
+          studentParent(res.result.id, {
+            ...mother,
+            passport: "",
+            dateOfBirth: `${mother.dateOfBirth}T12:45:33.613Z`,
+          });
+        }
         if (res.result.mainImageName) {
           navigate("/students");
         } else {
@@ -98,6 +137,14 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
         setDateOfBirth(res.result.dateOfBirth.slice(0, 10));
         setPhone(res.result.phoneNumber);
         setImages(res.result.imageIds);
+        setFather({
+          ...res.result.parents?.[0],
+          dateOfBirth: res.result.parents?.[0].dateOfBirth.slice(0, 10),
+        });
+        setMother({
+          ...res.result.parents?.[1],
+          dateOfBirth: res.result.parents?.[1].dateOfBirth.slice(0, 10),
+        });
       });
     }
   }, [studentId, reflesh]);
@@ -105,6 +152,9 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
   return (
     <section>
       <div className="row">
+        <p style={{ color: "black", fontWeight: 700, fontSize: "16px" }}>
+          {t("student")}
+        </p>
         <div className="col-lg-6 mb-2">
           <div className="form-group mb-3">
             <label className="text-label">{t("firstName")}*</label>
@@ -183,7 +233,141 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
               <div className="text-danger fs-12">{errors.phone}</div>
             )}
           </div>
-        </div>{" "}
+        </div>
+        <p style={{ color: "black", fontWeight: 700, fontSize: "16px" }}>
+          {t("father_of_student")}
+        </p>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("firstName")}*</label>
+            <input
+              value={father.firstName}
+              onChange={(e) => changeFatherInfo("firstName", e.target.value)}
+              type="text"
+              name="firstName"
+              className="form-control"
+              required
+            />
+          </div>
+        </div>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("lastName")}*</label>
+            <input
+              value={father.lastName}
+              onChange={(e) => changeFatherInfo("lastName", e.target.value)}
+              type="text"
+              name="lastName"
+              className="form-control"
+              required
+            />
+          </div>
+        </div>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("fatherName")}*</label>
+            <input
+              value={father.fatherName}
+              onChange={(e) => changeFatherInfo("fatherName", e.target.value)}
+              type="text"
+              name="fatherName"
+              className="form-control"
+              required
+            />
+          </div>
+        </div>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("dateOfBirth")}*</label>
+            <input
+              value={father.dateOfBirth}
+              onChange={(e) => changeFatherInfo("dateOfBirth", e.target.value)}
+              type="date"
+              name="dateOfBirth"
+              className="form-control"
+            />
+          </div>
+        </div>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("phone")}*</label>
+            <input
+              value={father.phoneNumber}
+              onChange={(e) => changeFatherInfo("phoneNumber", e.target.value)}
+              type="phone"
+              name="phone"
+              className="form-control"
+              required
+            />
+          </div>
+        </div>
+        <p style={{ color: "black", fontWeight: 700, fontSize: "16px" }}>
+          {t("mother_of_student")}
+        </p>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("firstName")}*</label>
+            <input
+              value={mother.firstName}
+              onChange={(e) => changeMotherInfo("firstName", e.target.value)}
+              type="text"
+              name="firstName"
+              className="form-control"
+              required
+            />
+          </div>
+        </div>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("lastName")}*</label>
+            <input
+              value={mother.lastName}
+              onChange={(e) => changeMotherInfo("lastName", e.target.value)}
+              type="text"
+              name="lastName"
+              className="form-control"
+              required
+            />
+          </div>
+        </div>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("fatherName")}*</label>
+            <input
+              value={mother.fatherName}
+              onChange={(e) => changeMotherInfo("fatherName", e.target.value)}
+              type="text"
+              name="fatherName"
+              className="form-control"
+              required
+            />
+          </div>
+        </div>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("dateOfBirth")}*</label>
+            <input
+              value={mother.dateOfBirth}
+              onChange={(e) => changeMotherInfo("dateOfBirth", e.target.value)}
+              type="date"
+              name="dateOfBirth"
+              className="form-control"
+            />
+          </div>
+        </div>
+        <div className="col-lg-6 mb-2">
+          <div className="form-group mb-3">
+            <label className="text-label">{t("phone")}*</label>
+            <input
+              value={mother.phoneNumber}
+              onChange={(e) => changeMotherInfo("phoneNumber", e.target.value)}
+              type="phone"
+              name="phone"
+              className="form-control"
+              required
+            />
+          </div>
+        </div>
         {studentId && images?.length > 0 && (
           <div
             style={{

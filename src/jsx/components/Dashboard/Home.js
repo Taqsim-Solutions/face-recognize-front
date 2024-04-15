@@ -86,6 +86,7 @@ const cardBlog2 = [
 
 const Home = () => {
   const [schoolOverviewPage, setOverviewPage] = useState(1);
+  const [schoolsPage, setSchoolsPage] = useState(1);
   const [schoolValues, setSchoolValues] = useState([]);
   const [region, setRegion] = useState("");
   const [cityId, setCityId] = useState("");
@@ -122,6 +123,7 @@ const Home = () => {
       RegionId: region,
       CityId: cityId,
       SchoolId: schoolId,
+      PageIndex: schoolsPage,
     }),
   });
 
@@ -426,8 +428,7 @@ const Home = () => {
                             className="page-link"
                             to="/email-inbox"
                             onClick={() =>
-                              schoolOverview > 0 &&
-                              setOverviewPage(schoolOverview - 1)
+                              schoolsPage > 0 && setSchoolsPage(schoolsPage - 1)
                             }
                           >
                             <i className="la la-angle-left"></i>
@@ -440,9 +441,9 @@ const Home = () => {
                             <li
                               key={i}
                               className={`page-item  ${
-                                schoolOverviewPage === i + 1 ? "active" : ""
+                                schoolsPage === i + 1 ? "active" : ""
                               } `}
-                              onClick={() => setOverviewPage(i + 1)}
+                              onClick={() => setSchoolsPage(i + 1)}
                             >
                               <p className="page-link" to="/email-inbox">
                                 {i + 1}
@@ -582,65 +583,6 @@ const Home = () => {
                   </tr>
                 </tbody>
               </table>
-              {schoolOverview?.result.totalPages > 1 && (
-                <div>
-                  <div className="col-12 ps-3">
-                    <nav>
-                      <ul
-                        className="pagination pagination-gutter pagination-primary pagination-sm no-bg"
-                        style={{
-                          margin: "30px 0",
-                          display: "flex",
-                          justifyContent: "right",
-                        }}
-                      >
-                        <li className="page-item page-indicator">
-                          <p
-                            className="page-link"
-                            to="/email-inbox"
-                            onClick={() =>
-                              schoolOverview > 0 &&
-                              setOverviewPage(schoolOverview - 1)
-                            }
-                          >
-                            <i className="la la-angle-left"></i>
-                          </p>
-                        </li>
-                        {"page"
-                          .repeat(schoolOverview?.result.totalPages - 1)
-                          .split("page")
-                          .map((number, i) => (
-                            <li
-                              key={i}
-                              className={`page-item  ${
-                                schoolOverviewPage === i + 1 ? "active" : ""
-                              } `}
-                              onClick={() => setOverviewPage(i + 1)}
-                            >
-                              <p className="page-link" to="/email-inbox">
-                                {i + 1}
-                              </p>
-                            </li>
-                          ))}
-
-                        <li className="page-item page-indicator">
-                          <p
-                            className="page-link"
-                            to="/email-inbox"
-                            onClick={() =>
-                              setOverviewPage + 1 <
-                                schoolOverview?.result.totalPages &&
-                              setOverviewPage(schoolOverviewPage + 1)
-                            }
-                          >
-                            <i className="la la-angle-right"></i>
-                          </p>
-                        </li>
-                      </ul>
-                    </nav>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
