@@ -36,6 +36,7 @@ const FileUpload = ({ isOpen, user, onClose }) => {
       }
 
       const data = await response.json();
+      alert("Файл загружен, студенты добавлены.");
       console.log("File uploaded successfully:", data);
     } catch (error) {
       console.error("Error uploading file:", error);
