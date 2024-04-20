@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import swal from "sweetalert";
 import { uploadPhoto } from "../../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function StepTwo({ uploadProps, id }) {
   const [step, setStep] = useState(1);
@@ -13,6 +14,8 @@ function StepTwo({ uploadProps, id }) {
   const streamRef = useRef(null);
   const navigate = useNavigate();
   const { teacherId } = useParams();
+  const { t } = useTranslation();
+  const [images, setImages] = useState([]);
 
   const startCamera = async (facingMode) => {
     if (
@@ -55,6 +58,13 @@ function StepTwo({ uploadProps, id }) {
     }
   };
 
+  const handleImageUpload = (files) => {
+    const fileArray = Array.from(files);
+    setImages([...images, ...fileArray]);
+    const fileList = fileArray.map((file) => URL.createObjectURL(file));
+    setCapturedImages([...capturedImages, ...fileList]);
+  };
+
   const takePhoto = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
@@ -95,39 +105,60 @@ function StepTwo({ uploadProps, id }) {
 
   const onSubmit = async () => {
     stopCamera();
-    const uploadPromises = imageFiles.map(async (imageFile, index) => {
-      const formData = new FormData();
-      formData.append("file", imageFile);
-      return uploadPhoto(formData, id || teacherId)
-        .then((response) => {
-          return response.data;
-        })
-        .catch((error) => {
-          throw error;
-        });
-    });
+    if (imageFiles.length !== 5 && images.length !== 5) {
+      alert("5 images must be uploaded");
+    }
+    const uploadPromises = (imageFiles.length === 5 ? imageFiles : images).map(
+      async (imageFile, index) => {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        return uploadPhoto(formData, id || teacherId)
+          .then((response) => {
+            return response.data;
+          })
+          .catch((error) => {
+            alert(error.data.message);
+          });
+      }
+    );
     const uploadResults = await Promise.all(uploadPromises);
     navigate("/teachers");
   };
 
   return (
     <div>
-      {!showCamera && (
-        <div
-          onClick={() => startCamera(true)}
-          className="py-10"
-          style={{
-            fontSize: "30px",
-            display: "flex",
-            alignItems: "center",
-            gap: "20px",
-            justifyContent: "center",
-          }}
-        >
-          <i className="material-icons" style={{ fontSize: "100px" }}>
-            camera
-          </i>
-          Open the camera
+      {!showCamera && capturedImages.length !== 5 && (
+        <div>
+          <div
+            onClick={() => startCamera(true)}
+            className="py-10"
+            style={{
+              fontSize: "30px",
+              display: "flex",
+              alignItems: "center",
+              gap: "20px",
+              justifyContent: "center",
+            }}
+          >
+            <i className="material-icons" style={{ fontSize: "100px" }}>
+              camera
+            </i>
+            {t("openCamera")}
+          </div>
+          <p style={{ textAlign: "center", fontSize: "20px" }}>{t("or")}</p>
+          <div className="mb-3">
+            <label htmlFor="formFile" className="form-label">
+              {t("uploadImage")} (5)
+            </label>
+            <input
+              accept="image/*"
+              className="form-control"
+              type="file"
+              id="formFile"
+              onChange={(e) => handleImageUpload(e.target.files)}
+              multiple // Add multiple attribute here
+            />
+          </div>
         </div>
       )}
       <div position="relative" mt="20px">
@@ -152,14 +183,14 @@ function StepTwo({ uploadProps, id }) {
                 onClick={takePhoto}
               >
                 {step === 1
-                  ? "Look right and click "
+                  ? t("lookRight")
                   : step === 2
-                  ? "Look left and click "
+                  ? t("lookLeft")
                   : step === 3
-                  ? "Look right again and click "
+                  ? t("lookRightAgain")
                   : step === 4
-                  ? "Look back and click "
-                  : "Look forward and click "}
+                  ? t("lookBack")
+                  : t("lookForward")}
               </button>
             </div>
             <canvas
@@ -174,7 +205,7 @@ function StepTwo({ uploadProps, id }) {
           </>
         )}
       </div>
-      {step === 2 && (
+      {capturedImages.length === 5 && (
         <div
           style={{
             display: "grid",
@@ -187,13 +218,13 @@ function StepTwo({ uploadProps, id }) {
           ))}
         </div>
       )}
-      {step === 2 && (
+      {capturedImages.length === 5 && (
         <button
           className="btn btn-primary sw-btn-next ms-1"
           style={{ margin: "40px auto", width: "100%" }}
           onClick={onSubmit}
         >
-          Send
+          {t("sendButton")}
         </button>
       )}
     </div>
