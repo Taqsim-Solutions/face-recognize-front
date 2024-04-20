@@ -14,6 +14,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
   const streamRef = useRef(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [images, setImages] = useState([]);
 
   const startCamera = async (facingMode) => {
     if (
@@ -94,43 +95,69 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
     }
   };
 
+  const handleImageUpload = (files) => {
+    const fileArray = Array.from(files);
+    setImages([...images, ...fileArray]);
+    const fileList = fileArray.map((file) => URL.createObjectURL(file));
+    setCapturedImages([...capturedImages, ...fileList]);
+  };
+
   const onSubmit = async () => {
     stopCamera();
-    const uploadPromises = imageFiles.map(async (imageFile, index) => {
-      const formData = new FormData();
-      formData.append("file", imageFile);
-      return uploadStudentPhoto(formData, studentId || createdStudentId)
-        .then((response) => {
-          return response.data;
-        })
-        .catch((error) => {
-          // Handle errors for individual uploads
-          console.error(`Error uploading image ${index + 1}:`, error);
-          throw error;
-        });
-    });
+    if (imageFiles.length !== 5 && images.length !== 5) {
+      alert("5 images must be uploaded");
+    }
+    const uploadPromises = (imageFiles.length === 5 ? imageFiles : images).map(
+      async (imageFile, index) => {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        return uploadStudentPhoto(formData, studentId || createdStudentId)
+          .then((response) => {
+            return response.data;
+          })
+          .catch((error) => {
+            alert(error.data.message);
+          });
+      }
+    );
     const uploadResults = await Promise.all(uploadPromises);
     navigate("/students");
   };
 
   return (
     <div>
-      {!showCamera && (
-        <div
-          onClick={() => startCamera(true)}
-          className="py-10"
-          style={{
-            fontSize: "30px",
-            display: "flex",
-            alignItems: "center",
-            gap: "20px",
-            justifyContent: "center",
-          }}
-        >
-          <i className="material-icons" style={{ fontSize: "100px" }}>
-            camera
-          </i>
-          {t("openCamera")}
+      {!showCamera && capturedImages.length !== 5 && (
+        <div>
+          <div
+            onClick={() => startCamera(true)}
+            className="py-10"
+            style={{
+              fontSize: "30px",
+              display: "flex",
+              alignItems: "center",
+              gap: "20px",
+              justifyContent: "center",
+            }}
+          >
+            <i className="material-icons" style={{ fontSize: "100px" }}>
+              camera
+            </i>
+            {t("openCamera")}
+          </div>
+          <p style={{ textAlign: "center", fontSize: "20px" }}>{t("or")}</p>
+          <div className="mb-3">
+            <label htmlFor="formFile" className="form-label">
+              {t("uploadImage")}
+            </label>
+            <input
+              accept="image/*"
+              className="form-control"
+              type="file"
+              id="formFile"
+              onChange={(e) => handleImageUpload(e.target.files)}
+              multiple // Add multiple attribute here
+            />
+          </div>
         </div>
       )}
       <div position="relative" mt="20px">
@@ -177,7 +204,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
           </>
         )}
       </div>
-      {step === 6 && (
+      {capturedImages.length === 5 && (
         <div
           style={{
             display: "grid",
@@ -190,7 +217,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
           ))}
         </div>
       )}
-      {step === 6 && (
+      {capturedImages.length === 5 && (
         <button
           className="btn btn-primary sw-btn-next ms-1"
           style={{ margin: "40px auto", width: "100%" }}
