@@ -147,7 +147,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
           <p style={{ textAlign: "center", fontSize: "20px" }}>{t("or")}</p>
           <div className="mb-3">
             <label htmlFor="formFile" className="form-label">
-              {t("uploadImage")}
+              {t("uploadImage")} (5)
             </label>
             <input
               accept="image/*"
