@@ -41,8 +41,8 @@
   "students": "Ученики",
   "student": "Ученик",
   "excelUploadButton": "Excel",
-  "addExcelfile": "Добавтье Эксель файл",
-  "defaultFileExample": "Добавтье учеников отправив Эксель файл",
+  "addExcelfile": "Добавьте Эксель файл",
+  "defaultFileExample": "Добавьте учеников отправив Эксель файл",
   "chooseFile": "Выберите файл",
   "fileNotSelected": "Файл не выбран",
   "clickForDownloadExample": "Кликните чтобы скачать пример Экзеля",
@@ -109,5 +109,6 @@
   "category_10": "Проживающие вместе с отчимом или мачехой",
   "category_11": "Воспитывающиеся одним родителем (мать)-одиночка",
   "father_of_student": "Отец ученика",
-  "mother_of_student": "Мать ученика"
+  "mother_of_student": "Мать ученика",
+  "date_of_absent": "Дата отсутствия"
 }

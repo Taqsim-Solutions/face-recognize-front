@@ -54,14 +54,14 @@ export const MenuList = [
     classsChange: "mm-collapse",
     iconStyle: <i className="material-icons">face</i>,
     to: "faces",
-    level: [5],
+    level: [5, 2],
   },
   {
     title: "unknown-faces",
     classsChange: "mm-collapse",
     iconStyle: <i className="material-icons">face</i>,
     to: "unknown-faces",
-    level: [5],
+    level: [5, 2],
   },
   // {
   //   title: "Teacher",

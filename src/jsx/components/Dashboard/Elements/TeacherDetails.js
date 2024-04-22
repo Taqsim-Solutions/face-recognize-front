@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { getDashboardAbsentsQuery } from "../../../../queries/index";
+import { useTranslation } from "react-i18next";
 
 export const TeacherDetails = ({ filter }) => {
   const [page, setPage] = useState(1);
+  const { t } = useTranslation();
 
   const { data: absents } = useQuery({
     ...getDashboardAbsentsQuery({
@@ -27,10 +29,10 @@ export const TeacherDetails = ({ filter }) => {
           >
             <thead>
               <tr>
-                <th>Name</th>
-                <th>School</th>
-                <th>Class</th>
-                <th className="text-end">Date of birth</th>
+                <th>{t("name")}</th>
+                <th>{t("school")}</th>
+                <th>{t("class")}</th>
+                <th className="text-end">{t("date_of_absent")}</th>
               </tr>
             </thead>
             <tbody>
@@ -39,9 +41,11 @@ export const TeacherDetails = ({ filter }) => {
                   <td>
                     {item.firstName} {item.lastName}
                   </td>
-                  <td>{item.schoolName}</td>
-                  <td>{item.className}</td>
-                  <td>{item.dateOfBirth.slice(0, 10)}</td>
+                  <td>{item.school.name}</td>
+                  <td>
+                    {item.class.degree}-{item.class.symbol}
+                  </td>
+                  <td>{item.notComingDate.slice(0, 10)}</td>
                 </tr>
               ))}
             </tbody>

@@ -4,10 +4,9 @@ import { getUnknownFacesQuery } from "../../../queries/index";
 import { useState } from "react";
 import settings from "../../../settings/settings";
 import { deleteUnknownImage } from "../../../api";
+import ReactPaginate from "react-paginate";
 
 function UnknownFaces() {
-  const [supportsPWA, setSupportsPWA] = useState(false);
-  const [promptInstall, setPromptInstall] = useState(null);
   const [page, setPage] = useState(1);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
