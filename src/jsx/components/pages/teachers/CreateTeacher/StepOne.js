@@ -347,7 +347,7 @@ const StepOne = ({ setGoSteps }) => {
               </label>
               <Select
                 defaultValue={classId}
-                onChange={(e) => setSchoolId(e.value)}
+                onChange={(e) => setClassId(e.value)}
                 options={classesValues}
                 placeholder={t("select")}
               />
