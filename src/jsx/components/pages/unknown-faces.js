@@ -4,7 +4,6 @@ import { getUnknownFacesQuery } from "../../../queries/index";
 import { useState } from "react";
 import settings from "../../../settings/settings";
 import { deleteUnknownImage } from "../../../api";
-import ReactPaginate from "react-paginate";
 
 function UnknownFaces() {
   const [page, setPage] = useState(1);

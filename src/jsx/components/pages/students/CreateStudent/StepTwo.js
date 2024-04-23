@@ -68,18 +68,16 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
     if (step < 6) {
       setStep(step + 1);
       swal(
-        "Okay, next one",
-        `Now ${
-          step === 1
-            ? "Look right and click "
-            : step === 2
-            ? "Look left and click "
-            : step === 3
-            ? "Look right again and click "
-            : step === 4
-            ? "Look back and click "
-            : "Look forward and click "
-        }`,
+        t("Okay, next one"),
+        step === 1
+          ? t("lookLeft")
+          : step === 2
+          ? t("lookRightAgain")
+          : step === 3
+          ? t("lookBack")
+          : step === 4
+          ? t("lookForward")
+          : t("lookForward"),
         "success"
       );
     }
