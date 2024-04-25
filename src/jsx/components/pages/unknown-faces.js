@@ -6,8 +6,6 @@ import settings from "../../../settings/settings";
 import { deleteUnknownImage } from "../../../api";
 
 function UnknownFaces() {
-  const [supportsPWA, setSupportsPWA] = useState(false);
-  const [promptInstall, setPromptInstall] = useState(null);
   const [page, setPage] = useState(1);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
