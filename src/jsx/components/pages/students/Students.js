@@ -125,7 +125,9 @@ const Students = () => {
                       </option>
                     ))}
                   </select>
-                  {(user?.result.level === 1 || user?.result.level === 5) && (
+                  {(user?.result.level === 1 ||
+                    user?.result.level === 5 ||
+                    user?.result.level === 2) && (
                     <div style={{ marginLeft: "auto" }}>
                       <button
                         type="button"
