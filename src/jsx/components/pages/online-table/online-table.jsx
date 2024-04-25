@@ -29,9 +29,9 @@ export function OnlineTable() {
 
   useEffect(() => {
     if (selectedClass) {
-      getAttendancesDetail(getCurrentDate(), selectedClass).then((res) =>
-        setStudents(res)
-      );
+      getAttendancesDetail(getCurrentDate(), selectedClass)
+        .then((res) => setStudents(res))
+        .catch((err) => alert(err.data.message));
     }
   }, [selectedClass]);
 
@@ -148,6 +148,7 @@ export function OnlineTable() {
                       <th>{t("image")}</th>
                       <th>{t("name")}</th>
                       <th>{t("phoneNumber")}</th>
+                      <th>{t("comingTime")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -170,6 +171,7 @@ export function OnlineTable() {
                             <td>
                               <h6 className="mb-0">{item.phoneNumber}</h6>
                             </td>
+                            <td>{item.comingTime?.slice(0, 10)}</td>
                           </tr>
                         )
                     )}
