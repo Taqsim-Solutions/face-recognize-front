@@ -10,23 +10,12 @@ RUN yarn install
 
 COPY . /app
 
-ARG VITE_API_URL
-ARG VITE_FILES_DOMAIN
-ARG VITE_ID_DOMAIN
-ARG VITE_APP_TITLE
-ARG VITE_APP_OPERATIONS
-
-ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_FILES_DOMAIN=$VITE_FILES_DOMAIN
-ENV VITE_ID_DOMAIN=$VITE_ID_DOMAIN
-ENV VITE_APP_TITLE=$VITE_APP_TITLE
-ENV VITE_APP_OPERATIONS=$VITE_APP_OPERATIONS
-
 RUN yarn build
 
 FROM nginx:alpine
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/build /usr/share/nginx/html
+COPY ["./default.conf", "/etc/nginx/conf.d/"]
 
 EXPOSE 80
 
