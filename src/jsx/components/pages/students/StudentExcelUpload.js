@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
+import settings from "../../../../settings/settings";
 
 const FileUpload = ({ isOpen, user, onClose }) => {
   const [file, setFile] = useState(null);
@@ -21,7 +22,7 @@ const FileUpload = ({ isOpen, user, onClose }) => {
 
     try {
       const response = await fetch(
-        "https://face.taqsim.uz/api/students/upload-excel",
+        `${settings.baseURL}/students/upload-excel`,
         {
           method: "POST",
           body: formData,
@@ -71,7 +72,7 @@ const FileUpload = ({ isOpen, user, onClose }) => {
               />
             </div>
             <a
-              href="https://face.taqsim.uz/api/students/excel-example"
+              href={`${settings.baseURL}/students/excel-example`}
               target="_blank"
               style={{
                 textDecoration: "underline",
