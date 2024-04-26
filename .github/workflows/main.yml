@@ -3,7 +3,7 @@ name: Dockerize and Deploy Face Recognize Front
 on:
   push:
     branches:
-      - 'main'
+      - '34'
   workflow_dispatch:
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: taqsim/face_front:latest
+          tags: taqsim/face_front:34
   deploy:
     runs-on: ubuntu-latest
     needs: dockerize
@@ -44,4 +44,4 @@ jobs:
           port: ${{ secrets.FACE_SSH_PORT }}
           script: |
             echo "Pulling latest docker image and restarting front app..."            
-            docker pull taqsim/face_front:latest && docker rm -f face_front && docker-compose up -d face_front
+            docker pull taqsim/face_front:34 && docker rm -f face_front34 && docker-compose up -d face_front34
