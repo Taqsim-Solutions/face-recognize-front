@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getStudentsQuery,
   getMeQuery,
@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { DeleteStudent } from "./DeleteStudent";
 import settings from "../../../../settings/settings";
 import FileUpload from "./StudentExcelUpload";
+import { uploadStudentPhoto } from "../../../../api";
 
 const Students = () => {
   const [firstName, setFirstName] = useState("");
@@ -22,6 +23,7 @@ const Students = () => {
   const [deleteModal, setDeleteModal] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: students } = useQuery({
     ...getStudentsQuery({
@@ -45,6 +47,28 @@ const Students = () => {
   const { data: regions } = useQuery({
     ...getRegionsQuery(),
   });
+
+  const onUpload = async (fileList, studentId) => {
+    // Convert FileList to an array
+    const images = Array.from(fileList);
+
+    const uploadPromises = images.map((imageFile) => {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+
+      return uploadStudentPhoto(formData, studentId)
+        .then((response) => response.data)
+        .catch((error) => {
+          alert(error.response?.data?.message || "Upload failed");
+        });
+    });
+
+    // Wait for all promises to complete
+    await Promise.all(uploadPromises);
+
+    // Invalidate query cache to trigger re-fetching
+    queryClient.invalidateQueries(["students"]);
+  };
 
   return (
     <>
@@ -125,7 +149,9 @@ const Students = () => {
                       </option>
                     ))}
                   </select>
-                  {(user?.result.level === 1 || user?.result.level === 5) && (
+                  {(user?.result.level === 1 ||
+                    user?.result.level === 5 ||
+                    user?.result.level === 2) && (
                     <div style={{ marginLeft: "auto" }}>
                       <button
                         type="button"
@@ -171,7 +197,8 @@ const Students = () => {
                         <th>{t("phoneNumber")}</th>
                         <th>{t("dateOfBirth")}</th>
                         <th>{t("father_of_student")}</th>
-                        <th>{t("mother_of_student")}</th>
+                        <th>{t("mother_of_student")}</th>{" "}
+                        <th>{t("uploadImage")}</th>
                         <th className="text-end">{t("action")}</th>
                       </tr>
                     </thead>
@@ -225,22 +252,38 @@ const Students = () => {
                               </div>
                             </div>
                           </td>
+                          <td>
+                            <input
+                              accept="image/*"
+                              type="file"
+                              id="formFile"
+                              onChange={(e) =>
+                                onUpload(e.target.files, item.id)
+                              }
+                              multiple
+                            />
+                          </td>
                           <td
                             style={{
                               justifyContent: "right",
                               display: "flex",
                               gap: "10px",
+                              marginTop: "8px",
                             }}
                           >
                             {(user?.result.level === 1 ||
                               user?.result.level === 5) && (
-                              <i
-                                className="material-icons"
-                                style={{ cursor: "pointer" }}
-                                onClick={() => navigate(`/students/${item.id}`)}
-                              >
-                                edit
-                              </i>
+                              <>
+                                <i
+                                  className="material-icons"
+                                  style={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    navigate(`/students/${item.id}`)
+                                  }
+                                >
+                                  edit
+                                </i>
+                              </>
                             )}
                             <i
                               className="material-icons"
