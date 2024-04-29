@@ -3,7 +3,7 @@ name: Dockerize and Deploy Face Recognize Front
 on:
   push:
     branches:
-      - 'main'
+      - 'local'
   workflow_dispatch:
 
 jobs:
@@ -28,20 +28,4 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: taqsim/face_front:latest
-  deploy:
-    runs-on: ubuntu-latest
-    needs: dockerize
-
-    steps:
-      - name: executing remote ssh commands using keys
-        id: deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.FACE_SSH_HOST }}
-          username: ${{ secrets.FACE_SSH_USER }}
-          password: ${{ secrets.FACE_PASSWORD }}
-          port: ${{ secrets.FACE_SSH_PORT }}
-          script: |
-            echo "Pulling latest docker image and restarting front app..."            
-            docker pull taqsim/face_front:latest && docker rm -f face_front && docker-compose up -d face_front
+          tags: taqsim/face_front:local
