@@ -12,6 +12,7 @@ import { DeleteStudent } from "./DeleteStudent";
 import settings from "../../../../settings/settings";
 import FileUpload from "./StudentExcelUpload";
 import { uploadStudentPhoto } from "../../../../api";
+import Pagination from "../../Pagination/Pagination";
 
 const Students = () => {
   const [firstName, setFirstName] = useState("");
@@ -307,61 +308,10 @@ const Students = () => {
         isOpen={deleteModal}
         onClose={() => setDeleteModal(null)}
       />
-
-      {students?.result.totalPages > 0 && (
-        <div>
-          <div className="col-12 ps-3">
-            <nav>
-              <ul
-                className="pagination pagination-gutter pagination-primary pagination-sm no-bg"
-                style={{
-                  margin: "30px 0",
-                  display: "flex",
-                  justifyContent: "right",
-                }}
-              >
-                <li className="page-item page-indicator">
-                  <p
-                    className="page-link"
-                    to="/email-inbox"
-                    onClick={() => page > 0 && setPage(page - 1)}
-                  >
-                    <i className="la la-angle-left"></i>
-                  </p>
-                </li>
-                {students?.result.totalPages > 0 &&
-                  "page"
-                    .repeat(students?.result.totalPages - 1)
-                    .split("page")
-                    .map((number, i) => (
-                      <li
-                        key={i}
-                        className={`page-item  ${page === i ? "active" : ""} `}
-                        onClick={() => setPage(i)}
-                      >
-                        <p className="page-link" to="/email-inbox">
-                          {i + 1}
-                        </p>
-                      </li>
-                    ))}
-
-                <li className="page-item page-indicator">
-                  <p
-                    className="page-link"
-                    to="/email-inbox"
-                    onClick={() =>
-                      page + 1 < students?.result.totalPages &&
-                      setPage(page + 1)
-                    }
-                  >
-                    <i className="la la-angle-right"></i>
-                  </p>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      )}
+      <Pagination
+        onPageChange={(page) => setPage(page)}
+        totalPages={students?.result.totalPages}
+      />
     </>
   );
 };
