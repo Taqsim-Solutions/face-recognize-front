@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getStudentsQuery,
   getMeQuery,
   getSchoolsQuery,
   getRegionsQuery,
+  getClassesQuery,
 } from "../../../../queries/index";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -21,28 +22,39 @@ const Students = () => {
   const [schoolId, setSchoolId] = useState("");
   const [excelModal, setExcelModal] = useState(false);
   const [page, setPage] = useState(0);
+  const [classesValues, setClassesValues] = useState([]);
+  const [classId, setClassId] = useState("");
   const [deleteModal, setDeleteModal] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { data: user } = useQuery({
+    ...getMeQuery(),
+  });
 
   const { data: students } = useQuery({
     ...getStudentsQuery({
       PageIndex: page,
       PageSize: 10,
       searchText: firstName,
-      RegionId: region,
-      CityId: cityId,
-      SchoolId: schoolId,
+      RegionId: user?.result.region?.id || region,
+      CityId: user?.result.city?.id,
+      SchoolId: user?.result.school?.id || schoolId,
+      ClassId: classId,
     }),
-  });
-
-  const { data: user } = useQuery({
-    ...getMeQuery(),
   });
 
   const { data: schools } = useQuery({
     ...getSchoolsQuery({ size: "100", RegionId: region, CityId: cityId }),
+  });
+
+  const { data: classes } = useQuery({
+    ...getClassesQuery({
+      PageSize: "1000",
+      SchoolId: schoolId || user?.result.school?.id,
+    }),
+    enabled: Boolean(schoolId || user?.result.school?.id),
   });
 
   const { data: regions } = useQuery({
@@ -71,6 +83,16 @@ const Students = () => {
     queryClient.invalidateQueries(["students"]);
   };
 
+  useEffect(() => {
+    if (classes?.result) {
+      const options = classes.result.data.map((option) => ({
+        label: `${option.degree}-${option.symbol}`,
+        value: option.id,
+      }));
+      setClassesValues(options);
+    }
+  }, [classes]);
+
   return (
     <>
       <div className="row">
@@ -83,7 +105,7 @@ const Students = () => {
                   style={{
                     textTransform: "capitalize",
                     fontSize: "20px",
-                    width: "15%",
+                    width: "10%",
                   }}
                 >
                   {t("students")}
@@ -92,9 +114,9 @@ const Students = () => {
                   style={{
                     gap: "20px",
                     display: "grid",
-                    width: "85%",
+                    width: "70%",
                     justifyContent: "right",
-                    gridTemplateColumns: "1fr 1fr 1fr 1fr 2fr",
+                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
                   }}
                 >
                   <input
@@ -106,75 +128,95 @@ const Students = () => {
                     required
                     placeholder={`${t("firstName")}`}
                   />
-                  <select
-                    className="form-control form-control-md"
-                    onChange={(e) => {
-                      setRegion(e.target.value);
-                      setCityId("");
-                      setSchoolId("");
-                    }}
-                    value={region}
-                  >
-                    <option value="">{t("region")}</option>
-                    {regions?.result?.map((option) => (
-                      <option value={option.id} key={option.name}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    className="form-control form-control-md"
-                    onChange={(e) => setCityId(e.target.value)}
-                    value={cityId}
-                  >
-                    <option value="">{t("district")}</option>
-                    {regions?.result
-                      .filter(
-                        (currentRegion) => +region === currentRegion.id
-                      )[0]
-                      ?.cities?.map((option) => (
+                  {!user?.result.region?.id && (
+                    <select
+                      className="form-control form-control-md"
+                      onChange={(e) => {
+                        setRegion(e.target.value);
+                        setCityId("");
+                        setSchoolId("");
+                      }}
+                      value={region}
+                    >
+                      <option value="">{t("region")}</option>
+                      {regions?.result?.map((option) => (
                         <option value={option.id} key={option.name}>
                           {option.name}
                         </option>
                       ))}
-                  </select>
-                  <select
-                    className="form-control form-control-md"
-                    value={schoolId}
-                    onChange={(e) => setSchoolId(e.target.value)}
-                  >
-                    <option value="">{t("select")}</option>
-                    {schools?.result.data?.map((option) => (
-                      <option value={option.id} key={option.id}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </select>
-                  {(user?.result.level === 1 ||
-                    user?.result.level === 5 ||
-                    user?.result.level === 2) && (
-                    <div style={{ marginLeft: "auto" }}>
-                      <button
-                        type="button"
-                        className="btn btn-primary"
-                        onClick={() => navigate("/students/create")}
-                        style={{ marginRight: "15px" }}
-                      >
-                        + {t("createButton")}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => setExcelModal(true)}
-                        style={{
-                          width: "100px",
-                        }}
-                      >
-                        {t("excelUploadButton")}
-                      </button>
-                    </div>
+                    </select>
                   )}
-                </div>
+                  {!user?.result.city?.id && region && (
+                    <select
+                      className="form-control form-control-md"
+                      onChange={(e) => setCityId(e.target.value)}
+                      value={cityId}
+                    >
+                      <option value="">{t("district")}</option>
+                      {regions?.result
+                        .filter(
+                          (currentRegion) => +region === currentRegion.id
+                        )[0]
+                        ?.cities?.map((option) => (
+                          <option value={option.id} key={option.name}>
+                            {option.name}
+                          </option>
+                        ))}
+                    </select>
+                  )}
+                  {!user?.result.school?.id && cityId && (
+                    <select
+                      className="form-control form-control-md"
+                      value={schoolId}
+                      onChange={(e) => setSchoolId(e.target.value)}
+                    >
+                      <option value="">{t("school")}</option>
+                      {schools?.result.data?.map((option) => (
+                        <option value={option.id} key={option.id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  {(!user?.result.class?.id || schoolId) && schoolId && (
+                    <select
+                      className="form-control form-control-md"
+                      value={classId}
+                      onChange={(e) => setClassId(e.target.value)}
+                    >
+                      <option value="">{t("class")}</option>
+                      {classesValues?.map((option) => (
+                        <option value={option.value} key={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>{" "}
+                {(user?.result.level === 1 ||
+                  user?.result.level === 5 ||
+                  user?.result.level === 2) && (
+                  <div style={{ marginLeft: "auto" }}>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => navigate("/students/create")}
+                      style={{ marginRight: "15px" }}
+                    >
+                      + {t("createButton")}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setExcelModal(true)}
+                      style={{
+                        width: "100px",
+                      }}
+                    >
+                      {t("excelUploadButton")}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
             <FileUpload

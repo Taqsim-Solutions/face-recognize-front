@@ -110,6 +110,8 @@ const Home = () => {
     ...getMeQuery(),
   });
 
+  console.log(user);
+
   const { data: overall } = useQuery({
     ...getOverallStatisticsQuery({
       RegionId: region,

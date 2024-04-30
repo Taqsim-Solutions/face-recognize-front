@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   getTeachersQuery,
   getSchoolsQuery,
   getRegionsQuery,
+  getMeQuery,
+  getClassesQuery,
 } from "../../../../queries/index";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +18,8 @@ const Teachers = () => {
   const [region, setRegion] = useState("");
   const [cityId, setCityId] = useState("");
   const [schoolId, setSchoolId] = useState("");
+  const [classesValues, setClassesValues] = useState([]);
+  const [classId, setClassId] = useState("");
   const [page, setPage] = useState(1);
   const [deleteModal, setDeleteModal] = useState(null);
   const { t } = useTranslation();
@@ -29,6 +33,18 @@ const Teachers = () => {
     ...getRegionsQuery(),
   });
 
+  const { data: user } = useQuery({
+    ...getMeQuery(),
+  });
+
+  const { data: classes } = useQuery({
+    ...getClassesQuery({
+      PageSize: "1000",
+      SchoolId: schoolId || user?.result.school?.id,
+    }),
+    enabled: Boolean(schoolId || user?.result.school?.id),
+  });
+
   const { data: customers } = useQuery({
     ...getTeachersQuery({
       PageIndex: page,
@@ -37,8 +53,19 @@ const Teachers = () => {
       RegionId: region,
       CityId: cityId,
       SchoolId: schoolId,
+      ClassId: classId,
     }),
   });
+
+  useEffect(() => {
+    if (classes?.result) {
+      const options = classes.result.data.map((option) => ({
+        label: `${option.degree}-${option.symbol}`,
+        value: option.id,
+      }));
+      setClassesValues(options);
+    }
+  }, [classes]);
 
   return (
     <>
@@ -61,9 +88,9 @@ const Teachers = () => {
                   style={{
                     gap: "20px",
                     display: "grid",
-                    width: "85%",
+                    width: "65%",
                     justifyContent: "right",
-                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr",
+                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
                   }}
                 >
                   <input
@@ -75,56 +102,75 @@ const Teachers = () => {
                     required
                     placeholder={`${t("firstName")}`}
                   />
-                  <select
-                    className="form-control form-control-md"
-                    onChange={(e) => setRegion(e.target.value)}
-                    value={region}
-                  >
-                    <option value="">{t("region")}</option>
-                    {regions?.result?.map((option) => (
-                      <option value={option.id} key={option.name}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    className="form-control form-control-md"
-                    onChange={(e) => setCityId(e.target.value)}
-                    value={cityId}
-                  >
-                    <option value="">{t("district")}</option>
-                    {regions?.result
-                      .filter(
-                        (currentRegion) => +region === currentRegion.id
-                      )[0]
-                      ?.cities?.map((option) => (
+                  {!user?.result.region?.id && (
+                    <select
+                      className="form-control form-control-md"
+                      onChange={(e) => setRegion(e.target.value)}
+                      value={region}
+                    >
+                      <option value="">{t("region")}</option>
+                      {regions?.result?.map((option) => (
                         <option value={option.id} key={option.name}>
                           {option.name}
                         </option>
                       ))}
-                  </select>
-                  <select
-                    className="form-control form-control-md"
-                    value={schoolId}
-                    onChange={(e) => setSchoolId(e.target.value)}
-                  >
-                    <option value="">{t("select")}</option>
-                    {schools?.result.data?.map((option) => (
-                      <option value={option.id} key={option.id}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div />
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    style={{ marginLeft: "auto" }}
-                    onClick={() => navigate("/teachers/create")}
-                  >
-                    + {t("createButton")}
-                  </button>
+                    </select>
+                  )}
+                  {!user?.result.city?.id && region && (
+                    <select
+                      className="form-control form-control-md"
+                      onChange={(e) => setCityId(e.target.value)}
+                      value={cityId}
+                    >
+                      <option value="">{t("district")}</option>
+                      {regions?.result
+                        .filter(
+                          (currentRegion) => +region === currentRegion.id
+                        )[0]
+                        ?.cities?.map((option) => (
+                          <option value={option.id} key={option.name}>
+                            {option.name}
+                          </option>
+                        ))}
+                    </select>
+                  )}
+                  {!user?.result.school?.id && cityId && (
+                    <select
+                      className="form-control form-control-md"
+                      value={schoolId}
+                      onChange={(e) => setSchoolId(e.target.value)}
+                    >
+                      <option value="">{t("school")}</option>
+                      {schools?.result.data?.map((option) => (
+                        <option value={option.id} key={option.id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}{" "}
+                  {(!user?.result.class?.id || schoolId) && schoolId && (
+                    <select
+                      className="form-control form-control-md"
+                      value={classId}
+                      onChange={(e) => setClassId(e.target.value)}
+                    >
+                      <option value="">{t("class")}</option>
+                      {classesValues?.map((option) => (
+                        <option value={option.value} key={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  style={{ marginLeft: "auto" }}
+                  onClick={() => navigate("/teachers/create")}
+                >
+                  + {t("createButton")}
+                </button>
               </div>
             </div>
             <div className="col-xl-12 wow fadeInUp" data-wow-delay="1.5s">
