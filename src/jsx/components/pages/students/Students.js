@@ -30,7 +30,7 @@ const Students = () => {
     ...getStudentsQuery({
       PageIndex: page,
       PageSize: 10,
-      FirstName: firstName,
+      searchText: firstName,
       RegionId: region,
       CityId: cityId,
       SchoolId: schoolId,

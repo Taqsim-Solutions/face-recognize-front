@@ -33,7 +33,7 @@ const Teachers = () => {
     ...getTeachersQuery({
       PageIndex: page,
       PageSize: 10,
-      FirstName: firstName,
+      searchText: firstName,
       RegionId: region,
       CityId: cityId,
       SchoolId: schoolId,
@@ -143,6 +143,7 @@ const Teachers = () => {
                         <td>{t("image")}</td>
                         <th>{t("name")}</th>
                         <th>{t("school")}</th>
+                        <th>{t("class")}</th>
                         <th>{t("email")}</th>
                         <th>{t("username")}</th>
                         <th className="text-end">{t("action")}</th>
@@ -165,6 +166,11 @@ const Teachers = () => {
                           </td>
                           <td>
                             <h6 className="mb-0">{item.schoolName}</h6>
+                          </td>
+                          <td>
+                            <h6 className="mb-0">{`${item.class?.degree || ""}${
+                              item.class?.symbol ? `-${item.class?.symbol}` : ""
+                            }`}</h6>
                           </td>
                           <td>
                             <h6 className="mb-0">{item.email}</h6>
