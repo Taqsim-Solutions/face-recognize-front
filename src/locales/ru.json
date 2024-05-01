@@ -130,5 +130,7 @@
   "April": "Апрель",
   "May": "Май ",
   "create_student": "Добавить студента",
-  "category": "Категория"
+  "category": "Категория",
+  "new_password": "Новый пароль",
+  "repeat_password": "Повторите пароль"
 }

@@ -119,5 +119,7 @@
   "faces": "Yuzlar",
   "unknown-faces": "Tanilmagan yuzlar",
   "EditButton": "O'zgartirish",
-  "category": "Kategoriya"
+  "category": "Kategoriya",
+  "new_password": "Yangi parol",
+  "repeat_password": "Parolni takrorlang"
 }
