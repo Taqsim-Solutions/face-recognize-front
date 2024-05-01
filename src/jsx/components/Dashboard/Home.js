@@ -97,7 +97,7 @@ const Home = () => {
   const [classId, setClassId] = useState("");
   const [schoolId, setSchoolId] = useState("");
   const [mockTeacherDate, setMockTeacherDate] = useState("");
-  const [teacherDate, setTeacherDate] = useState("");
+  const [teacherDate, setTeacherDate] = useState([]);
   const [performanceWeek, setPerformanceWeek] = useState("this"); // this && last
   const { changeBackground } = useContext(ThemeContext);
   const { t } = useTranslation();
@@ -434,8 +434,13 @@ const Home = () => {
                     const year = e.getFullYear();
                     const month = String(e.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
                     const day = String(e.getDate()).padStart(2, "0");
-                    const formattedDate = `${year}-${month}-${day}`;
-                    setTeacherDate(`${formattedDate}Z`);
+                    const day2 = String(+e.getDate() + 1).padStart(2, "0");
+                    const formattedDateFrom = `${year}-${month}-${day}`;
+                    const formattedDateTo = `${year}-${month}-${day2}`;
+                    setTeacherDate([
+                      `${formattedDateFrom}Z`,
+                      `${formattedDateTo}Z`,
+                    ]);
                   }}
                 />
               </div>
@@ -446,7 +451,8 @@ const Home = () => {
                   RegionId: region,
                   CityId: cityId,
                   SchoolId: schoolId,
-                  DateFrom: teacherDate,
+                  DateFrom: teacherDate?.[0],
+                  DateTo: teacherDate?.[1],
                 }}
               />
             </div>
@@ -472,7 +478,7 @@ const Home = () => {
                     <th>{t("totalStudents")}</th>
                     <th>{t("boys")}</th>
                     <th>{t("girls")}</th>
-                    <th>{t("percentage")}</th>
+                    <th>{t("Percentage")}</th>
                     <th className="text-end">{t("absents")}</th>
                   </tr>
                 </thead>
@@ -567,7 +573,7 @@ const Home = () => {
                 <thead>
                   <tr>
                     <th>{t("category")}</th>
-                    <th>{t("percent")}</th>
+                    <th>{t("Percentage")}</th>
                   </tr>
                 </thead>
                 <tbody>
