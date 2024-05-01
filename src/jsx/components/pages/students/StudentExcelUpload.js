@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import settings from "../../../../settings/settings";
+import { useQueryClient } from "@tanstack/react-query";
 
 const FileUpload = ({ isOpen, user, onClose }) => {
   const [file, setFile] = useState(null);
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -37,8 +39,9 @@ const FileUpload = ({ isOpen, user, onClose }) => {
       }
 
       const data = await response.json();
+      queryClient.invalidateQueries(["students"]);
       alert("Файл загружен, студенты добавлены.");
-      console.log("File uploaded successfully:", data);
+      onClose();
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Error uploading file. Please try again.");

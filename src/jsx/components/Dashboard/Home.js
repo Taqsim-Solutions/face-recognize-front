@@ -7,6 +7,8 @@ import { ThemeContext } from "../../../context/ThemeContext";
 import { SVGICON } from "./Content";
 import { TeacherDetails } from "./Elements/TeacherDetails";
 import { useQuery } from "@tanstack/react-query";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   getPerformanceQuery,
   geSchoolOverviewQuery,
@@ -15,6 +17,7 @@ import {
   getDashboardOverviewQuery,
   getMeQuery,
   getOverallStatisticsQuery,
+  getClassesQuery,
 } from "../../../queries/index";
 import { useTranslation } from "react-i18next";
 import { Badge } from "react-bootstrap";
@@ -90,7 +93,11 @@ const Home = () => {
   const [schoolValues, setSchoolValues] = useState([]);
   const [region, setRegion] = useState("");
   const [cityId, setCityId] = useState("");
+  const [classesValues, setClassesValues] = useState([]);
+  const [classId, setClassId] = useState("");
   const [schoolId, setSchoolId] = useState("");
+  const [mockTeacherDate, setMockTeacherDate] = useState("");
+  const [teacherDate, setTeacherDate] = useState("");
   const [performanceWeek, setPerformanceWeek] = useState("this"); // this && last
   const { changeBackground } = useContext(ThemeContext);
   const { t } = useTranslation();
@@ -108,6 +115,14 @@ const Home = () => {
 
   const { data: user } = useQuery({
     ...getMeQuery(),
+  });
+
+  const { data: classes } = useQuery({
+    ...getClassesQuery({
+      PageSize: "1000",
+      SchoolId: schoolId || user?.result.school?.id,
+    }),
+    enabled: Boolean(schoolId || user?.result.school?.id),
   });
 
   const { data: overall } = useQuery({
@@ -135,6 +150,20 @@ const Home = () => {
       DateFrom: "2023-09-01Z",
     }),
   });
+
+  const getNextDay = (date) => {
+    const nextDay = new Date(date);
+    nextDay.setDate(nextDay.getDate() + 1); // Add one day
+    return nextDay;
+  };
+
+  // The 'next day' formatted as needed
+  const teacherDateTo = mockTeacherDate ? getNextDay(mockTeacherDate) : null;
+  const formattedTeacherDateTo = teacherDateTo
+    ? `${teacherDateTo.getFullYear()}-${String(
+        teacherDateTo.getMonth() + 1
+      ).padStart(2, "0")}-${String(teacherDateTo.getDate()).padStart(2, "0")}Z`
+    : "";
 
   const { data: regions } = useQuery({
     ...getRegionsQuery(),
@@ -165,6 +194,16 @@ const Home = () => {
       setSchoolId(user.result.school.id);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (classes?.result) {
+      const options = classes.result.data.map((option) => ({
+        label: `${option.degree}-${option.symbol}`,
+        value: option.id,
+      }));
+      setClassesValues(options);
+    }
+  }, [classes]);
 
   return (
     <>
@@ -233,30 +272,53 @@ const Home = () => {
             </div>
           </div>
         )}
+        {(user?.result.class === null || schoolId) && schoolId && (
+          <div className="col-xl-3 mb-2">
+            <div className="form-group mb-3">
+              <label htmlFor="basic-url" className="form-label d-block">
+                {t("class")}
+              </label>
+              <select
+                className="form-control form-control-md"
+                value={classId}
+                onChange={(e) => setClassId(e.target.value)}
+              >
+                <option value="">{t("class")}</option>
+                {classesValues?.map((option) => (
+                  <option value={option.value} key={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
       </div>
-      <div className="row">
-        <div className="col-xl-12">
-          <div className="card">
-            <div className="card-body pb-xl-4 pb-sm-3 pb-0">
-              <div className="row">
-                {cardBlog2.map((item, ind) => (
-                  <div className="col-xl-3 col-6" key={ind}>
-                    <div className="content-box">
-                      <div className={`icon-box icon-box-xl ${item.change}`}>
-                        {item.svg}
-                      </div>
-                      <div className="chart-num">
-                        <p>{t(item.title)}</p>
-                        <h2 className="font-w700 mb-0">{item.count}</h2>
+      {user?.result.level >= 3 && (
+        <div className="row">
+          <div className="col-xl-12">
+            <div className="card">
+              <div className="card-body pb-xl-4 pb-sm-3 pb-0">
+                <div className="row">
+                  {cardBlog2.map((item, ind) => (
+                    <div className="col-xl-3 col-6" key={ind}>
+                      <div className="content-box">
+                        <div className={`icon-box icon-box-xl ${item.change}`}>
+                          {item.svg}
+                        </div>
+                        <div className="chart-num">
+                          <p>{t(item.title)}</p>
+                          <h2 className="font-w700 mb-0">{item.count}</h2>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
       <div className="row">
         <div className="col-xl-12">
           <div className="card">
@@ -362,6 +424,21 @@ const Home = () => {
           <div className="card">
             <div className="card-header py-3 border-0 px-3">
               <h4 className="heading m-0">{t("latestAbsents")}</h4>
+              <div className="card">
+                <DatePicker
+                  className="form-control"
+                  placeholderText={t("select")}
+                  selected={mockTeacherDate}
+                  onChange={(e) => {
+                    setMockTeacherDate(e);
+                    const year = e.getFullYear();
+                    const month = String(e.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
+                    const day = String(e.getDate()).padStart(2, "0");
+                    const formattedDate = `${year}-${month}-${day}`;
+                    setTeacherDate(`${formattedDate}Z`);
+                  }}
+                />
+              </div>
             </div>
             <div className="card-body p-0">
               <TeacherDetails
@@ -369,6 +446,7 @@ const Home = () => {
                   RegionId: region,
                   CityId: cityId,
                   SchoolId: schoolId,
+                  DateFrom: teacherDate,
                 }}
               />
             </div>

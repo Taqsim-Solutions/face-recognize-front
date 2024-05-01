@@ -46,11 +46,6 @@ const SideBar = () => {
     btn.addEventListener("click", toggleFunc);
   }, []);
 
-  let handleheartBlast = document.querySelector(".heart");
-  function heartBlast() {
-    return handleheartBlast.classList.toggle("heart-blast");
-  }
-
   const [hideOnScroll, setHideOnScroll] = useState(true);
   useScrollPosition(
     ({ prevPos, currPos }) => {
@@ -60,18 +55,6 @@ const SideBar = () => {
     [hideOnScroll]
   );
 
-  const handleMenuActive = (status) => {
-    setState({ active: status });
-    if (state.active === status) {
-      setState({ active: "" });
-    }
-  };
-  const handleSubmenuActive = (status) => {
-    setState({ activeSubmenu: status });
-    if (state.activeSubmenu === status) {
-      setState({ activeSubmenu: "" });
-    }
-  };
   /// Path
   let path = window.location.pathname;
   path = path.split("/");
