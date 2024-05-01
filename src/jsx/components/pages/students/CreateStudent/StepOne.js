@@ -54,7 +54,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
 
   const onDeleteImage = (imageName) => {
     deleteStudentPhoto(imageName).then(() => {
-      queryClient.invalidateQueries(["teachers"]);
+      queryClient.invalidateQueries(["students"]);
       setReflesh(reflesh + 1);
     });
   };

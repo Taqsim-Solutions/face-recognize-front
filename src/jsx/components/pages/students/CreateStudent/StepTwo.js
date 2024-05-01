@@ -153,7 +153,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
               type="file"
               id="formFile"
               onChange={(e) => handleImageUpload(e.target.files)}
-              multiple // Add multiple attribute here
+              multiple
             />
           </div>
         </div>

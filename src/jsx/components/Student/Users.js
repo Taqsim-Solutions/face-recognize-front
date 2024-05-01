@@ -4,6 +4,7 @@ import { getUsersQuery } from "../../../queries/index";
 import AddUserModal from "./AddUserModal";
 import DeleteModal from "./DeleteUser";
 import { useTranslation } from "react-i18next";
+import Pagination from "../Pagination/Pagination";
 
 const Students = () => {
   const [page, setPage] = useState(1);
@@ -125,60 +126,10 @@ const Students = () => {
         />
       )}
       <DeleteModal isOpen={deleteModal} onClose={() => setDeleteModal(null)} />
-      {users?.result.totalPages > 0 && (
-        <div>
-          <div className="col-12 ps-3">
-            <nav>
-              <ul
-                className="pagination pagination-gutter pagination-primary pagination-sm no-bg"
-                style={{
-                  margin: "30px 0",
-                  display: "flex",
-                  justifyContent: "right",
-                }}
-              >
-                <li className="page-item page-indicator">
-                  <p
-                    className="page-link"
-                    to="/email-inbox"
-                    onClick={() => page > 0 && setPage(page - 1)}
-                  >
-                    <i className="la la-angle-left"></i>
-                  </p>
-                </li>
-                {"page"
-                  .repeat(users?.result.totalPages - 1)
-                  .split("page")
-                  .map((number, i) => (
-                    <li
-                      key={i}
-                      className={`page-item  ${
-                        page === i + 1 ? "active" : ""
-                      } `}
-                      onClick={() => setPage(i + 1)}
-                    >
-                      <p className="page-link" to="/email-inbox">
-                        {i + 1}
-                      </p>
-                    </li>
-                  ))}
-
-                <li className="page-item page-indicator">
-                  <p
-                    className="page-link"
-                    to="/email-inbox"
-                    onClick={() =>
-                      page + 1 < users?.result.totalPages && setPage(page + 1)
-                    }
-                  >
-                    <i className="la la-angle-right"></i>
-                  </p>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      )}
+      <Pagination
+        totalPages={users?.result.totalPages}
+        onPageChange={(page) => setPage(page)}
+      />
     </>
   );
 };
