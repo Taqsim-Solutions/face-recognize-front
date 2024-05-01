@@ -118,5 +118,8 @@
   "create_student": "O’quvchi qo’shish",
   "faces": "Yuzlar",
   "unknown-faces": "Tanilmagan yuzlar",
-  "EditButton": "O'zgartirish"
+  "EditButton": "O'zgartirish",
+  "category": "Kategoriya",
+  "new_password": "Yangi parol",
+  "repeat_password": "Parolni takrorlang"
 }

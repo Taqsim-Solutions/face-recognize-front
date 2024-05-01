@@ -14,6 +14,7 @@ import settings from "../../../../../settings/settings";
 import { getRegionsQuery, getMeQuery } from "../../../../../queries/index";
 import { useTranslation } from "react-i18next";
 import Select from "react-select";
+import { NewPassword } from "./NewPassword";
 
 const StepOne = ({ setGoSteps }) => {
   const [region, setRegion] = useState("");
@@ -28,6 +29,7 @@ const StepOne = ({ setGoSteps }) => {
   const [schoolId, setSchoolId] = useState("");
   const [password, setPassword] = useState("");
   const [reflesh, setReflesh] = useState(0);
+  const [passwordModal, setOpenPasswordModal] = useState(false);
   const { t } = useTranslation();
   const [isDirector, setIsDirector] = useState(false);
   let errorsObj = {
@@ -399,6 +401,23 @@ const StepOne = ({ setGoSteps }) => {
             ))}
           </div>
         )}
+        {teacherId &&
+          (user?.result?.level === 2 || user?.result?.level === 5) && (
+            <p
+              style={{
+                textDecoration: "underline",
+                color: "blue",
+                cursor: "pointer",
+              }}
+              onClick={() => setOpenPasswordModal(teacherId)}
+            >
+              {t("new_password")}
+            </p>
+          )}
+        <NewPassword
+          id={passwordModal}
+          onClose={() => setOpenPasswordModal(false)}
+        />
         <button
           className="btn btn-primary sw-btn-next ms-1"
           onClick={onSubmit}
