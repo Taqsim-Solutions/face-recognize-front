@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
+import { useTranslation } from "react-i18next";
 
 const SchoolOverView = ({ data }) => {
   const [serie2s, setSeries] = useState([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const payload = [
@@ -60,15 +62,15 @@ const SchoolOverView = ({ data }) => {
 
     xaxis: {
       categories: [
-        "September",
-        "October",
-        "November",
-        "December",
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
+        t("September"),
+        t("October"),
+        t("November"),
+        t("December"),
+        t("January"),
+        t("February"),
+        t("March"),
+        t("April"),
+        t("May"),
       ],
       labels: {
         style: {

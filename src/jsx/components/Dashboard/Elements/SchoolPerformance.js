@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
+import { useTranslation } from "react-i18next";
 
 const SchoolPerformance = ({ data }) => {
   const [serie2s, setSeries] = useState([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const payload = [
@@ -64,7 +66,14 @@ const SchoolPerformance = ({ data }) => {
     },
 
     xaxis: {
-      categories: ["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"],
+      categories: [
+        t("Mon"),
+        t("Tues"),
+        t("Wed"),
+        t("Thurs"),
+        t("Fri"),
+        t("Sat"),
+      ],
       labels: {
         style: {
           colors: "#B5B5C3",
