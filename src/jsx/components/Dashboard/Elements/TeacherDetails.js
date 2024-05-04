@@ -9,6 +9,7 @@ export const TeacherDetails = ({ filter }) => {
     ...getDashboardAbsentsQuery({
       ...filter,
       PageIndex: 1,
+      isDescending: false,
     }),
   });
 

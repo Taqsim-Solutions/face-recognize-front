@@ -56,6 +56,13 @@ export const updateTeacher = (data, id) => {
   return request({ method: "PUT", url: `/teachers/${id}`, data });
 };
 
+export const updateTeacherPassword = (password, id) => {
+  return request({
+    method: "PUT",
+    url: `/users/password/${id}?newPassword=${password}`,
+  });
+};
+
 export const getTeacher = (id) => {
   return request({ method: "GET", url: `/teachers/${id}` });
 };

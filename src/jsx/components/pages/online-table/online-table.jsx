@@ -90,6 +90,7 @@ export function OnlineTable() {
                       <th>{t("image")}</th>
                       <th>{t("name")}</th>
                       <th>{t("phoneNumber")}</th>
+                      <th className="text-end">{t("date_of_absent")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -112,6 +113,7 @@ export function OnlineTable() {
                             <td>
                               <h6 className="mb-0">{item.phoneNumber}</h6>
                             </td>
+                            <td>{item.notComingDate?.slice(0, 10)}</td>
                           </tr>
                         )
                     )}
