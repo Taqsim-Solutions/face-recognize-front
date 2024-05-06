@@ -24,7 +24,9 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
     ) {
       const constraints = {
         video: {
-          facingMode,
+          facingMode: {
+            exact: facingMode,
+          },
         },
       };
 
