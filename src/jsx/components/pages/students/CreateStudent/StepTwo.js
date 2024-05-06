@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import swal from "sweetalert";
 import { uploadStudentPhoto } from "../../../../../api";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 function StepTwo({ uploadProps, studentId, createdStudentId }) {
   const [step, setStep] = useState(1);
   const [showCamera, setCamera] = useState(false);
+  const [facingMode, setFacingMode] = useState("user");
   const [capturedImages, setCapturedImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const videoRef = useRef(null);
@@ -21,12 +22,6 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
       "mediaDevices" in navigator &&
       "getUserMedia" in navigator.mediaDevices
     ) {
-      // Determine if the viewport width is under a typical mobile threshold
-      const isMobile = window.innerWidth < 768;
-
-      // Use "environment" for back camera on mobile devices, "user" otherwise
-      const facingMode = isMobile ? "environment" : "user";
-
       const constraints = {
         video: {
           facingMode,
@@ -130,6 +125,12 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
     const uploadResults = await Promise.all(uploadPromises);
     navigate("/students");
   };
+
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setFacingMode("environment");
+    }
+  }, []);
 
   return (
     <div>
