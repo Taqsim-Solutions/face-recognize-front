@@ -27,7 +27,7 @@ const Teachers = () => {
   const navigate = useNavigate();
 
   const { data: schools } = useQuery({
-    ...getSchoolsQuery({ size: "100", RegionId: region, CityId: cityId }),
+    ...getSchoolsQuery({ size: size, RegionId: region, CityId: cityId }),
   });
 
   const { data: regions } = useQuery({

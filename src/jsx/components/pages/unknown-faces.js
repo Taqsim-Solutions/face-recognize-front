@@ -8,13 +8,14 @@ import Pagination from "../Pagination/Pagination";
 
 function UnknownFaces() {
   const [page, setPage] = useState(1);
+  const [size, setSize] = useState("10");
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const { data: faces } = useQuery({
     ...getUnknownFacesQuery({
       PageIndex: page,
-      PageSize: 10,
+      PageSize: size,
       DateFrom: "2023-09-01Z",
     }),
   });
@@ -85,6 +86,8 @@ function UnknownFaces() {
         currentPage={page}
         onPageChange={(page) => setPage(page)}
         totalPages={faces?.result.totalPages}
+        size={size}
+        setSize={setSize}
       />
     </>
   );
