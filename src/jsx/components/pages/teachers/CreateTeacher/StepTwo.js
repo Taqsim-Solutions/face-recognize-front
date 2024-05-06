@@ -17,16 +17,23 @@ function StepTwo({ uploadProps, id }) {
   const { t } = useTranslation();
   const [images, setImages] = useState([]);
 
-  const startCamera = async (facingMode) => {
+  const startCamera = async () => {
     if (
       "mediaDevices" in navigator &&
       "getUserMedia" in navigator.mediaDevices
     ) {
+      // Determine if the viewport width is under a typical mobile threshold
+      const isMobile = window.innerWidth < 768;
+
+      // Use "environment" for back camera on mobile devices, "user" otherwise
+      const facingMode = isMobile ? "environment" : "user";
+
       const constraints = {
         video: {
           facingMode,
         },
       };
+
       try {
         // Stop the current stream if it exists
         if (streamRef.current) {
@@ -45,6 +52,8 @@ function StepTwo({ uploadProps, id }) {
       } catch (error) {
         console.error("Error accessing camera:", error);
       }
+    } else {
+      console.error("MediaDevices not supported");
     }
   };
 
