@@ -21,6 +21,7 @@ const Teachers = () => {
   const [classesValues, setClassesValues] = useState([]);
   const [classId, setClassId] = useState("");
   const [page, setPage] = useState(1);
+  const [size, setSize] = useState("10");
   const [deleteModal, setDeleteModal] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -48,12 +49,12 @@ const Teachers = () => {
   const { data: customers } = useQuery({
     ...getTeachersQuery({
       PageIndex: page,
-      PageSize: 10,
       searchText: firstName,
       RegionId: region,
       CityId: cityId,
       SchoolId: schoolId,
       ClassId: classId,
+      PageSize: size,
     }),
   });
 
@@ -261,6 +262,8 @@ const Teachers = () => {
         onClose={() => setDeleteModal(null)}
       />
       <Pagination
+        size={size}
+        setSize={setSize}
         onPageChange={(page) => setPage(page)}
         totalPages={customers?.result.totalPages}
       />

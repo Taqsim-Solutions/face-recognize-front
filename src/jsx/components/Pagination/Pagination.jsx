@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import Select from "react-select";
 
-const Pagination = ({ totalPages, onPageChange }) => {
+const Pagination = ({ totalPages, onPageChange, size, setSize }) => {
+  const { t } = useTranslation();
   // Set initial state for the current page
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -34,7 +37,10 @@ const Pagination = ({ totalPages, onPageChange }) => {
           justifyContent: "right",
         }}
       >
-        <ul className="pagination pagination-sm no-bg">
+        <ul
+          className="pagination pagination-sm no-bg mr-5"
+          style={{ marginRight: "30px", marginTop: "-2px" }}
+        >
           <li
             className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
             onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
@@ -96,6 +102,18 @@ const Pagination = ({ totalPages, onPageChange }) => {
             </span>
           </li>
         </ul>
+        {size && (
+          <Select
+            defaultValue="10"
+            onChange={(e) => setSize(e.value)}
+            options={[
+              { label: "10", value: "10" },
+              { label: "30", value: "30" },
+              { label: "50", value: "50" },
+            ]}
+            placeholder={t("select")}
+          />
+        )}
       </div>
     )
   );
