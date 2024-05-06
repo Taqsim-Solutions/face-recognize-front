@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import swal from "sweetalert";
 import { uploadPhoto } from "../../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 function StepTwo({ uploadProps, id }) {
   const [step, setStep] = useState(1);
+  const [facingMode, setFacingMode] = useState("user");
   const [showCamera, setCamera] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);
   const [capturedImages, setCapturedImages] = useState([]);
@@ -17,17 +18,11 @@ function StepTwo({ uploadProps, id }) {
   const { t } = useTranslation();
   const [images, setImages] = useState([]);
 
-  const startCamera = async () => {
+  const startCamera = async (facingMode) => {
     if (
       "mediaDevices" in navigator &&
       "getUserMedia" in navigator.mediaDevices
     ) {
-      // Determine if the viewport width is under a typical mobile threshold
-      const isMobile = window.innerWidth < 768;
-
-      // Use "environment" for back camera on mobile devices, "user" otherwise
-      const facingMode = isMobile ? "environment" : "user";
-
       const constraints = {
         video: {
           facingMode,
@@ -132,14 +127,18 @@ function StepTwo({ uploadProps, id }) {
     navigate("/teachers");
   };
 
-  console.log(capturedImages);
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setFacingMode("environment");
+    }
+  }, []);
 
   return (
     <div>
       {!showCamera && capturedImages.length < 6 && (
         <div>
           <div
-            onClick={() => startCamera(true)}
+            onClick={() => startCamera(facingMode)}
             className="py-10"
             style={{
               fontSize: "30px",

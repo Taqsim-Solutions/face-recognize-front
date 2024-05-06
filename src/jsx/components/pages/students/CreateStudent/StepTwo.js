@@ -17,7 +17,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
   const { t } = useTranslation();
   const [images, setImages] = useState([]);
 
-  const startCamera = async () => {
+  const startCamera = async (facingMode) => {
     if (
       "mediaDevices" in navigator &&
       "getUserMedia" in navigator.mediaDevices
@@ -137,7 +137,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
       {!showCamera && capturedImages.length !== 5 && (
         <div>
           <div
-            onClick={() => startCamera(true)}
+            onClick={() => startCamera(facingMode)}
             className="py-10"
             style={{
               fontSize: "30px",
