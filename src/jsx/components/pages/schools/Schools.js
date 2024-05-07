@@ -19,11 +19,12 @@ const Schools = () => {
   const [createModal, setCreateModal] = useState();
   const [deleteModal, setDeleteModal] = useState(null);
   const { t } = useTranslation();
+  const [size, setSize] = useState("10");
 
   const { data: schools } = useQuery({
     ...getSchoolsQuery({
       PageIndex: page,
-      PageSize: 10,
+      PageSize: size,
       Name: name,
       RegionId: region,
       CityId: cityId,
@@ -195,6 +196,8 @@ const Schools = () => {
       <Pagination
         totalPages={schools?.result.totalPages}
         onPageChange={(page) => setPage(page)}
+        size={size}
+        setSize={setSize}
       />
       <DeleteSchool isOpen={deleteModal} onClose={() => setDeleteModal(null)} />
     </>

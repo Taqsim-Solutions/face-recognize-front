@@ -21,12 +21,13 @@ const Teachers = () => {
   const [classesValues, setClassesValues] = useState([]);
   const [classId, setClassId] = useState("");
   const [page, setPage] = useState(1);
+  const [size, setSize] = useState("10");
   const [deleteModal, setDeleteModal] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const { data: schools } = useQuery({
-    ...getSchoolsQuery({ size: "100", RegionId: region, CityId: cityId }),
+    ...getSchoolsQuery({ size: size, RegionId: region, CityId: cityId }),
   });
 
   const { data: regions } = useQuery({
@@ -48,12 +49,12 @@ const Teachers = () => {
   const { data: customers } = useQuery({
     ...getTeachersQuery({
       PageIndex: page,
-      PageSize: 10,
       searchText: firstName,
       RegionId: region,
       CityId: cityId,
       SchoolId: schoolId,
       ClassId: classId,
+      PageSize: size,
     }),
   });
 
@@ -73,7 +74,7 @@ const Teachers = () => {
         <div className="col-xl-12">
           <div className="row">
             <div className="col-xl-12">
-              <div className="page-title flex-wrap">
+              <div className="page-title flex-wrap tableTop">
                 <div
                   className="dashboard_bar"
                   style={{
@@ -84,15 +85,7 @@ const Teachers = () => {
                 >
                   {t("teachers")}
                 </div>
-                <div
-                  style={{
-                    gap: "20px",
-                    display: "grid",
-                    width: "65%",
-                    justifyContent: "right",
-                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
-                  }}
-                >
+                <div className="teacherFilters">
                   <input
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
@@ -261,6 +254,8 @@ const Teachers = () => {
         onClose={() => setDeleteModal(null)}
       />
       <Pagination
+        size={size}
+        setSize={setSize}
         onPageChange={(page) => setPage(page)}
         totalPages={customers?.result.totalPages}
       />
