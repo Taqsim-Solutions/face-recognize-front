@@ -178,17 +178,7 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
       )}
       {showCamera && step !== 6 && (
         <>
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            style={{
-              borderRadius: "10px",
-              width: "35%",
-              display: "block",
-              margin: "0 auto",
-            }}
-          />
+          <video ref={videoRef} autoPlay muted className="video" />
           <div style={{ textAlign: "center" }}>
             <button
               className="btn btn-primary sw-btn-next ms-1"

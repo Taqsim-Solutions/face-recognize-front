@@ -32,14 +32,14 @@ const Pagination = ({ totalPages, onPageChange, size, setSize }) => {
       <div
         className="pagination-container my-10"
         style={{
-          margin: "25px 75px",
+          margin: "25px 25px",
           display: "flex",
           justifyContent: "right",
         }}
       >
         <ul
           className="pagination pagination-sm no-bg mr-5"
-          style={{ marginRight: "30px", marginTop: "-2px" }}
+          style={{ marginRight: "10px", marginTop: "1px" }}
         >
           <li
             className={`page-item ${currentPage === 1 ? "disabled" : ""}`}

@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import "./other/swiper/css/swiper-bundle.min.css";
 import "./other/bootstrap-select/dist/css/bootstrap-select.min.css";
 import "./css/style.css";
+import "./css/custom.css";
 import { useAuthContext } from "./context/AuthContext";
 
 const SignUp = lazy(() => import("./jsx/pages/Registration"));

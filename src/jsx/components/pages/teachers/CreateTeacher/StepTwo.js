@@ -164,21 +164,11 @@ function StepTwo({ uploadProps, id }) {
       )}
       {showCamera && step < 6 && (
         <>
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            style={{
-              borderRadius: "10px",
-              width: "35%",
-              display: "block",
-              margin: "0 auto",
-            }}
-          />
+          <video ref={videoRef} autoPlay muted className="video" />
           <div style={{ textAlign: "center" }}>
             <button
               className="btn btn-primary"
-              style={{ margin: "20px auto" }}
+              style={{ marginTop: "20px" }}
               onClick={takePhoto}
             >
               {step === 1
@@ -193,13 +183,14 @@ function StepTwo({ uploadProps, id }) {
             </button>
             <button
               className="btn btn-secondary"
-              style={{ margin: "20px auto" }}
+              style={{ margin: "10px auto" }}
               onClick={toggleFacingMode}
             >
               {facingMode === "user"
                 ? t("switchToRearCamera")
                 : t("switchToFrontCamera")}
             </button>
+            Test
           </div>
           <canvas ref={canvasRef} style={{ display: "none" }} />
         </>

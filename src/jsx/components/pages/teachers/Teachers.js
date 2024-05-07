@@ -74,7 +74,7 @@ const Teachers = () => {
         <div className="col-xl-12">
           <div className="row">
             <div className="col-xl-12">
-              <div className="page-title flex-wrap">
+              <div className="page-title flex-wrap tableTop">
                 <div
                   className="dashboard_bar"
                   style={{
@@ -85,15 +85,7 @@ const Teachers = () => {
                 >
                   {t("teachers")}
                 </div>
-                <div
-                  style={{
-                    gap: "20px",
-                    display: "grid",
-                    width: "65%",
-                    justifyContent: "right",
-                    gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
-                  }}
-                >
+                <div className="teacherFilters">
                   <input
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
