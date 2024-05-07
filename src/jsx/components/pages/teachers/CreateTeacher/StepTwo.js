@@ -23,7 +23,7 @@ function StepTwo({ uploadProps, id }) {
       "mediaDevices" in navigator &&
       "getUserMedia" in navigator.mediaDevices
     ) {
-      const constraints = { video: { facingMode: { exact: mode } } };
+      const constraints = { video: { facingMode: mode } };
 
       // Stop any existing stream before starting a new one
       if (streamRef.current) {
@@ -190,7 +190,6 @@ function StepTwo({ uploadProps, id }) {
                 ? t("switchToRearCamera")
                 : t("switchToFrontCamera")}
             </button>
-            Test
           </div>
           <canvas ref={canvasRef} style={{ display: "none" }} />
         </>
