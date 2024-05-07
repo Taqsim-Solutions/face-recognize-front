@@ -11,10 +11,11 @@ const Students = () => {
   const [editUser, setEditUser] = useState(null);
   const [createModal, setCreateModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
+  const [size, setSize] = useState("10");
   const { t } = useTranslation();
 
   const { data: users } = useQuery({
-    ...getUsersQuery({ PageIndex: page }),
+    ...getUsersQuery({ PageIndex: page, PageSize: size }),
   });
 
   return (
@@ -129,6 +130,8 @@ const Students = () => {
       <Pagination
         totalPages={users?.result.totalPages}
         onPageChange={(page) => setPage(page)}
+        size={size}
+        setSize={setSize}
       />
     </>
   );

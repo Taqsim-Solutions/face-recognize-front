@@ -1,0 +1,28 @@
+.teacherFilters {
+  gap: 20px;
+  display: grid;
+  width: 65%;
+  justify-content: right;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+.video {
+  border-radius: 10px;
+  width: 55%;
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 680px) {
+  .tableTop {
+    flex-direction: column;
+    align-items: start;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  .teacherFilters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .video {
+    width: 100%;
+  }
+}

@@ -121,5 +121,7 @@
   "EditButton": "O'zgartirish",
   "category": "Kategoriya",
   "new_password": "Yangi parol",
-  "repeat_password": "Parolni takrorlang"
+  "repeat_password": "Parolni takrorlang",
+  "switchToRearCamera": "Orqa kameraga o'tish",
+  "switchToFrontCamera": "Old kameraga o'tish"
 }
