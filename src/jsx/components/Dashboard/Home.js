@@ -121,6 +121,7 @@ const Home = () => {
     ...getClassesQuery({
       PageSize: "1000",
       SchoolId: schoolId || user?.result.school?.id,
+      WithStudents: true,
     }),
     enabled: Boolean(schoolId || user?.result.school?.id),
   });
@@ -150,20 +151,6 @@ const Home = () => {
       DateFrom: "2023-09-01Z",
     }),
   });
-
-  const getNextDay = (date) => {
-    const nextDay = new Date(date);
-    nextDay.setDate(nextDay.getDate() + 1); // Add one day
-    return nextDay;
-  };
-
-  // The 'next day' formatted as needed
-  const teacherDateTo = mockTeacherDate ? getNextDay(mockTeacherDate) : null;
-  const formattedTeacherDateTo = teacherDateTo
-    ? `${teacherDateTo.getFullYear()}-${String(
-        teacherDateTo.getMonth() + 1
-      ).padStart(2, "0")}-${String(teacherDateTo.getDate()).padStart(2, "0")}Z`
-    : "";
 
   const { data: regions } = useQuery({
     ...getRegionsQuery(),
