@@ -53,6 +53,7 @@ const Students = () => {
     ...getClassesQuery({
       PageSize: "1000",
       SchoolId: schoolId || user?.result.school?.id,
+      WithStudents: true,
     }),
     enabled: Boolean(schoolId || user?.result.school?.id),
   });
