@@ -66,13 +66,21 @@ function Faces() {
                 </p>
                 <p
                   style={{
-                    marginTop: "10px",
                     marginBottom: "0",
                     textAlign: "center",
                   }}
                 >
                   {image.time.slice(0, 10).split("-").join(".")}-{" "}
                   {image.time.slice(11, 19)}
+                </p>
+                <p
+                  style={{
+                    marginBottom: "0",
+                    textAlign: "center",
+                  }}
+                >
+                  {t("class")}:{" "}
+                  {image?.student.className || image?.teacher?.className}
                 </p>
               </div>
             ))}
