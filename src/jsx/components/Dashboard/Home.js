@@ -131,6 +131,7 @@ const Home = () => {
       RegionId: region,
       CityId: cityId,
       SchoolId: schoolId,
+      ClassId: classId,
     }),
   });
 
@@ -140,6 +141,7 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
       PageIndex: schoolsPage,
+      ClassId: classId,
     }),
   });
 
@@ -149,6 +151,7 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
       DateFrom: "2023-09-01Z",
+      ClassId: classId,
     }),
   });
 
@@ -440,6 +443,7 @@ const Home = () => {
                   SchoolId: schoolId,
                   DateFrom: teacherDate?.[0],
                   DateTo: teacherDate?.[1],
+                  ClassId: classId,
                 }}
               />
             </div>

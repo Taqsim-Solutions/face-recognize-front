@@ -64,66 +64,48 @@ export function OnlineTable() {
           </div>
         ))}
       </div>
-      {selectedClass && (
-        <div className="col-xl-12 card wow fadeInUp" data-wow-delay="1.5s">
-          <div className="card">
-            <div className="card-header pb-0 border-0 flex-wrap">
-              <div>
-                <div className="mb-3">
-                  <h2 className="heading mb-0" style={{ color: "red" }}>
-                    {t("not_attended")}
-                  </h2>
-                </div>
-              </div>
+      <div
+        className="row"
+        style={{
+          gap: "30px 0",
+          marginBottom: "50px",
+          marginLeft: "1px",
+        }}
+      >
+        {students?.result?.map((student) => (
+          <div
+            key={student.id}
+            className="col-xl-2"
+            style={{
+              background: "white",
+              marginRight: "20px",
+              padding: "10px",
+              borderRadius: "8px",
+            }}
+          >
+            <img
+              src={
+                student.mainImageName
+                  ? `${settings.baseURL}/images?filename=${student.mainImageName}`
+                  : "https://st4.depositphotos.com/3265223/21282/v/450/depositphotos_212821870-stock-illustration-default-avatar-photo-placeholder-profile.jpg"
+              }
+              alt=""
+              style={{
+                width: "100%",
+                borderRadius: "8px",
+                minHeight: "250px",
+                objectFit: "cover",
+              }}
+            />
+            <div className="trans-list">
+              <h4
+                style={{ margin: "10px 0" }}
+              >{`${student.firstName} ${student.lastName}`}</h4>
             </div>
-            <div className="table-responsive full-data">
-              <div
-                id="example-student_wrapper"
-                className="dataTables_wrapper no-footer"
-              >
-                <table
-                  className="table-responsive-lg table display dataTablesCard student-tab dataTable no-footer"
-                  id="example-student"
-                >
-                  <thead>
-                    <tr>
-                      <th>{t("image")}</th>
-                      <th>{t("name")}</th>
-                      <th>{t("phoneNumber")}</th>
-                      <th className="text-end">{t("date_of_absent")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {students?.result?.map(
-                      (item, ind) =>
-                        !item?.attended && (
-                          <tr key={ind}>
-                            <td>
-                              <img
-                                src={`${settings.baseURL}/images?filename=${item.mainImageName}`}
-                                alt=""
-                                style={{ width: "50px", borderRadius: "8px" }}
-                              />
-                            </td>
-                            <td>
-                              <div className="trans-list">
-                                <h4>{`${item.firstName} ${item.lastName}`}</h4>
-                              </div>
-                            </td>
-                            <td>
-                              <h6 className="mb-0">{item.phoneNumber}</h6>
-                            </td>
-                            <td>{item.notComingDate?.slice(0, 10)}</td>
-                          </tr>
-                        )
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {student.comingTime?.slice(0, 10)}
           </div>
-        </div>
-      )}
+        ))}
+      </div>
       {selectedClass && (
         <div className="col-xl-12 card wow fadeInUp" data-wow-delay="1.5s">
           <div className="card">
