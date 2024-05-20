@@ -171,20 +171,21 @@ const Students = () => {
                       ))}
                     </select>
                   )}
-                  {(!user?.result.class?.id || schoolId) && schoolId && (
-                    <select
-                      className="form-control form-control-md"
-                      value={classId}
-                      onChange={(e) => setClassId(e.target.value)}
-                    >
-                      <option value="">{t("class")}</option>
-                      {classesValues?.map((option) => (
-                        <option value={option.value} key={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                  {!user?.result.class?.id &&
+                    (user?.result.school?.id || schoolId) && (
+                      <select
+                        className="form-control form-control-md"
+                        value={classId}
+                        onChange={(e) => setClassId(e.target.value)}
+                      >
+                        <option value="">{t("class")}</option>
+                        {classesValues?.map((option) => (
+                          <option value={option.value} key={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                 </div>{" "}
                 {(user?.result.level === 1 ||
                   user?.result.level === 5 ||

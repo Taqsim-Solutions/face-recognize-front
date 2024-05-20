@@ -80,7 +80,11 @@ function Faces() {
                   }}
                 >
                   {t("class")}:{" "}
-                  {image?.student.className || image?.teacher?.className}
+                  {image?.student
+                    ? image?.student?.className
+                    : `${image?.teacher?.class?.degree || ""}-${
+                        image?.teacher?.class?.symbol || ""
+                      }`}
                 </p>
               </div>
             ))}
