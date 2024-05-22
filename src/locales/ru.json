@@ -134,5 +134,6 @@
   "new_password": "Новый пароль",
   "repeat_password": "Повторите пароль",
   "switchToRearCamera": "Переключиться на заднюю камеру",
-  "switchToFrontCamera": "Переключиться на переднюю камеру"
+  "switchToFrontCamera": "Переключиться на переднюю камеру",
+  "show_main_images": "Отображение основных изображений"
 }

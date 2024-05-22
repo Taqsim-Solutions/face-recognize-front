@@ -134,12 +134,12 @@ export const deleteGovernment = (id) => {
   return request({ method: "DELETE", url: `/governments/${id}` });
 };
 
-export const getGovernment = (params) => {
-  return request({ method: "GET", url: "/governments", params });
-};
-
 export const getDashboardOverview = (params) => {
   return request({ method: "GET", url: "/dashboard/overview", params });
+};
+
+export const getGovernment = (params) => {
+  return request({ method: "GET", url: "/governments", params });
 };
 
 export const getFaces = (params) => {
