@@ -4,11 +4,17 @@ import { getFacesQuery } from "../../../queries/index";
 import { useState } from "react";
 import settings from "../../../settings/settings";
 import Pagination from "../Pagination/Pagination";
+import { getMeQuery } from "../../../queries/index";
 
 function Faces() {
+  const [showMainImage, setShowMainImage] = useState(false);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState("10");
   const { t } = useTranslation();
+
+  const { data: user } = useQuery({
+    ...getMeQuery(),
+  });
 
   const { data: faces } = useQuery({
     ...getFacesQuery({
@@ -34,15 +40,39 @@ function Faces() {
                 >
                   {t("faces")}
                 </div>
+                {user?.result?.level === 5 && (
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="flexSwitchCheckDefault"
+                      onChange={(e) => setShowMainImage(e.target.checked)}
+                      value={showMainImage}
+                    />
+                    <label
+                      class="form-check-label"
+                      for="flexSwitchCheckDefault"
+                    >
+                      {t("show_main_images")}
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
             {faces?.result?.data?.map((image) => (
               <div
-                className="col-xl-2 card"
-                style={{ marginLeft: "35px", padding: "10px" }}
+                className="card"
+                style={{ marginLeft: "35px", padding: "10px", width: "250px" }}
               >
                 <img
-                  src={`${settings.baseURL}/images?filename=${image.imageName}`}
+                  src={`${settings.baseURL}/images?filename=${
+                    user?.result?.level === 5 && !showMainImage
+                      ? image.imageName
+                      : image?.student?.mainImageName
+                      ? image?.student?.mainImageName
+                      : image?.teacher?.mainImageName
+                  }`}
                   alt=""
                   style={{
                     width: "100%",

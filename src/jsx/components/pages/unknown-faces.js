@@ -43,8 +43,8 @@ function UnknownFaces() {
             </div>
             {faces?.result?.data?.map((image) => (
               <div
-                className="col-xl-2 card"
-                style={{ marginLeft: "35px", padding: "10px" }}
+                className="card"
+                style={{ marginLeft: "35px", padding: "10px", width: "200px" }}
               >
                 <img
                   src={`${settings.baseURL}/images?filename=${image.imageName}`}

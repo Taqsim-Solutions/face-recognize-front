@@ -123,5 +123,6 @@
   "new_password": "Yangi parol",
   "repeat_password": "Parolni takrorlang",
   "switchToRearCamera": "Orqa kameraga o'tish",
-  "switchToFrontCamera": "Old kameraga o'tish"
+  "switchToFrontCamera": "Old kameraga o'tish",
+  "show_main_images": "Asosiy rasmlarni ko'rsatish"
 }
