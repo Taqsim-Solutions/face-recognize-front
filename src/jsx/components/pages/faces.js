@@ -63,7 +63,7 @@ function Faces() {
             {faces?.result?.data?.map((image) => (
               <div
                 className="card"
-                style={{ marginLeft: "35px", padding: "10px", width: "250px" }}
+                style={{ marginLeft: "35px", padding: "10px", width: "200px" }}
               >
                 <img
                   src={`${settings.baseURL}/images?filename=${

@@ -31,6 +31,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
     passport: "",
     gender: 1,
   });
+  const [mainImage, setMainImage] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -137,13 +138,14 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
         setDateOfBirth(res.result.dateOfBirth.slice(0, 10));
         setPhone(res.result.phoneNumber);
         setImages(res.result.imageIds);
+        setMainImage(res.result.mainImageName);
         setFather({
           ...res.result.parents?.[0],
-          dateOfBirth: res.result.parents?.[0].dateOfBirth.slice(0, 10),
+          dateOfBirth: res.result.parents?.[0].dateOfBirth?.slice(0, 10),
         });
         setMother({
           ...res.result.parents?.[1],
-          dateOfBirth: res.result.parents?.[1].dateOfBirth.slice(0, 10),
+          dateOfBirth: res.result.parents?.[1].dateOfBirth?.slice(0, 10),
         });
       });
     }
@@ -378,7 +380,32 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
             }}
           >
             {images.map((image) => (
-              <div key={image}>
+              <div key={image} style={{ position: "relative" }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "15px",
+                    top: "15px",
+                    background: "white",
+                    width: "35px",
+                    height: "35px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingBottom: "2.5px",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <i
+                    className="material-icons"
+                    style={{
+                      color: image === mainImage ? "orange" : "grey",
+                    }}
+                  >
+                    workspace_premium
+                  </i>
+                </div>
                 <img
                   src={`${settings.baseURL}/images?filename=${image}`}
                   alt=""
