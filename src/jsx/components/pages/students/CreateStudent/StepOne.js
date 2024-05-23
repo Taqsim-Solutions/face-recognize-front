@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import swal from "sweetalert";
 import {
+  changeMainImage,
   createStudent,
   deleteStudentPhoto,
   editStudent,
@@ -129,25 +130,38 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
       .finally(() => setLoading(false));
   };
 
+  const fetchStudent = () => {
+    getStudent(studentId).then((res) => {
+      setFirstName(res.result.firstName);
+      setLastName(res.result.lastName);
+      setFatherNamee(res.result.fatherName);
+      setDateOfBirth(res.result.dateOfBirth.slice(0, 10));
+      setPhone(res.result.phoneNumber);
+      setImages(res.result.imageIds);
+      setMainImage(res.result.mainImageName);
+      setFather({
+        ...res.result.parents?.[0],
+        dateOfBirth: res.result.parents?.[0].dateOfBirth?.slice(0, 10),
+      });
+      setMother({
+        ...res.result.parents?.[1],
+        dateOfBirth: res.result.parents?.[1].dateOfBirth?.slice(0, 10),
+      });
+    });
+  };
+
+  const handleMainPhoto = (id, imageName) => {
+    changeMainImage(id, imageName)
+      .then(() => {
+        queryClient.invalidateQueries(["students"]);
+        fetchStudent();
+      })
+      .catch(() => alert("error"));
+  };
+
   useEffect(() => {
     if (studentId) {
-      getStudent(studentId).then((res) => {
-        setFirstName(res.result.firstName);
-        setLastName(res.result.lastName);
-        setFatherNamee(res.result.fatherName);
-        setDateOfBirth(res.result.dateOfBirth.slice(0, 10));
-        setPhone(res.result.phoneNumber);
-        setImages(res.result.imageIds);
-        setMainImage(res.result.mainImageName);
-        setFather({
-          ...res.result.parents?.[0],
-          dateOfBirth: res.result.parents?.[0].dateOfBirth?.slice(0, 10),
-        });
-        setMother({
-          ...res.result.parents?.[1],
-          dateOfBirth: res.result.parents?.[1].dateOfBirth?.slice(0, 10),
-        });
-      });
+      fetchStudent();
     }
   }, [studentId, reflesh]);
 
@@ -396,6 +410,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
                     borderRadius: "5px",
                     cursor: "pointer",
                   }}
+                  onClick={() => handleMainPhoto(studentId, image)}
                 >
                   <i
                     className="material-icons"
