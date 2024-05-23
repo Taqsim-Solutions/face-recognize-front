@@ -142,6 +142,17 @@ export const getGovernment = (params) => {
   return request({ method: "GET", url: "/governments", params });
 };
 
+export const getSchoolNumbers = () => {
+  return request({ method: "GET", url: "/dashboard/schools-number" });
+};
+
+export const changeMainImage = (id, imageName) => {
+  return request({
+    method: "PUT",
+    url: `/students/${id}/photo/main?mainPhotoName=${imageName}`,
+  });
+};
+
 export const getFaces = (params) => {
   return request({
     method: "GET",

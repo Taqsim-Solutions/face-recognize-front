@@ -28,42 +28,37 @@ function Faces() {
     <>
       <div className="row">
         <div className="col-xl-12">
-          <div className="row" style={{ rowGap: "10px" }}>
-            <div className="col-xl-12">
-              <div className="page-title flex-wrap">
-                <div
-                  className="dashboard_bar header-left"
-                  style={{
-                    textTransform: "capitalize",
-                    fontSize: "20px",
-                  }}
-                >
-                  {t("faces")}
-                </div>
-                {user?.result?.level === 5 && (
-                  <div class="form-check form-switch">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      role="switch"
-                      id="flexSwitchCheckDefault"
-                      onChange={(e) => setShowMainImage(e.target.checked)}
-                      value={showMainImage}
-                    />
-                    <label
-                      class="form-check-label"
-                      for="flexSwitchCheckDefault"
-                    >
-                      {t("show_main_images")}
-                    </label>
-                  </div>
-                )}
+          <div className="row" style={{ marginLeft: "3px" }}>
+            <div className="page-title flex-wrap">
+              <div
+                className="dashboard_bar header-left"
+                style={{
+                  textTransform: "capitalize",
+                  fontSize: "20px",
+                }}
+              >
+                {t("faces")}
               </div>
+              {user?.result?.level === 5 && (
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="flexSwitchCheckDefault"
+                    onChange={(e) => setShowMainImage(e.target.checked)}
+                    value={showMainImage}
+                  />
+                  <label class="form-check-label" for="flexSwitchCheckDefault">
+                    {t("show_main_images")}
+                  </label>
+                </div>
+              )}
             </div>
             {faces?.result?.data?.map((image) => (
               <div
                 className="card"
-                style={{ marginLeft: "35px", padding: "10px", width: "200px" }}
+                style={{ marginLeft: "24px", padding: "10px", width: "200px" }}
               >
                 <img
                   src={`${settings.baseURL}/images?filename=${
