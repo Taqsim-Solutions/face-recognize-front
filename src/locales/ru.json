@@ -135,5 +135,7 @@
   "repeat_password": "Повторите пароль",
   "switchToRearCamera": "Переключиться на заднюю камеру",
   "switchToFrontCamera": "Переключиться на переднюю камеру",
-  "show_main_images": "Отображение основных изображений"
+  "show_main_images": "Отображение основных изображений",
+  "leavingTime": "Время ухода",
+  "notAttendedStudents": "Ученики, которые сегодня не пришли в школу"
 }

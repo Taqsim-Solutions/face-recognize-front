@@ -410,45 +410,6 @@ const Home = () => {
         </div>
       </div>
       <div className="row">
-        <div className="col-xl-12">
-          <div className="card">
-            <div className="card-header py-3 border-0 px-3">
-              <h4 className="heading m-0">{t("latestAbsents")}</h4>
-              <div className="card">
-                <DatePicker
-                  className="form-control"
-                  placeholderText={t("select")}
-                  selected={mockTeacherDate}
-                  onChange={(e) => {
-                    setMockTeacherDate(e);
-                    const year = e.getFullYear();
-                    const month = String(e.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
-                    const day = String(e.getDate()).padStart(2, "0");
-                    const day2 = String(+e.getDate() + 1).padStart(2, "0");
-                    const formattedDateFrom = `${year}-${month}-${day}`;
-                    const formattedDateTo = `${year}-${month}-${day2}`;
-                    setTeacherDate([
-                      `${formattedDateFrom}Z`,
-                      `${formattedDateTo}Z`,
-                    ]);
-                  }}
-                />
-              </div>
-            </div>
-            <div className="card-body p-0">
-              <TeacherDetails
-                filter={{
-                  RegionId: region,
-                  CityId: cityId,
-                  SchoolId: schoolId,
-                  DateFrom: teacherDate?.[0],
-                  DateTo: teacherDate?.[1],
-                  ClassId: classId,
-                }}
-              />
-            </div>
-          </div>
-        </div>
         <div className="table-responsive basic-tbl">
           <div className="card">
             <div className="card-header py-3 border-0 px-3">
@@ -547,6 +508,51 @@ const Home = () => {
             </div>
           </div>
         </div>{" "}
+        <div className="col-xl-12">
+          <div className="card">
+            <div
+              className="card-header border-0 px-3"
+              style={{ padding: "25px 20px", alignItems: "center" }}
+            >
+              <h4 className="heading m-0">{t("latestAbsents")}</h4>
+              <div
+                className="card"
+                style={{ padding: 0, margin: 0, marginTop: "-40px" }}
+              >
+                <DatePicker
+                  className="form-control"
+                  placeholderText={t("select")}
+                  selected={mockTeacherDate}
+                  onChange={(e) => {
+                    setMockTeacherDate(e);
+                    const year = e.getFullYear();
+                    const month = String(e.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
+                    const day = String(e.getDate()).padStart(2, "0");
+                    const day2 = String(+e.getDate() + 1).padStart(2, "0");
+                    const formattedDateFrom = `${year}-${month}-${day}`;
+                    const formattedDateTo = `${year}-${month}-${day2}`;
+                    setTeacherDate([
+                      `${formattedDateFrom}Z`,
+                      `${formattedDateTo}Z`,
+                    ]);
+                  }}
+                />
+              </div>
+            </div>
+            <div className="card-body p-0">
+              <TeacherDetails
+                filter={{
+                  RegionId: region,
+                  CityId: cityId,
+                  SchoolId: schoolId,
+                  DateFrom: teacherDate?.[0],
+                  DateTo: teacherDate?.[1],
+                  ClassId: classId,
+                }}
+              />
+            </div>
+          </div>
+        </div>
         <div className="table-responsive basic-tbl">
           <div className="card">
             <div className="card-header py-3 border-0 px-3">
