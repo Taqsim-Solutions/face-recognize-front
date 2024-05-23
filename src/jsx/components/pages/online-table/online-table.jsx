@@ -243,11 +243,12 @@ export function OnlineTable() {
                 </div>
               </div>
               <div
-                className="row"
                 style={{
                   gap: "20px 0",
                   marginBottom: "50px",
                   marginLeft: "60px",
+                  display: "flex",
+                  flexWrap: "wrap",
                 }}
               >
                 {students?.result?.map((student) => (
@@ -259,6 +260,7 @@ export function OnlineTable() {
                       marginRight: "20px",
                       padding: "10px",
                       borderRadius: "8px",
+                      width: "195px",
                     }}
                   >
                     <img
