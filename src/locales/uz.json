@@ -124,5 +124,8 @@
   "repeat_password": "Parolni takrorlang",
   "switchToRearCamera": "Orqa kameraga o'tish",
   "switchToFrontCamera": "Old kameraga o'tish",
-  "show_main_images": "Asosiy rasmlarni ko'rsatish"
+  "show_main_images": "Asosiy rasmlarni ko'rsatish",
+  "leavingTime": "Ketish vaqti",
+  "notAttendedStudents": "Kelmagan o'quvchilar",
+  "date": "Sana"
 }

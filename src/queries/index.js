@@ -16,6 +16,7 @@ import {
   getOverallStatistics,
   getFaces,
   getUnknownFaces,
+  getSchoolNumbers,
 } from "../api";
 
 export function getUsersQuery(params) {
@@ -78,6 +79,13 @@ export function getPerformanceQuery(params) {
   return {
     queryKey: ["performance", params],
     queryFn: async () => getPerformance(params),
+  };
+}
+
+export function getSchoolNumbersQuery() {
+  return {
+    queryKey: ["school-numbers"],
+    queryFn: async () => getSchoolNumbers(),
   };
 }
 
