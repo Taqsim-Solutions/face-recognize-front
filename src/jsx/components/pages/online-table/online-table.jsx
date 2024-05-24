@@ -61,7 +61,11 @@ export function OnlineTable() {
   return (
     <div>
       {Object.keys(classes).map((degree) => (
-        <div key={degree} style={{ display: "flex", flexWrap: "wrap" }}>
+        <div
+          key={degree}
+          id={degree}
+          style={{ display: "flex", flexWrap: "wrap" }}
+        >
           <h2
             className="font-w700 mb-0"
             style={{ fontSize: "30px", marginTop: "3px", width: "45px" }}
@@ -73,19 +77,30 @@ export function OnlineTable() {
             style={{ gap: "24px", display: "flex", flexWrap: "wrap" }}
           >
             {classes[degree]?.map((item, i) => (
-              <div
+              <a
+                href={`#${item.degree}`}
                 className="card"
                 style={{
                   cursor: "pointer",
                   border: selected.class === item.id ? "2px solid green" : "",
                   width: "200px",
                 }}
-                onClick={() =>
-                  setSelected({
-                    class: item.id,
-                    degree: degree,
-                  })
-                }
+                onClick={() => {
+                  if (
+                    item.id !== selected.class &&
+                    selected.degree !== degree
+                  ) {
+                    setSelected({
+                      class: item.id,
+                      degree: degree,
+                    });
+                  } else {
+                    setSelected({
+                      class: "",
+                      degree: "",
+                    });
+                  }
+                }}
               >
                 <div
                   className="card-body"
@@ -99,10 +114,20 @@ export function OnlineTable() {
                     {item.symbol}
                   </h3>
                   <p className="font-w700 mb-0" style={{ marginTop: "5px" }}>
-                    {t("class")} ({item.absentStudentsCount})
+                    {t("class")}
                   </p>
+                  <h3
+                    className="mb-2 font-w700"
+                    style={{
+                      marginLeft: "auto",
+                      marginRight: "26px",
+                      color: "red",
+                    }}
+                  >
+                    {item.absentStudentsCount}
+                  </h3>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
           {selected.degree === degree && (
