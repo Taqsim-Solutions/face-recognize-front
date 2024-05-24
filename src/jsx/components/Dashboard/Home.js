@@ -137,6 +137,23 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
       ClassId: classId,
+      DateFrom: date,
+      DateTo: date
+        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        : "",
+    }),
+  });
+
+  const { data: overview } = useQuery({
+    ...getDashboardOverviewQuery({
+      RegionId: region,
+      CityId: cityId,
+      SchoolId: schoolId,
+      DateFrom: date || "2023-09-01Z",
+      DateTo: date
+        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        : "",
+      ClassId: classId,
     }),
   });
 
@@ -147,16 +164,10 @@ const Home = () => {
       SchoolId: schoolId,
       PageIndex: schoolsPage,
       ClassId: classId,
-    }),
-  });
-
-  const { data: overview } = useQuery({
-    ...getDashboardOverviewQuery({
-      RegionId: region,
-      CityId: cityId,
-      SchoolId: schoolId,
-      DateFrom: date || "2023-09-01Z",
-      ClassId: classId,
+      DateFrom: date,
+      DateTo: date
+        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        : "",
     }),
   });
 
