@@ -137,6 +137,10 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
       ClassId: classId,
+      DateFrom: date,
+      DateTo: date
+        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        : "",
     }),
   });
 
@@ -147,6 +151,10 @@ const Home = () => {
       SchoolId: schoolId,
       PageIndex: schoolsPage,
       ClassId: classId,
+      DateFrom: date,
+      DateTo: date
+        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        : "",
     }),
   });
 
@@ -156,6 +164,9 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
       DateFrom: date || "2023-09-01Z",
+      DateTo: date
+        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        : "",
       ClassId: classId,
     }),
   });
