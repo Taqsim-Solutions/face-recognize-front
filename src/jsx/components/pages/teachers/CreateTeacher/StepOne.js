@@ -8,6 +8,7 @@ import {
   updateTeacher,
   getTeacher,
   deleteUserPhoto,
+  changeTeacherMainImage,
 } from "../../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
 import settings from "../../../../../settings/settings";
@@ -17,6 +18,7 @@ import Select from "react-select";
 import { NewPassword } from "./NewPassword";
 
 const StepOne = ({ setGoSteps }) => {
+  const [mainImage, setMainImage] = useState("");
   const [region, setRegion] = useState("");
   const [cityId, setCityId] = useState("");
   const [images, setImages] = useState([]);
@@ -147,6 +149,27 @@ const StepOne = ({ setGoSteps }) => {
     });
   };
 
+  const fetchTeacher = () => {
+    getTeacher(teacherId).then((res) => {
+      setFirstName(res.result.firstName);
+      setLastName(res.result.lastName);
+      setEmail(res.result.email);
+      setSchoolId(`${schoolId}`);
+      setLogin(res.result.login);
+      setImages(res.result.imageIds);
+      setMainImage(res.result.mainImageName);
+    });
+  };
+
+  const handleMainPhoto = (id, imageName) => {
+    changeTeacherMainImage(id, imageName)
+      .then(() => {
+        queryClient.invalidateQueries(["teachers"]);
+        fetchTeacher();
+      })
+      .catch(() => alert("error"));
+  };
+
   useEffect(() => {
     if (classes?.result) {
       const options = classes.result.data.map((option) => ({
@@ -169,14 +192,7 @@ const StepOne = ({ setGoSteps }) => {
 
   useEffect(() => {
     if (teacherId) {
-      getTeacher(teacherId).then((res) => {
-        setFirstName(res.result.firstName);
-        setLastName(res.result.lastName);
-        setEmail(res.result.email);
-        setSchoolId(`${schoolId}`);
-        setLogin(res.result.login);
-        setImages(res.result.imageIds);
-      });
+      fetchTeacher();
     }
   }, [teacherId, reflesh]);
 
@@ -384,7 +400,33 @@ const StepOne = ({ setGoSteps }) => {
             }}
           >
             {images.map((image) => (
-              <div key={image}>
+              <div key={image} style={{ position: "relative" }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "15px",
+                    top: "15px",
+                    background: "white",
+                    width: "35px",
+                    height: "35px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingBottom: "2.5px",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleMainPhoto(teacherId, image)}
+                >
+                  <i
+                    className="material-icons"
+                    style={{
+                      color: image === mainImage ? "orange" : "grey",
+                    }}
+                  >
+                    workspace_premium
+                  </i>
+                </div>
                 <img
                   src={`${settings.baseURL}/images?filename=${image}`}
                   alt=""
