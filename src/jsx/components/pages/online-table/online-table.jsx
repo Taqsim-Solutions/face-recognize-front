@@ -50,7 +50,7 @@ export function OnlineTable() {
       attendances?.result.map((schoolClass) => {
         if (!payload.schoolClass?.[schoolClass.degree]) {
           payload[schoolClass.degree] = [];
-          payload[schoolClass.degree].push(schoolClass);
+          return payload[schoolClass.degree].push(schoolClass);
         }
         return payload[schoolClass.degree].push(schoolClass);
       });
@@ -68,13 +68,17 @@ export function OnlineTable() {
           >
             {degree}
           </h2>
-          <div className="px-3" style={{ gap: "24px", display: "flex" }}>
+          <div
+            className="px-3"
+            style={{ gap: "24px", display: "flex", flexWrap: "wrap" }}
+          >
             {classes[degree]?.map((item, i) => (
               <div
-                className="card col-xl-3"
+                className="card"
                 style={{
                   cursor: "pointer",
                   border: selected.class === item.id ? "2px solid green" : "",
+                  width: "200px",
                 }}
                 onClick={() =>
                   setSelected({
