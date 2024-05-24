@@ -153,6 +153,13 @@ export const changeMainImage = (id, imageName) => {
   });
 };
 
+export const changeTeacherMainImage = (id, imageName) => {
+  return request({
+    method: "PUT",
+    url: `/users/${id}/photo/main?mainPhotoName=${imageName}`,
+  });
+};
+
 export const getFaces = (params) => {
   return request({
     method: "GET",
