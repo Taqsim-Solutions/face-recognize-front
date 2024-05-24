@@ -127,5 +127,6 @@
   "show_main_images": "Asosiy rasmlarni ko'rsatish",
   "leavingTime": "Ketish vaqti",
   "notAttendedStudents": "Kelmagan o'quvchilar",
-  "date": "Sana"
+  "date": "Sana",
+  "number_of_total_teachers": "O'qituvchilar soni"
 }

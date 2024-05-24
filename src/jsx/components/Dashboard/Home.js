@@ -72,13 +72,13 @@ const cardBlog2 = [
     key: "connectedSchoolsNumber",
     count: 265,
   },
-  // {
-  //   title: "number_of_total_students",
-  //   svg: SVGICON.user2,
-  //   change: "event-data",
-  //   key: "girlsCount",
-  //   count: 190,
-  // },
+  {
+    title: "number_of_total_teachers",
+    svg: SVGICON.user2,
+    change: "event-data",
+    key: "teachersCount",
+    count: 190,
+  },
   // {
   //   title: "absents",
   //   svg: SVGICON.event,
@@ -202,9 +202,9 @@ const Home = () => {
 
   return (
     <>
-      <div className="row">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
         {!user?.result.region?.id && (
-          <div className="form-group mb-4 col-xl-3">
+          <div className="form-group mb-4" style={{ width: "200px" }}>
             <label htmlFor="basic-url" className="form-label d-block">
               {t("region")}
             </label>
@@ -226,7 +226,7 @@ const Home = () => {
           </div>
         )}
         {region && !user?.result.city?.id && (
-          <div className="form-group mb-4 col-xl-3">
+          <div className="form-group mb-4" style={{ width: "200px" }}>
             <label htmlFor="basic-url" className="form-label d-block">
               {t("district")}
             </label>
@@ -247,7 +247,7 @@ const Home = () => {
           </div>
         )}
         {cityId && region && !user?.result.school?.id && (
-          <div className="col-xl-3 mb-2">
+          <div className="mb-2" style={{ width: "200px" }}>
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
                 {t("school")}
@@ -268,7 +268,7 @@ const Home = () => {
           </div>
         )}
         {(user?.result.class === null || schoolId) && schoolId && (
-          <div className="col-xl-3 mb-2">
+          <div className="mb-2" style={{ width: "200px" }}>
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
                 {t("class")}
@@ -288,7 +288,7 @@ const Home = () => {
             </div>
           </div>
         )}
-        <div className="col-xl-3 mb-2">
+        <div className="mb-2" style={{ width: "200px" }}>
           <label htmlFor="basic-url" className="form-label d-block">
             {t("date")}
           </label>
