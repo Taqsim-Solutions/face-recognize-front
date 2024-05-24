@@ -142,13 +142,6 @@ const StepOne = ({ setGoSteps }) => {
       .finally(() => setLoading(false));
   };
 
-  const onDeleteImage = (imageName) => {
-    deleteUserPhoto(imageName).then(() => {
-      queryClient.invalidateQueries(["teachers"]);
-      setReflesh(reflesh + 1);
-    });
-  };
-
   const fetchTeacher = () => {
     getTeacher(teacherId).then((res) => {
       setFirstName(res.result.firstName);
@@ -158,6 +151,13 @@ const StepOne = ({ setGoSteps }) => {
       setLogin(res.result.login);
       setImages(res.result.imageIds);
       setMainImage(res.result.mainImageName);
+    });
+  };
+
+  const onDeleteImage = (imageName) => {
+    deleteUserPhoto(imageName).then(() => {
+      queryClient.invalidateQueries(["teachers"]);
+      setReflesh(reflesh + 1);
     });
   };
 
