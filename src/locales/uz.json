@@ -128,6 +128,6 @@
   "leavingTime": "Ketish vaqti",
   "notAttendedStudents": "Kelmagan o'quvchilar",
   "date": "Sana",
-  "number_of_total_teachers": "O'qituvchilar soni",
-  "absents_teacher": "Kelmagan o'qituvchilar"
+  "absents_teacher": "Kelmagan o'qituvchilar",
+  "number_of_total_teachers": "O'qituvchilar soni"
 }
