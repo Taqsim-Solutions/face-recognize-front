@@ -139,5 +139,7 @@
   "leavingTime": "Время ухода",
   "notAttendedStudents": "Ученики, которые сегодня не пришли в школу",
   "date": "Дата",
-  "number_of_total_teachers": "Количество учителей"
+  "number_of_total_teachers": "Количество учителей",
+  "table": "Таблица",
+  "absents_teacher": "Отсутствующие учителя"
 }
