@@ -79,13 +79,13 @@ const cardBlog2 = [
     key: "teachersCount",
     count: 190,
   },
-  // {
-  //   title: "absents",
-  //   svg: SVGICON.event,
-  //   change: "event-data",
-  //   key: "absentsCount",
-  //   count: 18,
-  // },
+  {
+    title: "absents_teacher",
+    svg: SVGICON.event,
+    change: "event-data",
+    key: "absentTeachersCount",
+    count: 18,
+  },
 ];
 
 const Home = () => {
