@@ -82,10 +82,10 @@ export function getPerformanceQuery(params) {
   };
 }
 
-export function getSchoolNumbersQuery() {
+export function getSchoolNumbersQuery(params) {
   return {
-    queryKey: ["school-numbers"],
-    queryFn: async () => getSchoolNumbers(),
+    queryKey: ["school-numbers", params],
+    queryFn: async () => getSchoolNumbers(params),
   };
 }
 

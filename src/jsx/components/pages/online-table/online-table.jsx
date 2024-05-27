@@ -265,40 +265,42 @@ export function OnlineTable() {
                                 </tr>
                               ) : null
                             ) : (
-                              <tr key={ind}>
-                                <td>
-                                  <img
-                                    src={
-                                      item.mainImageName
-                                        ? `${settings.baseURL}/images?filename=${item.mainImageName}`
-                                        : "https://st4.depositphotos.com/3265223/21282/v/450/depositphotos_212821870-stock-illustration-default-avatar-photo-placeholder-profile.jpg"
-                                    }
-                                    alt=""
-                                    style={{
-                                      width: "36px",
-                                      borderRadius: "8px",
-                                    }}
-                                  />
-                                </td>
-                                <td>
-                                  <div className="trans-list">
-                                    <h4>{`${item.firstName} ${item.lastName}`}</h4>
-                                  </div>
-                                </td>
-                                <td>
-                                  <h6 className="mb-0">{item.phoneNumber}</h6>
-                                </td>
-                                <td>
-                                  {item.attended
-                                    ? moment(item.comingTime).format("h:mm")
-                                    : "-"}
-                                </td>
-                                <td>
-                                  {item.leavingTime
-                                    ? moment(item.leavingTime).format("h:mm")
-                                    : "-"}
-                                </td>
-                              </tr>
+                              item.attended && (
+                                <tr key={ind}>
+                                  <td>
+                                    <img
+                                      src={
+                                        item.mainImageName
+                                          ? `${settings.baseURL}/images?filename=${item.mainImageName}`
+                                          : "https://st4.depositphotos.com/3265223/21282/v/450/depositphotos_212821870-stock-illustration-default-avatar-photo-placeholder-profile.jpg"
+                                      }
+                                      alt=""
+                                      style={{
+                                        width: "36px",
+                                        borderRadius: "8px",
+                                      }}
+                                    />
+                                  </td>
+                                  <td>
+                                    <div className="trans-list">
+                                      <h4>{`${item.firstName} ${item.lastName}`}</h4>
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <h6 className="mb-0">{item.phoneNumber}</h6>
+                                  </td>
+                                  <td>
+                                    {item.attended
+                                      ? moment(item.comingTime).format("h:mm")
+                                      : "-"}
+                                  </td>
+                                  <td>
+                                    {item.leavingTime
+                                      ? moment(item.leavingTime).format("h:mm")
+                                      : "-"}
+                                  </td>
+                                </tr>
+                              )
                             )
                           )}
                         </tbody>
