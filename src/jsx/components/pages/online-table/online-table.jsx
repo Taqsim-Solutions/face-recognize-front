@@ -254,12 +254,16 @@ export function OnlineTable() {
                                   </td>
                                   <td>
                                     {item.attended
-                                      ? moment(item.comingTime).format("h:mm")
+                                      ? moment
+                                          .utc(new Date(item.comingTime))
+                                          .format("hh:mm A")
                                       : "-"}
                                   </td>
                                   <td>
-                                    {item.leavingTime
-                                      ? moment(item.leavingTime).format("h:mm")
+                                    {item.attended
+                                      ? moment
+                                          .utc(new Date(item.leavingTime))
+                                          .format("hh:mm")
                                       : "-"}
                                   </td>
                                 </tr>
@@ -291,12 +295,16 @@ export function OnlineTable() {
                                   </td>
                                   <td>
                                     {item.attended
-                                      ? moment(item.comingTime).format("h:mm")
+                                      ? moment
+                                          .utc(new Date(item.comingTime))
+                                          .format("hh:mm")
                                       : "-"}
                                   </td>
                                   <td>
-                                    {item.leavingTime
-                                      ? moment(item.leavingTime).format("h:mm")
+                                    {item.attended
+                                      ? moment
+                                          .utc(new Date(item.leavingTime))
+                                          .format("hh:mm")
                                       : "-"}
                                   </td>
                                 </tr>
@@ -341,8 +349,8 @@ export function OnlineTable() {
                         style={{
                           width: "100%",
                           borderRadius: "8px",
-                          minHeight: "250px",
                           objectFit: "cover",
+                          minHeight: "250px",
                         }}
                       />
                       <div className="trans-list">
@@ -356,8 +364,10 @@ export function OnlineTable() {
                         </h5>
                       </div>
                       {t("comingTime")}:{" "}
-                      {student.leavingTime
-                        ? moment(student.comingTime).format("h:mm")
+                      {student.attended
+                        ? moment
+                            .utc(new Date(student.comingTime))
+                            .format("hh:mm")
                         : "-"}
                     </div>
                   ))}
