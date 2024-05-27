@@ -10,8 +10,11 @@ RUN yarn install
 
 COPY . /app
 
-RUN yarn build
+ARG REACT_APP_BASE_URL
 
+ENV REACT_APP_BASE_URL=$REACT_APP_BASE_URL
+
+RUN yarn build
 FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
