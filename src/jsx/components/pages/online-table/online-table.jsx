@@ -349,8 +349,8 @@ export function OnlineTable() {
                         style={{
                           width: "100%",
                           borderRadius: "8px",
-                          minHeight: "250px",
                           objectFit: "cover",
+                          minHeight: "250px",
                         }}
                       />
                       <div className="trans-list">
