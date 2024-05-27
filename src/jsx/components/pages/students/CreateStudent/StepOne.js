@@ -130,7 +130,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
       .finally(() => setLoading(false));
   };
 
-  const getStudentAndSave = () => {
+  const fetchStudent = () => {
     getStudent(studentId).then((res) => {
       setFirstName(res.result.firstName);
       setLastName(res.result.lastName);
@@ -150,18 +150,18 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
     });
   };
 
-  const handleMainImage = (id, imageName) => {
+  const handleMainPhoto = (id, imageName) => {
     changeMainImage(id, imageName)
       .then(() => {
         queryClient.invalidateQueries(["students"]);
-        getStudentAndSave();
+        fetchStudent();
       })
-      .catch(() => alert("Error image"));
+      .catch(() => alert("error"));
   };
 
   useEffect(() => {
     if (studentId) {
-      getStudentAndSave();
+      fetchStudent();
     }
   }, [studentId, reflesh]);
 
@@ -410,9 +410,7 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
                     borderRadius: "5px",
                     cursor: "pointer",
                   }}
-                  onClick={() =>
-                    image !== mainImage && handleMainImage(studentId, image)
-                  }
+                  onClick={() => handleMainPhoto(studentId, image)}
                 >
                   <i
                     className="material-icons"

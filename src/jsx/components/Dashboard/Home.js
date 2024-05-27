@@ -18,6 +18,7 @@ import {
   getMeQuery,
   getOverallStatisticsQuery,
   getClassesQuery,
+  getSchoolNumbersQuery,
 } from "../../../queries/index";
 import { useTranslation } from "react-i18next";
 import { Badge } from "react-bootstrap";
@@ -61,28 +62,28 @@ const cardBlog2 = [
     title: "total_schools",
     svg: SVGICON.user,
     change: "std-data",
-    key: "totalStudents",
+    key: "allSchoolsNumber",
     count: 90,
   },
   {
     title: "connected_schools",
     svg: SVGICON.user2,
     change: "event-data",
-    key: "boysCount",
+    key: "connectedSchoolsNumber",
     count: 265,
   },
   {
-    title: "number_of_total_students",
+    title: "number_of_total_teachers",
     svg: SVGICON.user2,
     change: "event-data",
-    key: "girlsCount",
+    key: "teachersCount",
     count: 190,
   },
   {
-    title: "absents",
+    title: "absents_teacher",
     svg: SVGICON.event,
     change: "event-data",
-    key: "absentsCount",
+    key: "absentTeachersCount",
     count: 18,
   },
 ];
@@ -96,7 +97,7 @@ const Home = () => {
   const [classesValues, setClassesValues] = useState([]);
   const [classId, setClassId] = useState("");
   const [schoolId, setSchoolId] = useState("");
-  const [mockTeacherDate, setMockTeacherDate] = useState("");
+  const [date, setDate] = useState("");
   const [teacherDate, setTeacherDate] = useState([]);
   const [performanceWeek, setPerformanceWeek] = useState("this"); // this && last
   const { changeBackground } = useContext(ThemeContext);
@@ -111,6 +112,10 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
     }),
+  });
+
+  const { data: schoolNumbers } = useQuery({
+    ...getSchoolNumbersQuery(),
   });
 
   const { data: user } = useQuery({
@@ -132,6 +137,23 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
       ClassId: classId,
+      DateFrom: date,
+      DateTo: date
+        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        : "",
+    }),
+  });
+
+  const { data: overview } = useQuery({
+    ...getDashboardOverviewQuery({
+      RegionId: region,
+      CityId: cityId,
+      SchoolId: schoolId,
+      DateFrom: date || "2023-09-01Z",
+      DateTo: date
+        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        : "",
+      ClassId: classId,
     }),
   });
 
@@ -142,16 +164,10 @@ const Home = () => {
       SchoolId: schoolId,
       PageIndex: schoolsPage,
       ClassId: classId,
-    }),
-  });
-
-  const { data: overview } = useQuery({
-    ...getDashboardOverviewQuery({
-      RegionId: region,
-      CityId: cityId,
-      SchoolId: schoolId,
-      DateFrom: "2023-09-01Z",
-      ClassId: classId,
+      DateFrom: date,
+      DateTo: date
+        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        : "",
     }),
   });
 
@@ -197,9 +213,9 @@ const Home = () => {
 
   return (
     <>
-      <div className="row">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
         {!user?.result.region?.id && (
-          <div className="form-group mb-4 col-xl-3">
+          <div className="form-group mb-4" style={{ width: "200px" }}>
             <label htmlFor="basic-url" className="form-label d-block">
               {t("region")}
             </label>
@@ -221,7 +237,7 @@ const Home = () => {
           </div>
         )}
         {region && !user?.result.city?.id && (
-          <div className="form-group mb-4 col-xl-3">
+          <div className="form-group mb-4" style={{ width: "200px" }}>
             <label htmlFor="basic-url" className="form-label d-block">
               {t("district")}
             </label>
@@ -242,7 +258,7 @@ const Home = () => {
           </div>
         )}
         {cityId && region && !user?.result.school?.id && (
-          <div className="col-xl-3 mb-2">
+          <div className="mb-2" style={{ width: "200px" }}>
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
                 {t("school")}
@@ -263,7 +279,7 @@ const Home = () => {
           </div>
         )}
         {(user?.result.class === null || schoolId) && schoolId && (
-          <div className="col-xl-3 mb-2">
+          <div className="mb-2" style={{ width: "200px" }}>
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
                 {t("class")}
@@ -283,6 +299,26 @@ const Home = () => {
             </div>
           </div>
         )}
+        <div className="mb-2" style={{ width: "200px" }}>
+          <label htmlFor="basic-url" className="form-label d-block">
+            {t("date")}
+          </label>
+          <DatePicker
+            className="form-control"
+            placeholderText={t("select")}
+            selected={date}
+            onChange={(e) => {
+              setDate(e);
+              const year = e.getFullYear();
+              const month = String(e.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
+              const day = String(e.getDate()).padStart(2, "0");
+              const day2 = String(+e.getDate() + 1).padStart(2, "0");
+              const formattedDateFrom = `${year}-${month}-${day}`;
+              const formattedDateTo = `${year}-${month}-${day2}`;
+              setTeacherDate([`${formattedDateFrom}Z`, `${formattedDateTo}Z`]);
+            }}
+          />
+        </div>
       </div>
       {user?.result.level >= 3 && (
         <div className="row">
@@ -298,7 +334,9 @@ const Home = () => {
                         </div>
                         <div className="chart-num">
                           <p>{t(item.title)}</p>
-                          <h2 className="font-w700 mb-0">{item.count}</h2>
+                          <h2 className="font-w700 mb-0">
+                            {schoolNumbers?.result[item.key]}
+                          </h2>
                         </div>
                       </div>
                     </div>
@@ -410,45 +448,6 @@ const Home = () => {
         </div>
       </div>
       <div className="row">
-        <div className="col-xl-12">
-          <div className="card">
-            <div className="card-header py-3 border-0 px-3">
-              <h4 className="heading m-0">{t("latestAbsents")}</h4>
-              <div className="card">
-                <DatePicker
-                  className="form-control"
-                  placeholderText={t("select")}
-                  selected={mockTeacherDate}
-                  onChange={(e) => {
-                    setMockTeacherDate(e);
-                    const year = e.getFullYear();
-                    const month = String(e.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
-                    const day = String(e.getDate()).padStart(2, "0");
-                    const day2 = String(+e.getDate() + 1).padStart(2, "0");
-                    const formattedDateFrom = `${year}-${month}-${day}`;
-                    const formattedDateTo = `${year}-${month}-${day2}`;
-                    setTeacherDate([
-                      `${formattedDateFrom}Z`,
-                      `${formattedDateTo}Z`,
-                    ]);
-                  }}
-                />
-              </div>
-            </div>
-            <div className="card-body p-0">
-              <TeacherDetails
-                filter={{
-                  RegionId: region,
-                  CityId: cityId,
-                  SchoolId: schoolId,
-                  DateFrom: teacherDate?.[0],
-                  DateTo: teacherDate?.[1],
-                  ClassId: classId,
-                }}
-              />
-            </div>
-          </div>
-        </div>
         <div className="table-responsive basic-tbl">
           <div className="card">
             <div className="card-header py-3 border-0 px-3">
@@ -547,6 +546,28 @@ const Home = () => {
             </div>
           </div>
         </div>{" "}
+        <div className="col-xl-12">
+          <div className="card">
+            <div
+              className="card-header border-0 px-3"
+              style={{ padding: "25px 20px", alignItems: "center" }}
+            >
+              <h4 className="heading m-0">{t("latestAbsents")}</h4>
+            </div>
+            <div className="card-body p-0">
+              <TeacherDetails
+                filter={{
+                  RegionId: region,
+                  CityId: cityId,
+                  SchoolId: schoolId,
+                  DateFrom: teacherDate?.[0],
+                  DateTo: teacherDate?.[1],
+                  ClassId: classId,
+                }}
+              />
+            </div>
+          </div>
+        </div>
         <div className="table-responsive basic-tbl">
           <div className="card">
             <div className="card-header py-3 border-0 px-3">
