@@ -115,7 +115,14 @@ const Home = () => {
   });
 
   const { data: schoolNumbers } = useQuery({
-    ...getSchoolNumbersQuery(),
+    ...getSchoolNumbersQuery({
+      DateFrom: date
+        ? new Date(new Date(date).setUTCHours(0, 0, 0, 0)).toISOString()
+        : "",
+      DateTo: date
+        ? new Date(new Date(date).setUTCHours(23, 59, 59, 999)).toISOString()
+        : "",
+    }),
   });
 
   const { data: user } = useQuery({
@@ -137,9 +144,11 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
       ClassId: classId,
-      DateFrom: date,
+      DateFrom: date
+        ? new Date(new Date(date).setUTCHours(0, 0, 0, 0)).toISOString()
+        : "",
       DateTo: date
-        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        ? new Date(new Date(date).setUTCHours(23, 59, 59, 999)).toISOString()
         : "",
     }),
   });
@@ -149,9 +158,11 @@ const Home = () => {
       RegionId: region,
       CityId: cityId,
       SchoolId: schoolId,
-      DateFrom: date || "2023-09-01Z",
+      DateFrom: date
+        ? new Date(new Date(date).setUTCHours(0, 0, 0, 0)).toISOString()
+        : "",
       DateTo: date
-        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        ? new Date(new Date(date).setUTCHours(23, 59, 59, 999)).toISOString()
         : "",
       ClassId: classId,
     }),
@@ -164,9 +175,11 @@ const Home = () => {
       SchoolId: schoolId,
       PageIndex: schoolsPage,
       ClassId: classId,
-      DateFrom: date,
+      DateFrom: date
+        ? new Date(new Date(date).setUTCHours(0, 0, 0, 0)).toISOString()
+        : "",
       DateTo: date
-        ? new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000 - 1000)
+        ? new Date(new Date(date).setUTCHours(23, 59, 59, 999)).toISOString()
         : "",
     }),
   });
@@ -560,8 +573,16 @@ const Home = () => {
                   RegionId: region,
                   CityId: cityId,
                   SchoolId: schoolId,
-                  DateFrom: teacherDate?.[0],
-                  DateTo: teacherDate?.[1],
+                  DateFrom: date
+                    ? new Date(
+                        new Date(date).setUTCHours(0, 0, 0, 0)
+                      ).toISOString()
+                    : "",
+                  DateTo: date
+                    ? new Date(
+                        new Date(date).setUTCHours(23, 59, 59, 999)
+                      ).toISOString()
+                    : "",
                   ClassId: classId,
                 }}
               />

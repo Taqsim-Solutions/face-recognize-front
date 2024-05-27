@@ -4,7 +4,12 @@ on:
   push:
     branches:
       - 'main'
-  workflow_dispatch:
+      - '34'
+      - 'itacademy'
+      - 'local'
+env:
+  IMAGE_TAG: ${{ github.ref_name == '34' && '34' || github.ref_name == 'itacademy' && 'ita' || github.ref_name == 'local' && 'local' || 'latest' }}     
+  REACT_APP_BASE_URL: ${{ github.ref_name == '34' && 'https://face34.taqsim.uz/api' || github.ref_name == 'itacademy' && 'https://faceita.taqsim.uz/api' || github.ref_name == 'local' && 'http://localhost/api' || 'https://face.taqsim.uz/api' }}     
 
 jobs:
   dockerize:
@@ -28,4 +33,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: taqsim/face_front:latest
+          tags: taqsim/face_front:${{ env.IMAGE_TAG }}
+          no-cache: true
+          build-args: |
+            REACT_APP_BASE_URL=${{ env.REACT_APP_BASE_URL }}
