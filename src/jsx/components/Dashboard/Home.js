@@ -117,10 +117,22 @@ const Home = () => {
   const { data: schoolNumbers } = useQuery({
     ...getSchoolNumbersQuery({
       DateFrom: date
-        ? new Date(new Date(date).setUTCHours(0, 0, 0, 0)).toISOString()
+        ? new Date(
+            Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+          ).toISOString()
         : "",
       DateTo: date
-        ? new Date(new Date(date).setUTCHours(23, 59, 59, 999)).toISOString()
+        ? new Date(
+            Date.UTC(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate(),
+              23,
+              59,
+              59,
+              999
+            )
+          ).toISOString()
         : "",
     }),
   });
@@ -145,10 +157,22 @@ const Home = () => {
       SchoolId: schoolId,
       ClassId: classId,
       DateFrom: date
-        ? new Date(new Date(date).setUTCHours(0, 0, 0, 0)).toISOString()
+        ? new Date(
+            Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+          ).toISOString()
         : "",
       DateTo: date
-        ? new Date(new Date(date).setUTCHours(23, 59, 59, 999)).toISOString()
+        ? new Date(
+            Date.UTC(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate(),
+              23,
+              59,
+              59,
+              999
+            )
+          ).toISOString()
         : "",
     }),
   });
@@ -159,10 +183,22 @@ const Home = () => {
       CityId: cityId,
       SchoolId: schoolId,
       DateFrom: date
-        ? new Date(new Date(date).setUTCHours(0, 0, 0, 0)).toISOString()
+        ? new Date(
+            Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+          ).toISOString()
         : "",
       DateTo: date
-        ? new Date(new Date(date).setUTCHours(23, 59, 59, 999)).toISOString()
+        ? new Date(
+            Date.UTC(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate(),
+              23,
+              59,
+              59,
+              999
+            )
+          ).toISOString()
         : "",
       ClassId: classId,
     }),
@@ -176,10 +212,22 @@ const Home = () => {
       PageIndex: schoolsPage,
       ClassId: classId,
       DateFrom: date
-        ? new Date(new Date(date).setUTCHours(0, 0, 0, 0)).toISOString()
+        ? new Date(
+            Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+          ).toISOString()
         : "",
       DateTo: date
-        ? new Date(new Date(date).setUTCHours(23, 59, 59, 999)).toISOString()
+        ? new Date(
+            Date.UTC(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate(),
+              23,
+              59,
+              59,
+              999
+            )
+          ).toISOString()
         : "",
     }),
   });
@@ -322,10 +370,10 @@ const Home = () => {
             selected={date}
             onChange={(e) => {
               setDate(e);
-              const year = e.getFullYear();
-              const month = String(e.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so add 1
-              const day = String(e.getDate()).padStart(2, "0");
-              const day2 = String(+e.getDate() + 1).padStart(2, "0");
+              const year = e.getUTCFullYear();
+              const month = String(e.getUTCMonth() + 1).padStart(2, "0");
+              const day = String(e.getUTCDate()).padStart(2, "0");
+              const day2 = String(e.getUTCDate() + 1).padStart(2, "0");
               const formattedDateFrom = `${year}-${month}-${day}`;
               const formattedDateTo = `${year}-${month}-${day2}`;
               setTeacherDate([`${formattedDateFrom}Z`, `${formattedDateTo}Z`]);
@@ -575,12 +623,24 @@ const Home = () => {
                   SchoolId: schoolId,
                   DateFrom: date
                     ? new Date(
-                        new Date(date).setUTCHours(0, 0, 0, 0)
+                        Date.UTC(
+                          date.getFullYear(),
+                          date.getMonth(),
+                          date.getDate()
+                        )
                       ).toISOString()
                     : "",
                   DateTo: date
                     ? new Date(
-                        new Date(date).setUTCHours(23, 59, 59, 999)
+                        Date.UTC(
+                          date.getFullYear(),
+                          date.getMonth(),
+                          date.getDate(),
+                          23,
+                          59,
+                          59,
+                          999
+                        )
                       ).toISOString()
                     : "",
                   ClassId: classId,
