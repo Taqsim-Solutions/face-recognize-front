@@ -6,6 +6,7 @@ COPY package*.json ./
 
 COPY yarn* ./
 
+RUN corepack enable
 RUN yarn install
 
 COPY . /app
