@@ -7,8 +7,9 @@ on:
       - '34'
       - 'itacademy'
       - 'local'
+      - 'hik-vision'
 env:
-  IMAGE_TAG: ${{ github.ref_name == '34' && '34' || github.ref_name == 'itacademy' && 'ita' || github.ref_name == 'local' && 'local' || 'latest' }}     
+  IMAGE_TAG: ${{ github.ref_name == '34' && '34' || github.ref_name == 'itacademy' && 'ita' || github.ref_name == 'local' && 'local' || github.ref_name == 'hik-vision' && 'hik-vision' || 'latest' }}     
   REACT_APP_BASE_URL: ${{ github.ref_name == '34' && 'https://face34.taqsim.uz/api' || github.ref_name == 'itacademy' && 'https://faceita.taqsim.uz/api' || github.ref_name == 'local' && 'http://localhost/api' || 'https://face.taqsim.uz/api' }}     
 
 jobs:
