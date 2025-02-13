@@ -63,6 +63,13 @@ export const MenuList = [
     to: "unknown-faces",
     level: [5],
   },
+  {
+    title: "reports",
+    classsChange: "mm-collapse",
+    iconStyle: <i className="material-icons">summarize</i>,
+    to: "reports",
+    level: [1, 2, 3, 4, 5],
+  },
   // {
   //   title: "Teacher",
   //   classsChange: "mm-collapse",

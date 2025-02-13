@@ -141,5 +141,7 @@
   "date": "Дата",
   "number_of_total_teachers": "Количество учителей",
   "table": "Таблица",
-  "absents_teacher": "Отсутствующие учителя"
+  "absents_teacher": "Отсутствующие учителя",
+  "reports": "Отчеты",
+  "totalWorkDuration": "Всего часов"
 }

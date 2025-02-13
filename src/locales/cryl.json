@@ -74,6 +74,8 @@
     "delete": "Ўчириш",
     "deleteConfirmTxt": "Текст ни тасдиқлаш",
     "oops": "упс",
-    "loginOrPasswordIncorrect": "Логин ёки парол нотўғри"
+    "loginOrPasswordIncorrect": "Логин ёки парол нотўғри",
+    "reports": "Ҳисоботлар",
+    "totalWorkDuration": "Жами соатлар"
   }
 }

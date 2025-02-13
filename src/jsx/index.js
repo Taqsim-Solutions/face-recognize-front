@@ -136,6 +136,7 @@ const Markup = () => {
     { url: "teachers/:teacherId", component: <TeachersCreate /> },
     { url: "governments/create", component: <CreateGovernments /> },
     { url: "governments/:governmentId", component: <CreateGovernments /> },
+    { url: "reports", component: <StudentDetails /> },
     { url: "students", component: <Students /> },
     { url: "students/create", component: <StudentsCreate /> },
     { url: "students/:studentId", component: <StudentsCreate /> },

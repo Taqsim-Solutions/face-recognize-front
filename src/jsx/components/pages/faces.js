@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { getFacesQuery } from "../../../queries/index";
 import { useState } from "react";
-import settings from "../../../settings/settings";
 import Pagination from "../Pagination/Pagination";
 import { getMeQuery } from "../../../queries/index";
 
@@ -61,12 +60,8 @@ function Faces() {
                 style={{ marginLeft: "24px", padding: "10px", width: "200px" }}
               >
                 <img
-                  src={`${settings.baseURL}/images?filename=${
-                    user?.result?.level === 5 && !showMainImage
-                      ? image.imageName
-                      : image?.student?.mainImageName
-                      ? image?.student?.mainImageName
-                      : image?.teacher?.mainImageName
+                  src={`data:image/png;base64, ${
+                    showMainImage ? image.mainImage64 : image.image64
                   }`}
                   alt=""
                   style={{
@@ -79,15 +74,13 @@ function Faces() {
                 <p
                   style={{
                     marginTop: "10px",
-                    marginBottom: "0",
+                    marginBottom: "5px",
                     textAlign: "center",
+                    lineHeight: 1.3,
+                    color: "black",
                   }}
                 >
-                  {image.student
-                    ? `${image.student.firstName} ${image.student.lastName}`
-                    : `${image.teacher?.firstName || ""} ${
-                        image.teacher?.lastName || ""
-                      }`}
+                  {image.name}
                 </p>
                 <p
                   style={{
@@ -95,21 +88,8 @@ function Faces() {
                     textAlign: "center",
                   }}
                 >
-                  {image.time.slice(0, 10).split("-").join(".")}-{" "}
-                  {image.time.slice(11, 19)}
-                </p>
-                <p
-                  style={{
-                    marginBottom: "0",
-                    textAlign: "center",
-                  }}
-                >
-                  {t("class")}:{" "}
-                  {image?.student
-                    ? image?.student?.className
-                    : `${image?.teacher?.class?.degree || ""}-${
-                        image?.teacher?.class?.symbol || ""
-                      }`}
+                  {image.comingTime.slice(0, 10).split("-").join(".")}-{" "}
+                  {image.comingTime.slice(11, 19)}
                 </p>
               </div>
             ))}

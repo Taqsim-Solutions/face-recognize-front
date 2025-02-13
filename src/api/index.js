@@ -146,6 +146,14 @@ export const getSchoolNumbers = (params) => {
   return request({ method: "GET", url: "/dashboard/schools-number", params });
 };
 
+export const getReports = (params) => {
+  return request({
+    method: "GET",
+    url: "/hik-vision/user-attendance/report",
+    params,
+  });
+};
+
 export const changeMainImage = (id, imageName) => {
   return request({
     method: "PUT",
@@ -163,7 +171,7 @@ export const changeTeacherMainImage = (id, imageName) => {
 export const getFaces = (params) => {
   return request({
     method: "GET",
-    url: "/face-recognitons/face-images",
+    url: "/hik-vision/user-attendance/filter",
     params,
   });
 };

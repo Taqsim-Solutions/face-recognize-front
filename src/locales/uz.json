@@ -129,5 +129,7 @@
   "notAttendedStudents": "Kelmagan o'quvchilar",
   "date": "Sana",
   "absents_teacher": "Kelmagan o'qituvchilar",
-  "number_of_total_teachers": "O'qituvchilar soni"
+  "number_of_total_teachers": "O'qituvchilar soni",
+  "reports": "Hisobotlar",
+  "totalWorkDuration": "Jami soatlar"
 }

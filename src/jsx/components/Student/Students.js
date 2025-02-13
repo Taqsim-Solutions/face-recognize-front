@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { IMAGES } from "../Dashboard/Content";
 import { Dropdown } from "react-bootstrap";
 import BasicModal from "../Dashboard/BasicModal";
-import { getUsersQuery } from "../../../queries/index";
-import { useQuery } from "@tanstack/react-query";
 
 const tableData = [
   {
@@ -252,29 +250,7 @@ const tableData = [
 const Students = () => {
   const childRef = useRef();
   const [currentPage, setCurrentPage] = useState(1);
-  const [checked, setChecked] = useState(tableData);
-  const [unchecked, setUnChecked] = useState(true);
-
-  const { data: users } = useQuery({
-    ...getUsersQuery(),
-  });
-
-  const handleChecked = (id) => {
-    let temp = checked.map((data) => {
-      if (id === data.id) {
-        return { ...data, inputchecked: !data.inputchecked };
-      }
-      return data;
-    });
-    setChecked(temp);
-  };
-  const handleCheckedAll = (value) => {
-    let temp = checked.map((data) => {
-      return { ...data, inputchecked: value };
-    });
-    setChecked(temp);
-    setUnChecked(!unchecked);
-  };
+  const [checked] = useState(tableData);
 
   const recordsPage = 15;
   const lastIndex = currentPage * recordsPage;

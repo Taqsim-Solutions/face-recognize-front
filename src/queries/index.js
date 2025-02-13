@@ -17,6 +17,7 @@ import {
   getFaces,
   getUnknownFaces,
   getSchoolNumbers,
+  getReports,
 } from "../api";
 
 export function getUsersQuery(params) {
@@ -65,6 +66,13 @@ export function getMeQuery() {
   return {
     queryKey: ["me"],
     queryFn: async () => getMe(),
+  };
+}
+
+export function getReportsQuery(params) {
+  return {
+    queryKey: ["reports", params],
+    queryFn: async () => getReports(params),
   };
 }
 
