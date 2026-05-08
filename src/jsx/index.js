@@ -121,6 +121,7 @@ import Error403 from "./pages/Error403";
 import Error404 from "./pages/Error404";
 import Error500 from "./pages/Error500";
 import Error503 from "./pages/Error503";
+import PermissionDenied from "./pages/PermissionDenied";
 import { ThemeContext } from "../context/ThemeContext";
 
 const Markup = () => {
@@ -214,6 +215,7 @@ const Markup = () => {
       <Routes>
         <Route path="/page-error-400" element={<Error400 />} />
         <Route path="/page-error-403" element={<Error403 />} />
+        <Route path="/permission-denied" element={<PermissionDenied />} />
         <Route path="/page-error-404" element={<Error404 />} />
         <Route path="/page-error-500" element={<Error500 />} />
         <Route path="/page-error-503" element={<Error503 />} />
