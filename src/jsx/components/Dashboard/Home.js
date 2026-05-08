@@ -241,7 +241,7 @@ const Home = () => {
   });
 
   useEffect(() => {
-    if (schools?.result) {
+    if (schools?.result?.data) {
       const options = schools.result.data.map((option) => ({
         label: option.name,
         value: option.id,
@@ -263,7 +263,7 @@ const Home = () => {
   }, [user]);
 
   useEffect(() => {
-    if (classes?.result) {
+    if (classes?.result?.data) {
       const options = classes.result.data.map((option) => ({
         label: `${option.degree}-${option.symbol}`,
         value: option.id,

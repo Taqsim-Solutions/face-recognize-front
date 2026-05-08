@@ -44,7 +44,7 @@ export function OnlineTable() {
   }, [selected.class]);
 
   useEffect(() => {
-    if (attendances) {
+    if (attendances?.result) {
       const payload = {};
       attendances.result.forEach((schoolClass) => {
         console.log(schoolClass);

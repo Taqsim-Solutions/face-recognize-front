@@ -104,22 +104,22 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
     )
       .then((res) => {
         queryClient.invalidateQueries(["students"]);
-        if (res.result.id) {
-          studentParent(res.result.id, {
+        if (res?.result?.id) {
+          studentParent(res?.result?.id, {
             ...father,
             passport: "",
             dateOfBirth: `${father.dateOfBirth}T12:45:33.613Z`,
           });
-          studentParent(res.result.id, {
+          studentParent(res?.result?.id, {
             ...mother,
             passport: "",
             dateOfBirth: `${mother.dateOfBirth}T12:45:33.613Z`,
           });
         }
-        if (res.result.mainImageName) {
+        if (res?.result?.mainImageName) {
           navigate("/students");
         } else {
-          setCreatedStudentId(res.result.id);
+          setCreatedStudentId(res?.result?.id);
           setGoSteps(2);
         }
       })
@@ -132,20 +132,20 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
 
   const fetchStudent = () => {
     getStudent(studentId).then((res) => {
-      setFirstName(res.result.firstName);
-      setLastName(res.result.lastName);
-      setFatherNamee(res.result.fatherName);
-      setDateOfBirth(res.result.dateOfBirth.slice(0, 10));
-      setPhone(res.result.phoneNumber);
-      setImages(res.result.imageIds);
-      setMainImage(res.result.mainImageName);
+      setFirstName(res?.result?.firstName);
+      setLastName(res?.result?.lastName);
+      setFatherNamee(res?.result?.fatherName);
+      setDateOfBirth(res?.result?.dateOfBirth?.slice(0, 10));
+      setPhone(res?.result?.phoneNumber);
+      setImages(res?.result?.imageIds);
+      setMainImage(res?.result?.mainImageName);
       setFather({
-        ...res.result.parents?.[0],
-        dateOfBirth: res.result.parents?.[0].dateOfBirth?.slice(0, 10),
+        ...res?.result?.parents?.[0],
+        dateOfBirth: res?.result?.parents?.[0]?.dateOfBirth?.slice(0, 10),
       });
       setMother({
-        ...res.result.parents?.[1],
-        dateOfBirth: res.result.parents?.[1].dateOfBirth?.slice(0, 10),
+        ...res?.result?.parents?.[1],
+        dateOfBirth: res?.result?.parents?.[1]?.dateOfBirth?.slice(0, 10),
       });
     });
   };

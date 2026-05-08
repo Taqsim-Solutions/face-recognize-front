@@ -194,7 +194,7 @@ const Schools = () => {
         </div>
       </div>
       <Pagination
-        totalPages={schools?.result.totalPages}
+        totalPages={schools?.result?.totalPages}
         onPageChange={(page) => setPage(page)}
         size={size}
         setSize={setSize}

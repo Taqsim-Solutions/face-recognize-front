@@ -60,7 +60,7 @@ const Teachers = () => {
   });
 
   useEffect(() => {
-    if (classes?.result) {
+    if (classes?.result?.data) {
       const options = classes.result.data.map((option) => ({
         label: `${option.degree}-${option.symbol}`,
         value: option.id,
@@ -135,7 +135,7 @@ const Teachers = () => {
                       onChange={(e) => setSchoolId(e.target.value)}
                     >
                       <option value="">{t("school")}</option>
-                      {schools?.result.data?.map((option) => (
+                      {schools?.result?.data?.map((option) => (
                         <option value={option.id} key={option.id}>
                           {option.name}
                         </option>
@@ -259,7 +259,7 @@ const Teachers = () => {
         size={size}
         setSize={setSize}
         onPageChange={(page) => setPage(page)}
-        totalPages={customers?.result.totalPages}
+        totalPages={customers?.result?.totalPages}
       />
     </>
   );

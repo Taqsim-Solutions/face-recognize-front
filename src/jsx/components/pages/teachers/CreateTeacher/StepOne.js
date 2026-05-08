@@ -129,7 +129,7 @@ const StepOne = ({ setGoSteps }) => {
     )
       .then((res) => {
         queryClient.invalidateQueries(["teachers"]);
-        if (res.result.mainImageName) {
+        if (res?.result?.mainImageName) {
           navigate("/teachers");
         } else {
           setGoSteps(teacherId || res?.result?.id);
@@ -144,13 +144,13 @@ const StepOne = ({ setGoSteps }) => {
 
   const fetchTeacher = () => {
     getTeacher(teacherId).then((res) => {
-      setFirstName(res.result.firstName);
-      setLastName(res.result.lastName);
-      setEmail(res.result.email);
+      setFirstName(res?.result?.firstName);
+      setLastName(res?.result?.lastName);
+      setEmail(res?.result?.email);
       setSchoolId(`${schoolId}`);
-      setLogin(res.result.login);
-      setImages(res.result.imageIds);
-      setMainImage(res.result.mainImageName);
+      setLogin(res?.result?.login);
+      setImages(res?.result?.imageIds);
+      setMainImage(res?.result?.mainImageName);
     });
   };
 
@@ -171,7 +171,7 @@ const StepOne = ({ setGoSteps }) => {
   };
 
   useEffect(() => {
-    if (classes?.result) {
+    if (classes?.result?.data) {
       const options = classes.result.data.map((option) => ({
         label: `${option.degree}-${option.symbol}`,
         value: option.id,
@@ -181,7 +181,7 @@ const StepOne = ({ setGoSteps }) => {
   }, [classes]);
 
   useEffect(() => {
-    if (schools?.result) {
+    if (schools?.result?.data) {
       const options = schools.result.data.map((option) => ({
         label: option.name,
         value: option.id,
