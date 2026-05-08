@@ -1,21 +1,15 @@
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-COPY package*.json ./
-
-COPY yarn* ./
-
 RUN corepack enable
+
+COPY . .
+
 RUN yarn install
 
-COPY . /app
-
-ARG REACT_APP_BASE_URL
-
-ENV REACT_APP_BASE_URL=$REACT_APP_BASE_URL
-
 RUN yarn build
+
 FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
