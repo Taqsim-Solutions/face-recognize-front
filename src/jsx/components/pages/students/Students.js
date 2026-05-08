@@ -38,9 +38,9 @@ const Students = () => {
       PageIndex: page,
       PageSize: 10,
       searchText: firstName,
-      RegionId: user?.result.region?.id || region,
-      CityId: user?.result.city?.id,
-      SchoolId: user?.result.school?.id || schoolId,
+      RegionId: user?.result?.region?.id || region,
+      CityId: user?.result?.city?.id,
+      SchoolId: user?.result?.school?.id || schoolId,
       ClassId: classId,
     }),
   });
@@ -52,10 +52,10 @@ const Students = () => {
   const { data: classes } = useQuery({
     ...getClassesQuery({
       PageSize: "1000",
-      SchoolId: schoolId || user?.result.school?.id,
+      SchoolId: schoolId || user?.result?.school?.id,
       WithStudents: true,
     }),
-    enabled: Boolean(schoolId || user?.result.school?.id),
+    enabled: Boolean(schoolId || user?.result?.school?.id),
   });
 
   const { data: regions } = useQuery({
@@ -121,7 +121,7 @@ const Students = () => {
                     required
                     placeholder={`${t("firstName")}`}
                   />
-                  {!user?.result.region?.id && (
+                  {!user?.result?.region?.id && (
                     <select
                       className="form-control form-control-md"
                       onChange={(e) => {
@@ -139,7 +139,7 @@ const Students = () => {
                       ))}
                     </select>
                   )}
-                  {!user?.result.city?.id && region && (
+                  {!user?.result?.city?.id && region && (
                     <select
                       className="form-control form-control-md"
                       onChange={(e) => setCityId(e.target.value)}
@@ -157,7 +157,7 @@ const Students = () => {
                         ))}
                     </select>
                   )}
-                  {!user?.result.school?.id && cityId && (
+                  {!user?.result?.school?.id && cityId && (
                     <select
                       className="form-control form-control-md"
                       value={schoolId}
@@ -171,8 +171,8 @@ const Students = () => {
                       ))}
                     </select>
                   )}
-                  {!user?.result.class?.id &&
-                    (user?.result.school?.id || schoolId) && (
+                  {!user?.result?.class?.id &&
+                    (user?.result?.school?.id || schoolId) && (
                       <select
                         className="form-control form-control-md"
                         value={classId}
@@ -187,9 +187,9 @@ const Students = () => {
                       </select>
                     )}
                 </div>{" "}
-                {(user?.result.level === 1 ||
-                  user?.result.level === 5 ||
-                  user?.result.level === 2) && (
+                {(user?.result?.level === 1 ||
+                  user?.result?.level === 5 ||
+                  user?.result?.level === 2) && (
                   <div style={{ marginLeft: "auto" }}>
                     <button
                       type="button"
@@ -308,8 +308,8 @@ const Students = () => {
                               marginTop: "8px",
                             }}
                           >
-                            {(user?.result.level === 1 ||
-                              user?.result.level === 5) && (
+                            {(user?.result?.level === 1 ||
+                              user?.result?.level === 5) && (
                               <>
                                 <i
                                   className="material-icons"

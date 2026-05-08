@@ -102,22 +102,22 @@ const TeachersDetail = () => {
                 <div className="user">
                   <div className="user-media">
                     <img
-                      src={`${settings.baseURL}/images?filename=${user?.result.mainImageName}`}
+                      src={`${settings.baseURL}/images?filename=${user?.result?.mainImageName}`}
                       alt=""
                       className="avatar avatar-xxl"
                     />
                   </div>
                   <div>
-                    <h2 className="mb-0">{`${user?.result.firstName} ${user?.result.lastName}`}</h2>
+                    <h2 className="mb-0">{`${user?.result?.firstName} ${user?.result?.lastName}`}</h2>
                     <p className="text-primary font-w600">
-                      {user?.result.level === 1
-                        ? `Teacher (${user?.result.region.name}, ${user?.result.city.name}, ${user?.result.school.name})`
-                        : user?.result.level === 2
-                        ? `Director (${user?.result.region.name}, ${user?.result.city.name}, ${user?.result.school.name})`
-                        : user?.result.level === 3
-                        ? `District Government (${user?.result.city.name})`
-                        : user?.result.level === 4
-                        ? `Region Government (${user?.result.region.name})`
+                      {user?.result?.level === 1
+                        ? `Teacher (${user?.result?.region?.name}, ${user?.result?.city?.name}, ${user?.result?.school?.name})`
+                        : user?.result?.level === 2
+                        ? `Director (${user?.result?.region?.name}, ${user?.result?.city?.name}, ${user?.result?.school?.name})`
+                        : user?.result?.level === 3
+                        ? `District Government (${user?.result?.city?.name})`
+                        : user?.result?.level === 4
+                        ? `Region Government (${user?.result?.region?.name})`
                         : "Admin"}
                     </p>
                   </div>
@@ -134,7 +134,7 @@ const TeachersDetail = () => {
                       </li>
                       <li>
                         <span>{item.title}:</span>
-                        <h5 className="mb-0">{user?.result[item.key]}</h5>
+                        <h5 className="mb-0">{user?.result?.[item.key]}</h5>
                       </li>
                     </ul>
                   </div>

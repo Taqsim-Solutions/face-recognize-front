@@ -112,7 +112,7 @@ const Schools = () => {
                       ))}
                   </select>
                   <div /> <div />
-                  {user?.result.level === 5 && (
+                  {user?.result?.level === 5 && (
                     <button
                       type="button"
                       className="btn btn-primary"
@@ -166,7 +166,7 @@ const Schools = () => {
                               gap: "10px",
                             }}
                           >
-                            {user?.result.level === 5 && (
+                            {user?.result?.level === 5 && (
                               <i
                                 className="material-icons"
                                 style={{ cursor: "pointer" }}

@@ -41,10 +41,10 @@ const Teachers = () => {
   const { data: classes } = useQuery({
     ...getClassesQuery({
       PageSize: "1000",
-      SchoolId: schoolId || user?.result.school?.id,
+      SchoolId: schoolId || user?.result?.school?.id,
       WithStudents: true,
     }),
-    enabled: Boolean(schoolId || user?.result.school?.id),
+    enabled: Boolean(schoolId || user?.result?.school?.id),
   });
 
   const { data: customers } = useQuery({
@@ -96,7 +96,7 @@ const Teachers = () => {
                     required
                     placeholder={`${t("firstName")}`}
                   />
-                  {!user?.result.region?.id && (
+                  {!user?.result?.region?.id && (
                     <select
                       className="form-control form-control-md"
                       onChange={(e) => setRegion(e.target.value)}
@@ -110,7 +110,7 @@ const Teachers = () => {
                       ))}
                     </select>
                   )}
-                  {!user?.result.city?.id && region && (
+                  {!user?.result?.city?.id && region && (
                     <select
                       className="form-control form-control-md"
                       onChange={(e) => setCityId(e.target.value)}
@@ -128,7 +128,7 @@ const Teachers = () => {
                         ))}
                     </select>
                   )}
-                  {!user?.result.school?.id && cityId && (
+                  {!user?.result?.school?.id && cityId && (
                     <select
                       className="form-control form-control-md"
                       value={schoolId}
@@ -142,8 +142,8 @@ const Teachers = () => {
                       ))}
                     </select>
                   )}{" "}
-                  {!user?.result.class?.id &&
-                    (user?.result.school?.id || schoolId) && (
+                  {!user?.result?.class?.id &&
+                    (user?.result?.school?.id || schoolId) && (
                       <select
                         className="form-control form-control-md"
                         value={classId}
