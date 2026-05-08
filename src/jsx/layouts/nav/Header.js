@@ -211,7 +211,7 @@ const Header = ({ onNote }) => {
                       <img
                         src={
                           user?.result?.mainImageName
-                            ? `${settings.baseURL}/images?filename=${user?.result?.mainImageName}`
+                            ? `${settings.baseURL}/api/images?filename=${user?.result?.mainImageName}`
                             : profile
                         }
                         alt=""
@@ -229,7 +229,7 @@ const Header = ({ onNote }) => {
                             <img
                               src={
                                 user?.result?.mainImageName
-                                  ? `${settings.baseURL}/images?filename=${user?.result?.mainImageName}`
+                                  ? `${settings.baseURL}/api/images?filename=${user?.result?.mainImageName}`
                                   : profile
                               }
                               className="ms-0"

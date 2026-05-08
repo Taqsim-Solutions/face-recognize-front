@@ -102,7 +102,7 @@ const TeachersDetail = () => {
                 <div className="user">
                   <div className="user-media">
                     <img
-                      src={`${settings.baseURL}/images?filename=${user?.result?.mainImageName}`}
+                      src={`${settings.baseURL}/api/images?filename=${user?.result?.mainImageName}`}
                       alt=""
                       className="avatar avatar-xxl"
                     />

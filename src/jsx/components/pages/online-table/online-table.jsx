@@ -234,7 +234,7 @@ export function OnlineTable() {
                                     <img
                                       src={
                                         item.mainImageName
-                                          ? `${settings.baseURL}/images?filename=${item.mainImageName}`
+                                          ? `${settings.baseURL}/api/images?filename=${item.mainImageName}`
                                           : "https://st4.depositphotos.com/3265223/21282/v/450/depositphotos_212821870-stock-illustration-default-avatar-photo-placeholder-profile.jpg"
                                       }
                                       alt=""
@@ -275,7 +275,7 @@ export function OnlineTable() {
                                     <img
                                       src={
                                         item.mainImageName
-                                          ? `${settings.baseURL}/images?filename=${item.mainImageName}`
+                                          ? `${settings.baseURL}/api/images?filename=${item.mainImageName}`
                                           : "https://st4.depositphotos.com/3265223/21282/v/450/depositphotos_212821870-stock-illustration-default-avatar-photo-placeholder-profile.jpg"
                                       }
                                       alt=""
@@ -342,7 +342,7 @@ export function OnlineTable() {
                       <img
                         src={
                           student.mainImageName
-                            ? `${settings.baseURL}/images?filename=${student.mainImageName}`
+                            ? `${settings.baseURL}/api/images?filename=${student.mainImageName}`
                             : "https://st4.depositphotos.com/3265223/21282/v/450/depositphotos_212821870-stock-illustration-default-avatar-photo-placeholder-profile.jpg"
                         }
                         alt=""

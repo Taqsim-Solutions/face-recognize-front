@@ -428,7 +428,7 @@ const StepOne = ({ setGoSteps }) => {
                   </i>
                 </div>
                 <img
-                  src={`${settings.baseURL}/images?filename=${image}`}
+                  src={`${settings.baseURL}/api/images?filename=${image}`}
                   alt=""
                   style={{ width: "100%", borderRadius: "8px" }}
                 />

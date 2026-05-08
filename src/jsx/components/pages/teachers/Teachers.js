@@ -195,7 +195,7 @@ const Teachers = () => {
                         <tr key={ind}>
                           <td>
                             <img
-                              src={`${settings.baseURL}/images?filename=${item.mainImageName}`}
+                              src={`${settings.baseURL}/api/images?filename=${item.mainImageName}`}
                               alt=""
                               style={{ width: "50px", borderRadius: "8px" }}
                             />

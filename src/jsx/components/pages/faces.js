@@ -61,7 +61,7 @@ function Faces() {
                 style={{ marginLeft: "24px", padding: "10px", width: "200px" }}
               >
                 <img
-                  src={`${settings.baseURL}/images?filename=${
+                  src={`${settings.baseURL}/api/images?filename=${
                     user?.result?.level === 5 && !showMainImage
                       ? image.imageName
                       : image?.student?.mainImageName
