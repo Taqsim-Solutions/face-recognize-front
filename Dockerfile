@@ -4,6 +4,8 @@ WORKDIR /app
 
 RUN corepack enable
 
+RUN apk add --no-cache python3 make g++
+
 COPY . .
 
 RUN yarn install
