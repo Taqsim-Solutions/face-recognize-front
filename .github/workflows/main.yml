@@ -46,10 +46,10 @@ jobs:
         id: deploy
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.FACE_SSH_HOST }}
-          username: ${{ secrets.FACE_SSH_USER }}
-          key: ${{ secrets.FACE_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.FACE_SSH_PORT }}
+          host: ${{ secrets.MAIN_SSH_HOST }}
+          username: ${{ secrets.MAIN_SSH_USER }}
+          key: ${{ secrets.MAIN_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.MAIN_SSH_PORT }}
           script: |
             echo "Pulling latest docker image and restarting front app..."  
             cd ~/traefik
