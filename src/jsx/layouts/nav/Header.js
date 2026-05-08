@@ -210,8 +210,8 @@ const Header = ({ onNote }) => {
                     <div className="header-info2 d-flex align-items-center">
                       <img
                         src={
-                          user?.result.mainImageName
-                            ? `${settings.baseURL}/images?filename=${user?.result.mainImageName}`
+                          user?.result?.mainImageName
+                            ? `${settings.baseURL}/images?filename=${user?.result?.mainImageName}`
                             : profile
                         }
                         alt=""
@@ -228,8 +228,8 @@ const Header = ({ onNote }) => {
                           <li>
                             <img
                               src={
-                                user?.result.mainImageName
-                                  ? `${settings.baseURL}/images?filename=${user?.result.mainImageName}`
+                                user?.result?.mainImageName
+                                  ? `${settings.baseURL}/images?filename=${user?.result?.mainImageName}`
                                   : profile
                               }
                               className="ms-0"
@@ -237,15 +237,15 @@ const Header = ({ onNote }) => {
                             />
                           </li>
                           <li className="ms-2">
-                            <h4 className="mb-0">{`${user?.result.firstName} ${user?.result.lastName}`}</h4>
+                            <h4 className="mb-0">{`${user?.result?.firstName} ${user?.result?.lastName}`}</h4>
                             <span>
-                              {user?.result.level === 1
+                              {user?.result?.level === 1
                                 ? "Teacher"
-                                : user?.result.level === 2
+                                : user?.result?.level === 2
                                 ? "Director"
-                                : user?.result.level === 3
+                                : user?.result?.level === 3
                                 ? "District government"
-                                : user?.result.level === 4
+                                : user?.result?.level === 4
                                 ? "Region government"
                                 : "Admin"}
                             </span>

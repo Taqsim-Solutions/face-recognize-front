@@ -144,10 +144,10 @@ const Home = () => {
   const { data: classes } = useQuery({
     ...getClassesQuery({
       PageSize: "1000",
-      SchoolId: schoolId || user?.result.school?.id,
+      SchoolId: schoolId || user?.result?.school?.id,
       WithStudents: true,
     }),
-    enabled: Boolean(schoolId || user?.result.school?.id),
+    enabled: Boolean(schoolId || user?.result?.school?.id),
   });
 
   const { data: overall } = useQuery({
@@ -251,13 +251,13 @@ const Home = () => {
   }, [schools]);
 
   useEffect(() => {
-    if (user?.result.region?.id) {
+    if (user?.result?.region?.id) {
       setRegion(user.result.region.id);
     }
-    if (user?.result.city?.id) {
+    if (user?.result?.city?.id) {
       setCityId(user.result.city.id);
     }
-    if (user?.result.school?.id) {
+    if (user?.result?.school?.id) {
       setSchoolId(user.result.school.id);
     }
   }, [user]);
@@ -275,7 +275,7 @@ const Home = () => {
   return (
     <>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-        {!user?.result.region?.id && (
+        {!user?.result?.region?.id && (
           <div className="form-group mb-4" style={{ width: "200px" }}>
             <label htmlFor="basic-url" className="form-label d-block">
               {t("region")}
@@ -297,7 +297,7 @@ const Home = () => {
             </select>
           </div>
         )}
-        {region && !user?.result.city?.id && (
+        {region && !user?.result?.city?.id && (
           <div className="form-group mb-4" style={{ width: "200px" }}>
             <label htmlFor="basic-url" className="form-label d-block">
               {t("district")}
@@ -318,7 +318,7 @@ const Home = () => {
             </select>
           </div>
         )}
-        {cityId && region && !user?.result.school?.id && (
+        {cityId && region && !user?.result?.school?.id && (
           <div className="mb-2" style={{ width: "200px" }}>
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
@@ -339,7 +339,7 @@ const Home = () => {
             </div>
           </div>
         )}
-        {(user?.result.class === null || schoolId) && schoolId && (
+        {(user?.result?.class === null || schoolId) && schoolId && (
           <div className="mb-2" style={{ width: "200px" }}>
             <div className="form-group mb-3">
               <label htmlFor="basic-url" className="form-label d-block">
@@ -381,7 +381,7 @@ const Home = () => {
           />
         </div>
       </div>
-      {user?.result.level >= 3 && (
+      {user?.result?.level >= 3 && (
         <div className="row">
           <div className="col-xl-12">
             <div className="card">
