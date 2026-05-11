@@ -36,7 +36,7 @@ function Login(props) {
         setIsAuth(true);
       })
       .catch((err) => {
-        swal("Oops", err.data.message, "error");
+        swal("Oops", err.data?.message || err.statusText || "Something went wrong", "error");
       });
   }
 
@@ -93,7 +93,7 @@ function Login(props) {
                           <strong>Login</strong>
                         </label>
                         <input
-                          type="login"
+                          type="text"
                           className="form-control"
                           value={login}
                           onChange={(e) => setLogin(e.target.value)}

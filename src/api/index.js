@@ -1,23 +1,23 @@
 import request from "../utils/axios";
 
 export const loginAPI = (data) => {
-  return request({ method: "POST", url: "/api/authentication", data });
+  return request({ method: "POST", url: "authentication", data });
 };
 
 export const getUsers = (params) => {
-  return request({ method: "GET", url: "/api/users", params });
+  return request({ method: "GET", url: "users", params });
 };
 
 export const getPerformance = (params) => {
-  return request({ method: "GET", url: "/api/dashboard/performance", params });
+  return request({ method: "GET", url: "dashboard/performance", params });
 };
 
 export const getSchoolsOverview = (params) => {
-  return request({ method: "GET", url: "/api/dashboard/school-details", params });
+  return request({ method: "GET", url: "dashboard/school-details", params });
 };
 
 export const createUser = (data) => {
-  return request({ method: "POST", url: "/api/users", data });
+  return request({ method: "POST", url: "users", data });
 };
 
 export const editUser = (data, id) => {
@@ -29,27 +29,27 @@ export const deleteUser = (id) => {
 };
 
 export const getCustomers = (params) => {
-  return request({ method: "GET", url: "/api/customer", params });
+  return request({ method: "GET", url: "customer", params });
 };
 
 export const createCustomer = (data) => {
-  return request({ method: "POST", url: "/api/customer", data });
+  return request({ method: "POST", url: "customer", data });
 };
 
 export const getTeachers = (params) => {
-  return request({ method: "GET", url: "/api/teachers", params });
+  return request({ method: "GET", url: "teachers", params });
 };
 
 export const getClasses = (params) => {
-  return request({ method: "GET", url: "/api/classes", params });
+  return request({ method: "GET", url: "classes", params });
 };
 
 export const getSchools = (params) => {
-  return request({ method: "GET", url: "/api/schools", params });
+  return request({ method: "GET", url: "schools", params });
 };
 
 export const createTeacher = (data) => {
-  return request({ method: "POST", url: "/api/teachers", data });
+  return request({ method: "POST", url: "teachers", data });
 };
 
 export const updateTeacher = (data, id) => {
@@ -72,11 +72,11 @@ export const deleteTeacher = (id) => {
 };
 
 export const getRegions = () => {
-  return request({ method: "GET", url: "/api/regions" });
+  return request({ method: "GET", url: "regions" });
 };
 
 export const createSchool = (data) => {
-  return request({ method: "POST", url: "/api/schools", data });
+  return request({ method: "POST", url: "schools", data });
 };
 
 export const editSchool = (data, id) => {
@@ -88,11 +88,11 @@ export const deleteSchool = (id) => {
 };
 
 export const getMe = () => {
-  return request({ method: "GET", url: "/api/users/get-me" });
+  return request({ method: "GET", url: "users/get-me" });
 };
 
 export const getStudents = (params) => {
-  return request({ method: "GET", url: "/api/students", params });
+  return request({ method: "GET", url: "students", params });
 };
 
 export const getStudent = (id) => {
@@ -115,11 +115,11 @@ export const editStudent = (data, id) => {
 };
 
 export const createStudent = (data) => {
-  return request({ method: "POST", url: "/api/students", data });
+  return request({ method: "POST", url: "students", data });
 };
 
 export const createGovernment = (data) => {
-  return request({ method: "POST", url: "/api/governments", data });
+  return request({ method: "POST", url: "governments", data });
 };
 
 export const updateGovernment = (data, id) => {
@@ -135,15 +135,15 @@ export const deleteGovernment = (id) => {
 };
 
 export const getDashboardOverview = (params) => {
-  return request({ method: "GET", url: "/api/dashboard/overview", params });
+  return request({ method: "GET", url: "dashboard/overview", params });
 };
 
 export const getGovernment = (params) => {
-  return request({ method: "GET", url: "/api/governments", params });
+  return request({ method: "GET", url: "governments", params });
 };
 
 export const getSchoolNumbers = (params) => {
-  return request({ method: "GET", url: "/api/dashboard/schools-number", params });
+  return request({ method: "GET", url: "dashboard/schools-number", params });
 };
 
 export const changeMainImage = (id, imageName) => {
@@ -163,7 +163,7 @@ export const changeTeacherMainImage = (id, imageName) => {
 export const getFaces = (params) => {
   return request({
     method: "GET",
-    url: "/api/face-recognitons/face-images",
+    url: "face-recognitons/face-images",
     params,
   });
 };
@@ -171,7 +171,7 @@ export const getFaces = (params) => {
 export const getUnknownFaces = (params) => {
   return request({
     method: "GET",
-    url: "/api/face-recognitons/unknown-faces",
+    url: "face-recognitons/unknown-faces",
     params,
   });
 };
@@ -179,7 +179,7 @@ export const getUnknownFaces = (params) => {
 export const getOverallStatistics = (params) => {
   return request({
     method: "GET",
-    url: "/api/dashboard/overall-statistics",
+    url: "dashboard/overall-statistics",
     params,
   });
 };
@@ -226,5 +226,5 @@ export const getAttendancesDetail = (date, classId) => {
 };
 
 export const getDashboardAbsents = (params) => {
-  return request({ method: "GET", url: "/api/dashboard/absents", params });
+  return request({ method: "GET", url: "dashboard/absents", params });
 };
