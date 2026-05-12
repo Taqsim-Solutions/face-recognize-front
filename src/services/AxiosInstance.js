@@ -1,15 +1,15 @@
 import axios from 'axios';
-import { store } from '../store/store';
+import settings from '../settings/settings';
 
 const axiosInstance = axios.create({
-    baseURL: `https://react-course-b798e-default-rtdb.firebaseio.com/`,
+    baseURL: settings.baseURL,
 });
 
 axiosInstance.interceptors.request.use((config) => {
-    const state = store.getState();
-    const token = state.auth.auth.idToken;
-    config.params = config.params || {};
-    config.params['auth'] = token;
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
 });
 
