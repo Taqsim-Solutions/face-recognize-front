@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import swal from "sweetalert";
-import { getRegionsQuery } from "../../../../queries/index";
-import { createSchool, editSchool } from "../../../../api";
+import { getRegionsQuery, getCamerasQuery } from "../../../../queries/index";
+import { createSchool, editSchool, createCamera, updateCamera, deleteCamera } from "../../../../api";
 import { useTranslation } from "react-i18next";
 
 const SchoolForm = ({ isCreate, school, onClose }) => {
@@ -19,11 +19,58 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
   const [errors, setErrors] = useState(errorsObj);
   const queryClient = useQueryClient();
 
+  const [cameras, setCameras] = useState([]);
+  const [newCamera, setNewCamera] = useState({ name: "", serialNumber: "", type: 1 });
+  const [showAddCamera, setShowAddCamera] = useState(false);
+
+
   const { data: regions } = useQuery({
     ...getRegionsQuery(),
   });
 
+  const { data: schoolCameras, refetch: refetchCameras } = useQuery({
+    ...getCamerasQuery({ schoolId: school?.id }),
+    enabled: !!school?.id,
+  });
+
+  useEffect(() => {
+    if (schoolCameras?.result) {
+      setCameras(schoolCameras.result);
+    }
+  }, [schoolCameras]);
+
+
+  const handleAddCamera = () => {
+    if (!newCamera.name || !newCamera.serialNumber) {
+      swal("Oops", t("fillAllFields"), "error");
+      return;
+    }
+    setLoading(true);
+    createCamera({ ...newCamera, schoolId: school.id })
+      .then(() => {
+        refetchCameras();
+        setNewCamera({ name: "", serialNumber: "", type: 1 });
+        setShowAddCamera(false);
+      })
+      .catch((err) => swal("Oops", err.data.message, "error"))
+      .finally(() => setLoading(false));
+  };
+
+  const handleDeleteCamera = (cameraId) => {
+    swal({
+      title: t("areYouSure"),
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        deleteCamera(cameraId).then(() => refetchCameras());
+      }
+    });
+  };
+
   const onSubmit = () => {
+
     let error = false;
     const errorObj = { ...errorsObj };
     if (cityId === "") {
@@ -139,7 +186,97 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
                 )}
               </div>
             )}
+
+            {school && (
+              <div className="mt-4">
+                <h6>{t("cameras")}</h6>
+                <table className="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>{t("name")}</th>
+                      <th>{t("serialNumber")}</th>
+                      <th>{t("type")}</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cameras.map((c) => (
+                      <tr key={c.id}>
+                        <td>{c.name}</td>
+                        <td>{c.serialNumber}</td>
+                        <td>
+                          {c.type === 1 ? t("Entrance") : c.type === 2 ? t("Exit") : t("EntranceAndExit")}
+                        </td>
+                        <td>
+                          <i
+                            className="material-icons text-danger"
+                            style={{ cursor: "pointer", fontSize: "18px" }}
+                            onClick={() => handleDeleteCamera(c.id)}
+                          >
+                            delete
+                          </i>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {!showAddCamera ? (
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => setShowAddCamera(true)}
+                  >
+                    + {t("addCamera")}
+                  </button>
+                ) : (
+                  <div className="border p-2 rounded">
+                    <div className="mb-2">
+                      <input
+                        type="text"
+                        className="form-control form-control-sm mb-1"
+                        placeholder={t("cameraName")}
+                        value={newCamera.name}
+                        onChange={(e) => setNewCamera({ ...newCamera, name: e.target.value })}
+                      />
+                      <input
+                        type="text"
+                        className="form-control form-control-sm mb-1"
+                        placeholder={t("serialNumber")}
+                        value={newCamera.serialNumber}
+                        onChange={(e) => setNewCamera({ ...newCamera, serialNumber: e.target.value })}
+                      />
+                      <select
+                        className="form-control form-control-sm mb-2"
+                        value={newCamera.type}
+                        onChange={(e) => setNewCamera({ ...newCamera, type: parseInt(e.target.value) })}
+                      >
+                        <option value={1}>{t("Entrance")}</option>
+                        <option value={2}>{t("Exit")}</option>
+                        <option value={3}>{t("EntranceAndExit")}</option>
+                      </select>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-success btn-sm"
+                        onClick={handleAddCamera}
+                      >
+                        {t("saveButton")}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-light btn-sm"
+                        onClick={() => setShowAddCamera(false)}
+                      >
+                        {t("cancel")}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
+
           <div className="modal-footer">
             <button
               type="button"

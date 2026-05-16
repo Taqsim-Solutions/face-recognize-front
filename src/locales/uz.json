@@ -129,5 +129,16 @@
   "notAttendedStudents": "Kelmagan o'quvchilar",
   "date": "Sana",
   "absents_teacher": "Kelmagan o'qituvchilar",
-  "number_of_total_teachers": "O'qituvchilar soni"
+  "number_of_total_teachers": "O'qituvchilar soni",
+  "cameras": "Kameralar",
+  "serialNumber": "Serial raqami",
+  "addCamera": "Kamera qo'shish",
+  "cameraName": "Kamera nomi",
+  "Entrance": "Kirish",
+  "Exit": "Chiqish",
+  "EntranceAndExit": "Kirish va Chiqish",
+  "fillAllFields": "Barcha maydonlarni to'ldiring",
+  "areYouSure": "Ishonchingiz komilmi?",
+  "cancel": "Bekor qilish"
 }
+

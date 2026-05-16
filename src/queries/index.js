@@ -17,6 +17,7 @@ import {
   getFaces,
   getUnknownFaces,
   getSchoolNumbers,
+  getCameras,
 } from "../api";
 
 export function getUsersQuery(params) {
@@ -144,3 +145,11 @@ export function getUnknownFacesQuery(params) {
     queryFn: async () => getUnknownFaces(params),
   };
 }
+
+export function getCamerasQuery(params) {
+  return {
+    queryKey: ["cameras", params],
+    queryFn: async () => getCameras(params),
+  };
+}
+

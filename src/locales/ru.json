@@ -141,5 +141,16 @@
   "date": "Дата",
   "number_of_total_teachers": "Количество учителей",
   "table": "Таблица",
-  "absents_teacher": "Отсутствующие учителя"
+  "absents_teacher": "Отсутствующие учителя",
+  "cameras": "Камеры",
+  "serialNumber": "Серийный номер",
+  "addCamera": "Добавить камеру",
+  "cameraName": "Название камеры",
+  "Entrance": "Вход",
+  "Exit": "Выход",
+  "EntranceAndExit": "Вход и Выход",
+  "fillAllFields": "Заполните все поля",
+  "areYouSure": "Вы уверены?",
+  "cancel": "Отмена"
 }
+

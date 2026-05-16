@@ -228,3 +228,20 @@ export const getAttendancesDetail = (date, classId) => {
 export const getDashboardAbsents = (params) => {
   return request({ method: "GET", url: "/dashboard/absents", params });
 };
+
+export const getCameras = (params) => {
+  return request({ method: "GET", url: "/cameras", params });
+};
+
+export const createCamera = (data) => {
+  return request({ method: "POST", url: "/cameras", data });
+};
+
+export const updateCamera = (data, id) => {
+  return request({ method: "PUT", url: `/cameras/${id}`, data });
+};
+
+export const deleteCamera = (id) => {
+  return request({ method: "DELETE", url: `/cameras/${id}` });
+};
+
