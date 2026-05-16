@@ -20,13 +20,14 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
   const queryClient = useQueryClient();
 
   const [cameras, setCameras] = useState([]);
-  const [newCamera, setNewCamera] = useState({ name: "", serialNumber: "", type: 1 });
+  const [newCamera, setNewCamera] = useState({ name: "", serialNumber: "", username: "", password: "", type: 1 });
   const [showAddCamera, setShowAddCamera] = useState(false);
 
 
   const { data: regions } = useQuery({
     ...getRegionsQuery(),
   });
+
 
   const { data: schoolCameras, refetch: refetchCameras } = useQuery({
     ...getCamerasQuery({ schoolId: school?.id }),
@@ -49,9 +50,10 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
     createCamera({ ...newCamera, schoolId: school.id })
       .then(() => {
         refetchCameras();
-        setNewCamera({ name: "", serialNumber: "", type: 1 });
+        setNewCamera({ name: "", serialNumber: "", username: "", password: "", type: 1 });
         setShowAddCamera(false);
       })
+
       .catch((err) => swal("Oops", err.data.message, "error"))
       .finally(() => setLoading(false));
   };
@@ -244,6 +246,20 @@ const SchoolForm = ({ isCreate, school, onClose }) => {
                         placeholder={t("serialNumber")}
                         value={newCamera.serialNumber}
                         onChange={(e) => setNewCamera({ ...newCamera, serialNumber: e.target.value })}
+                      />
+                      <input
+                        type="text"
+                        className="form-control form-control-sm mb-1"
+                        placeholder={t("login")}
+                        value={newCamera.username}
+                        onChange={(e) => setNewCamera({ ...newCamera, username: e.target.value })}
+                      />
+                      <input
+                        type="password"
+                        className="form-control form-control-sm mb-1"
+                        placeholder={t("password")}
+                        value={newCamera.password}
+                        onChange={(e) => setNewCamera({ ...newCamera, password: e.target.value })}
                       />
                       <select
                         className="form-control form-control-sm mb-2"
