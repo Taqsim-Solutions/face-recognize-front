@@ -3,13 +3,13 @@ FROM node:18-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
-
 COPY yarn* ./
 
 RUN corepack enable
-RUN yarn install
 
 COPY . /app
+
+RUN yarn install
 
 ARG REACT_APP_BASE_URL
 
