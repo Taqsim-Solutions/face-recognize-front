@@ -5,12 +5,14 @@ import AddUserModal from "./AddUserModal";
 import DeleteModal from "./DeleteUser";
 import { useTranslation } from "react-i18next";
 import Pagination from "../Pagination/Pagination";
+import { NewPassword } from "../pages/teachers/CreateTeacher/NewPassword";
 
 const Students = () => {
   const [page, setPage] = useState(1);
   const [editUser, setEditUser] = useState(null);
   const [createModal, setCreateModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
+  const [resetPasswordId, setResetPasswordId] = useState(null);
   const [size, setSize] = useState("10");
   const { t } = useTranslation();
 
@@ -114,7 +116,14 @@ const Students = () => {
                             </i>
                             <i
                               className="material-icons"
-                              style={{ cursor: "pointer" }}
+                              style={{ cursor: "pointer", color: "#2f4cdd" }}
+                              onClick={() => setResetPasswordId(item.id)}
+                            >
+                              key
+                            </i>
+                            <i
+                              className="material-icons"
+                              style={{ cursor: "pointer", color: "red" }}
                               onClick={() => setDeleteModal(item.id)}
                             >
                               delete
@@ -141,6 +150,9 @@ const Students = () => {
         />
       )}
       <DeleteModal isOpen={deleteModal} onClose={() => setDeleteModal(null)} />
+      {resetPasswordId && (
+        <NewPassword id={resetPasswordId} onClose={() => setResetPasswordId(null)} />
+      )}
       <Pagination
         totalPages={users?.result.totalPages}
         onPageChange={(page) => setPage(page)}
