@@ -59,6 +59,7 @@ const Students = () => {
                         <th>{t("dateOfRegistration")}</th>
                         <th>{t("email")}</th>
                         <th>{t("login")}</th>
+                        <th>{t("role")}</th>
                         <th className="text-end">{t("action")}</th>
                       </tr>
                     </thead>
@@ -80,6 +81,19 @@ const Students = () => {
                           </td>
                           <td>
                             <h6 className="mb-0">{item.login}</h6>
+                          </td>
+                          <td>
+                            <span className="badge badge-primary light">
+                              {item.level === 1
+                                ? t("Teacher")
+                                : item.level === 2
+                                ? t("Director")
+                                : item.level === 3
+                                ? t("District government")
+                                : item.level === 4
+                                ? t("Region government")
+                                : t("Admin")}
+                            </span>
                           </td>
                           <td
                             style={{

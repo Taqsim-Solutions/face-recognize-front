@@ -17,6 +17,7 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
   const [email, setEmail] = useState("");
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [level, setLevel] = useState(5);
   const [loading, setLoading] = useState(false);
   let errorsObj = {
     firstName: "",
@@ -63,7 +64,7 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
         email,
         password,
         login,
-        level: 5,
+        level: parseInt(level),
       },
       user?.id
     )
@@ -84,6 +85,7 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
       setLastName(user.lastName);
       setEmail(user.email);
       setLogin(user.login);
+      setLevel(user.level || 5);
     }
   }, [user]);
 
@@ -164,6 +166,23 @@ const AddUserModal = ({ isCreate, user, onClose }) => {
               {errors.email && (
                 <div className="text-danger fs-12">{errors.email}</div>
               )}
+            </div>
+            <div className="mb-3 d-block">
+              <label htmlFor="roleSelect" className="form-label mb-2">
+                {t("role")}
+              </label>
+              <select
+                className="form-control"
+                id="roleSelect"
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+              >
+                <option value={1}>{t("Teacher")}</option>
+                <option value={2}>{t("Director")}</option>
+                <option value={3}>{t("District government")}</option>
+                <option value={4}>{t("Region government")}</option>
+                <option value={5}>{t("Admin")}</option>
+              </select>
             </div>
             {!user && (
               <div class="mb-3 d-block">
