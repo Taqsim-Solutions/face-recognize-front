@@ -47,7 +47,7 @@ export const MenuList = [
     classsChange: "mm-collapse",
     iconStyle: <i className="material-icons">group</i>,
     to: "online-table",
-    level: [1, 2],
+    level: [1, 2, 5],
   },
   {
     title: "faces",
