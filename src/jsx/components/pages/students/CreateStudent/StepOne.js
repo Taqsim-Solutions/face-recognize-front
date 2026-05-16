@@ -11,7 +11,10 @@ import {
 } from "../../../../../api";
 import { useNavigate, useParams } from "react-router-dom";
 import settings from "../../../../../settings/settings";
+import { getClassesQuery, getMeQuery, getRegionsQuery, getSchoolsQuery } from "../../../../../queries/index";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import Select from "react-select";
 
 const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
   const [father, setFather] = useState({
@@ -41,6 +44,13 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [fatherName, setFatherNamee] = useState("");
   const [reflesh, setReflesh] = useState(0);
+  const [classId, setClassId] = useState("");
+  const [schoolId, setSchoolId] = useState("");
+  const [region, setRegion] = useState("");
+  const [cityId, setCityId] = useState("");
+  const [classesValues, setClassesValues] = useState([]);
+  const [schoolValues, setSchoolValues] = useState([]);
+
   const navigate = useNavigate();
   const { t } = useTranslation();
   let errorsObj = {
@@ -53,6 +63,53 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
   const { studentId } = useParams();
   const [errors, setErrors] = useState(errorsObj);
   const queryClient = useQueryClient();
+
+  const { data: user } = useQuery({
+    ...getMeQuery(),
+  });
+
+  const { data: classes } = useQuery({
+    ...getClassesQuery({ PageSize: "1000", SchoolId: schoolId }),
+    enabled: !!schoolId,
+  });
+
+  const { data: schools } = useQuery({
+    ...getSchoolsQuery({ PageSize: "1000", RegionId: region, CityId: cityId }),
+    enabled: !!cityId,
+  });
+
+  const { data: regions } = useQuery({
+    ...getRegionsQuery(),
+  });
+
+  useEffect(() => {
+    if (user?.result) {
+      if (user.result.school?.id) setSchoolId(user.result.school.id);
+      if (user.result.city?.id) setCityId(user.result.city.id);
+      if (user.result.region?.id) setRegion(user.result.region.id);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (classes?.result) {
+      const options = classes.result.data.map((option) => ({
+        label: `${option.degree}-${option.symbol}`,
+        value: option.id,
+      }));
+      setClassesValues(options);
+    }
+  }, [classes]);
+
+  useEffect(() => {
+    if (schools?.result) {
+      const options = schools.result.data.map((option) => ({
+        label: option.name,
+        value: option.id,
+      }));
+      setSchoolValues(options);
+    }
+  }, [schools]);
+
 
   const onDeleteImage = (imageName) => {
     deleteStudentPhoto(imageName).then(() => {
@@ -84,8 +141,13 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
       errorObj.phone = `${t("phone")} ${t("isRequired")}`;
       error = true;
     }
+    if (!studentId && user?.result.level !== 1 && !classId) {
+      errorObj.classId = `${t("class")} ${t("isRequired")}`;
+      error = true;
+    }
 
     setErrors(errorObj);
+
     if (error) {
       return;
     }
@@ -99,7 +161,9 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
         dateOfBirth: `${dateOfBirth}T12:45:33.613Z`,
         passport: "",
         gender: 0,
+        classId: +classId,
       },
+
       studentId
     )
       .then((res) => {
@@ -250,6 +314,74 @@ const StepOne = ({ setGoSteps, setCreatedStudentId }) => {
             )}
           </div>
         </div>
+
+        {user?.result.level !== 1 && (
+          <div className="row">
+            <p style={{ color: "black", fontWeight: 700, fontSize: "16px" }}>
+              {t("location")}
+            </p>
+            {!user?.result.region?.id && (
+              <div className="col-lg-6 mb-2">
+                <label className="form-label d-block">{t("region")}</label>
+                <select
+                  className="form-control"
+                  onChange={(e) => setRegion(e.target.value)}
+                  value={region}
+                >
+                  <option value="">{t("select")}</option>
+                  {regions?.result?.map((option) => (
+                    <option value={option.id} key={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {!user?.result.city?.id && region && (
+              <div className="col-lg-6 mb-2">
+                <label className="form-label d-block">{t("district")}</label>
+                <select
+                  className="form-control"
+                  onChange={(e) => setCityId(e.target.value)}
+                  value={cityId}
+                >
+                  <option value="">{t("select")}</option>
+                  {regions?.result
+                    ?.find((r) => r.id === +region)
+                    ?.cities?.map((option) => (
+                      <option value={option.id} key={option.id}>
+                        {option.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+            {!user?.result.school?.id && cityId && (
+              <div className="col-lg-6 mb-2">
+                <label className="form-label d-block">{t("school")}</label>
+                <Select
+                  onChange={(e) => setSchoolId(e.value)}
+                  options={schoolValues}
+                  placeholder={t("select")}
+                />
+              </div>
+            )}
+            {schoolId && (
+              <div className="col-lg-6 mb-2">
+                <label className="form-label d-block">{t("class")}</label>
+                <Select
+                  onChange={(e) => setClassId(e.value)}
+                  options={classesValues}
+                  placeholder={t("select")}
+                />
+                {errors.classId && (
+                  <div className="text-danger fs-12">{errors.classId}</div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         <p style={{ color: "black", fontWeight: 700, fontSize: "16px" }}>
           {t("father_of_student")}
         </p>
