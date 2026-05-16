@@ -37,11 +37,13 @@ function StepTwo({ uploadProps, studentId, createdStudentId }) {
         }
 
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        videoRef.current.srcObject = null;
-        videoRef.current.srcObject = stream;
-
-        // Save the new stream reference
         streamRef.current = stream;
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = null;
+            videoRef.current.srcObject = stream;
+          }
+        }, 50);
       } catch (error) {
         console.error("Error accessing camera:", error);
       }

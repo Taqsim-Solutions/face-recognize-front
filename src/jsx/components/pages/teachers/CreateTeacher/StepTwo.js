@@ -32,9 +32,13 @@ function StepTwo({ uploadProps, id }) {
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        setCamera(true);
-        videoRef.current.srcObject = stream;
         streamRef.current = stream;
+        setCamera(true);
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        }, 50);
       } catch (error) {
         console.error("Error accessing camera:", error);
       }

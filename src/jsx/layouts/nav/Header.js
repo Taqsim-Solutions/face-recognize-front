@@ -210,8 +210,8 @@ const Header = ({ onNote }) => {
                     <div className="header-info2 d-flex align-items-center">
                       <img
                         src={
-                          user?.result.mainImageName
-                            ? `${settings.baseURL}/images?filename=${user?.result.mainImageName}`
+                          user?.result?.mainImageName && user?.result?.mainImageName !== "null"
+                            ? `${settings.baseURL}/images?filename=${user?.result?.mainImageName}`
                             : profile
                         }
                         alt=""
@@ -228,8 +228,8 @@ const Header = ({ onNote }) => {
                           <li>
                             <img
                               src={
-                                user?.result.mainImageName
-                                  ? `${settings.baseURL}/images?filename=${user?.result.mainImageName}`
+                                user?.result?.mainImageName && user?.result?.mainImageName !== "null"
+                                  ? `${settings.baseURL}/images?filename=${user?.result?.mainImageName}`
                                   : profile
                               }
                               className="ms-0"
