@@ -14,10 +14,11 @@ const Students = () => {
   const [deleteModal, setDeleteModal] = useState(null);
   const [resetPasswordId, setResetPasswordId] = useState(null);
   const [size, setSize] = useState("10");
+  const [search, setSearch] = useState("");
   const { t } = useTranslation();
 
   const { data: users } = useQuery({
-    ...getUsersQuery({ PageIndex: page, PageSize: size }),
+    ...getUsersQuery({ PageIndex: page, PageSize: size, Search: search }),
   });
 
   return (
@@ -33,7 +34,18 @@ const Students = () => {
                 >
                   {t("users")}
                 </div>
-                <div className="d-flex">
+                <div className="d-flex align-items-center gap-3">
+                  <input
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setPage(1);
+                    }}
+                    type="text"
+                    className="form-control"
+                    placeholder={t("search")}
+                    style={{ width: "250px" }}
+                  />
                   <button
                     type="button"
                     className="btn btn-primary"
@@ -44,6 +56,7 @@ const Students = () => {
                 </div>
               </div>
             </div>
+
             <div className="col-xl-12 wow fadeInUp" data-wow-delay="1.5s">
               <div className="table-responsive full-data">
                 <div
