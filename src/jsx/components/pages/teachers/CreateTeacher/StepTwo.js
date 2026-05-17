@@ -8,15 +8,14 @@ function StepTwo({ uploadProps, id }) {
   const [step, setStep] = useState(1);
   const [facingMode, setFacingMode] = useState("user");
   const [showCamera, setCamera] = useState(false);
-  const [imageFiles, setImageFiles] = useState([]);
   const [capturedImages, setCapturedImages] = useState([]);
+  const [allFiles, setAllFiles] = useState([]); // Consolidates all file objects (camera & uploaded)
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const navigate = useNavigate();
   const { teacherId } = useParams();
   const { t } = useTranslation();
-  const [images, setImages] = useState([]);
 
   const startCamera = async (mode) => {
     if (
@@ -56,7 +55,7 @@ function StepTwo({ uploadProps, id }) {
 
   const handleImageUpload = (files) => {
     const fileArray = Array.from(files);
-    setImages([...images, ...fileArray]);
+    setAllFiles([...allFiles, ...fileArray]);
     const fileList = fileArray.map((file) => URL.createObjectURL(file));
     setCapturedImages([...capturedImages, ...fileList]);
   };
@@ -71,29 +70,20 @@ function StepTwo({ uploadProps, id }) {
     const context = canvas.getContext("2d");
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const imageBlob = canvas.toBlob((blob) => {
+    canvas.toBlob((blob) => {
       const imageName = uploadProps?.placeholder || "image.jpg";
       const imageFile = new File([blob], imageName, { type: blob.type });
-      setImageFiles([...imageFiles, imageFile]);
+      setAllFiles([...allFiles, imageFile]);
       setCapturedImages([...capturedImages, URL.createObjectURL(imageFile)]);
-    }, "image/jpeg");
-
-    if (step < 6) {
       setStep(step + 1);
-      swal(
-        t("Okay, next one"),
-        step === 1
-          ? t("lookRight")
-          : step === 2
-          ? t("lookLeft")
-          : step === 3
-          ? t("lookRightAgain")
-          : step === 4
-          ? t("lookBack")
-          : t("lookForward"),
-        "success"
-      );
-    }
+
+      swal({
+        title: t("screenApproved") || "Muvaffaqiyatli suratga olindi",
+        icon: "success",
+        timer: 1200,
+        buttons: false,
+      });
+    }, "image/jpeg");
   };
 
   const toggleFacingMode = () => {
@@ -103,12 +93,12 @@ function StepTwo({ uploadProps, id }) {
 
   const onSubmit = async () => {
     stopCamera();
-    if (imageFiles.length !== 5 && images.length !== 5) {
-      alert("5 images must be uploaded");
+    if (allFiles.length === 0) {
+      alert("Kamida 1 ta rasm yuklang!");
       return;
     }
 
-    const uploadPromises = (imageFiles.length === 5 ? imageFiles : images).map(
+    const uploadPromises = allFiles.map(
       async (imageFile, index) => {
         const formData = new FormData();
         formData.append("file", imageFile);
@@ -124,6 +114,16 @@ function StepTwo({ uploadProps, id }) {
     }
   };
 
+  const deletePhoto = (index) => {
+    const newCaptured = [...capturedImages];
+    newCaptured.splice(index, 1);
+    setCapturedImages(newCaptured);
+
+    const newFiles = [...allFiles];
+    newFiles.splice(index, 1);
+    setAllFiles(newFiles);
+  };
+
   useEffect(() => {
     if (showCamera) {
       startCamera(facingMode);
@@ -132,7 +132,7 @@ function StepTwo({ uploadProps, id }) {
 
   return (
     <div>
-      {!showCamera && capturedImages.length < 6 && (
+      {!showCamera && (
         <div>
           <div
             onClick={() => startCamera(facingMode)}
@@ -143,6 +143,7 @@ function StepTwo({ uploadProps, id }) {
               alignItems: "center",
               gap: "20px",
               justifyContent: "center",
+              cursor: "pointer",
             }}
           >
             <i className="material-icons" style={{ fontSize: "100px" }}>
@@ -153,7 +154,7 @@ function StepTwo({ uploadProps, id }) {
           <p style={{ textAlign: "center", fontSize: "20px" }}>{t("or")}</p>
           <div className="mb-3">
             <label htmlFor="formFile" className="form-label">
-              {t("uploadImage")} (5)
+              {t("uploadImage")}
             </label>
             <input
               accept="image/*"
@@ -166,7 +167,7 @@ function StepTwo({ uploadProps, id }) {
           </div>
         </div>
       )}
-      {showCamera && step < 6 && (
+      {showCamera && (
         <>
           <video ref={videoRef} autoPlay muted className="video" />
           <div style={{ textAlign: "center" }}>
@@ -194,29 +195,51 @@ function StepTwo({ uploadProps, id }) {
                 ? t("switchToRearCamera")
                 : t("switchToFrontCamera")}
             </button>
+            <button
+              className="btn btn-danger"
+              onClick={stopCamera}
+              style={{ margin: "10px" }}
+            >
+              {t("closeButton")}
+            </button>
           </div>
           <canvas ref={canvasRef} style={{ display: "none" }} />
         </>
       )}
-      {capturedImages.length === 5 && (
+      {capturedImages.length > 0 && (
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr 1fr",
             gap: "20px",
+            marginTop: "20px",
           }}
         >
           {capturedImages.map((image, i) => (
-            <img
-              key={i}
-              src={image}
-              alt={`Captured ${i}`}
-              style={{ width: "100%" }}
-            />
+            <div key={i} style={{ position: "relative" }}>
+              <img
+                src={image}
+                alt={`Captured ${i}`}
+                style={{ width: "100%", borderRadius: "8px" }}
+              />
+              <button
+                className="btn btn-danger btn-xs"
+                style={{
+                  position: "absolute",
+                  top: "5px",
+                  right: "5px",
+                  padding: "2px 5px",
+                  fontSize: "10px",
+                }}
+                onClick={() => deletePhoto(i)}
+              >
+                {t("delete")}
+              </button>
+            </div>
           ))}
         </div>
       )}
-      {capturedImages.length === 5 && (
+      {capturedImages.length >= 1 && (
         <button
           className="btn btn-primary"
           style={{ margin: "40px auto", width: "100%" }}
