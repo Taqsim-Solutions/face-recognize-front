@@ -9,7 +9,6 @@ import { getOrganizationImg } from '@/views/organization-settings/api'
 import { getAccountImg } from '@/views/account/detail/api'
 import { clearLoginToken } from '@/lib/utils'
 import { useStorage } from '@vueuse/core'
-import { usePermissions } from '@/api/usePermissions'
 import { onMounted, onUnmounted } from 'vue'
 
 import { Button } from '@/components/ui/button'
@@ -43,7 +42,6 @@ const route = useRoute()
 const router = useRouter()
 const queryClient = useQueryClient()
 
-const { data: permissions, isLoading: isPermissionsLoading } = usePermissions()
 const { data: orgsList, isLoading } = useGetAccountOrgs()
 const sidebarState = useStorage('sidebar', 'expanded')
 
@@ -77,7 +75,7 @@ const orgImageSrc = ref<string>()
 watch(orgImage, (blob) => (orgImageSrc.value = URL.createObjectURL(blob?.data)))
 
 const { data: account, isLoading: accountLoading } = useGetAccountInfo()
-const accountImgId = computed(() => account.value?.images.find((i: any) => i.type === 'avatar')?.id)
+const accountImgId = computed(() => account.value?.mainImageName)
 const isAccountImgEnabled = computed(() => !!accountImgId.value)
 
 const { data: accountImg } = useQuery({
@@ -95,16 +93,12 @@ const onAccountImgError = (e: Event) => {
   ;(e.target as HTMLImageElement).src = '/avatar.png'
 }
 
-const hasPermission = (permission: string) => {
-  return permissions.value?.permissions?.some((p: any) => p.name === permission) ?? false
-}
+const hasPermission = (permission: string) => true
 
 // Filter links based on the permission defined in the route meta
 const filteredLinks = computed(() => {
   return links.filter((link) => {
-    const resolvedRoute = router.resolve({ name: link.location })
-    const requiredPermission = resolvedRoute.meta?.permission as string | undefined
-    return !requiredPermission || hasPermission(requiredPermission)
+    return true
   })
 })
 
@@ -261,15 +255,7 @@ onMounted(() => {
 
       <!-- Links -->
       <nav class="space-y-1 p-2 mt-4">
-        <!-- Premium skeleton loading state matching the active state of sidebar -->
-        <ul v-if="isPermissionsLoading" class="space-y-3 px-1">
-          <li v-for="i in 5" :key="i" class="flex items-center gap-x-3 rounded-lg px-3 py-2.5 animate-pulse">
-            <div class="w-[22px] h-[22px] rounded bg-[#E0E6F0]"></div>
-            <div v-show="sidebarState === 'expanded'" class="h-4 rounded bg-[#E0E6F0] flex-1 max-w-[130px]" :style="{ width: ['50%', '75%', '60%', '70%', '55%'][i - 1] }"></div>
-          </li>
-        </ul>
-        
-        <ul v-else class="space-y-1">
+        <ul class="space-y-1">
           <li v-for="link in filteredLinks" :key="link.name">
             <Tooltip v-if="sidebarState === 'collapsed'" :delay-duration="0">
               <TooltipTrigger asChild>
@@ -335,7 +321,7 @@ onMounted(() => {
                     {{ account.firstName }} {{ account.lastName }}
                   </p>
                   <p class="text-foreground/50 text-xs capitalize">
-                    {{ account.roles?.[0] }}
+                    {{ account.email }}
                   </p>
                 </div>
               </div>
@@ -381,7 +367,7 @@ onMounted(() => {
                 <p class="text-sm truncate max-w-[150px]">
                   {{ account.firstName }} {{ account.lastName }}
                 </p>
-                <p class="text-foreground/50 text-sm capitalize">{{ account.roles?.[0] }}</p>
+                <p class="text-foreground/50 text-sm capitalize">{{ account.email }}</p>
               </div>
             </div>
             <DropdownMenuSeparator />

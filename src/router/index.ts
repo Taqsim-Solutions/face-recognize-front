@@ -1,8 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordNameGeneric } from 'vue-router'
 import { routes } from './routes'
-import { queryClient } from '@/api/vueQuery'
-import { getPermissionsQueryOptions } from '@/api/usePermissions'
-
 
 const alwaysAllowedRoutes = new Set<RouteRecordNameGeneric>([
   'registration',
@@ -34,21 +31,6 @@ router.beforeEach(async (to) => {
   if (!isLoggedIn && to.name !== 'login') {
     return { name: 'login' }
   }
-
-  if (to.meta.permission) {
-    const requiredPermission = to.meta.permission as string
-    try {
-      const data = await queryClient.ensureQueryData(getPermissionsQueryOptions())
-      const hasPermission = data?.permissions?.some((p: any) => p.name === requiredPermission)
-
-      if (!hasPermission) {
-        return { name: 'home' }
-      }
-    } catch (error) {
-      return { name: 'login' }
-    }
-  }
-
 
   return true
 })

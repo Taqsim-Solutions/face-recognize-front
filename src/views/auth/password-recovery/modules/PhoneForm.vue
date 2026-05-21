@@ -15,7 +15,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 const { t } = useI18n()
 
 const emit = defineEmits<{
-  (e: 'otpRequested', phoneNumber: string, requestId: string): void
+  (e: 'otpRequested', phoneNumber: string): void
 }>()
 
 const loading = ref(false)
@@ -39,8 +39,8 @@ const form = useForm({
 const requestOtp = async (phoneNumber: string) => {
   try {
     loading.value = true
-    const { data } = await axios.post('/api/auth/recover-password', { phoneNumber })
-    emit('otpRequested', phoneNumber, data.requestId)
+    await axios.post(`/api/authentication/recovery/${phoneNumber}`)
+    emit('otpRequested', phoneNumber)
     return true
   } catch (err) {
     if (axios.isAxiosError(err)) {

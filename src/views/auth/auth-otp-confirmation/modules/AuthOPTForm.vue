@@ -60,7 +60,7 @@ const onSubmit = handleSubmit(async (values) => {
 
     if (status === 200) {
       const tokenRes = data as TokenResponse
-      await saveTokenAndRedirect(tokenRes)
+      await saveTokenAndRedirect(tokenRes.accessToken, tokenRes.refreshToken, tokenRes.expireAt)
     }
   } catch (err) {
     if (axios.isAxiosError(err)) {

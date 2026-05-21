@@ -12,22 +12,15 @@ const router = useRouter()
 
 const showRecoveryForm = ref(false)
 const phoneNumber = ref('')
-const requestId = ref('')
 
-const handleOtpRequested = (phone: string, id: string) => {
+const handleOtpRequested = (phone: string) => {
   phoneNumber.value = phone
-  requestId.value = id
   showRecoveryForm.value = true
-}
-
-const handleRequestIdUpdated = (id: string) => {
-  requestId.value = id
 }
 
 const handleBack = () => {
   showRecoveryForm.value = false
   phoneNumber.value = ''
-  requestId.value = ''
 }
 </script>
 
@@ -78,8 +71,6 @@ const handleBack = () => {
           <RecoveryForm
             v-else
             :phone-number="phoneNumber"
-            :request-id="requestId"
-            @request-id-updated="handleRequestIdUpdated"
             @back="handleBack"
           />
         </div>

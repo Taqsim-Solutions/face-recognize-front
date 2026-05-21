@@ -144,6 +144,9 @@ export default {
     'general-info': "Umumiy ma'lumot",
     'balance-limit': 'Balans limit',
     auth: {
+      'incorrect-credentials': 'Login yoki parol xato',
+      'login': 'Login',
+      'enter-login': 'Loginni kiriting',
       'sign-in-label': 'Hisobingizga kiring',
       'sign-in-desc': 'Kirish uchun telefon raqamingiz va parolingizni kiriting',
       'sign-in': 'Kirish',
@@ -913,6 +916,9 @@ export default {
     'general-info': 'Умумий маълумот',
     'balance-limit': 'Баланс лимит',
     auth: {
+      'incorrect-credentials': 'Логин ёки парол хато',
+      'login': 'Логин',
+      'enter-login': 'Логинни киритинг',
       'sign-in-label': 'Ҳисобингизга киринг',
       'sign-in-desc': 'Кириш учун телефон рақамингиз ва паролингизни киритинг',
       'sign-in': 'Кириш',
@@ -1657,6 +1663,9 @@ export default {
     'general-info': 'Общая информация',
     'balance-limit': 'Баланс лимит',
     auth: {
+      'incorrect-credentials': 'Логин или пароль неверный',
+      'login': 'Логин',
+      'enter-login': 'Введите логин',
       'sign-in-label': 'Войдите в свой аккаунт',
       'sign-in-desc': 'Введите номер телефона и пароль для входа',
       'sign-in': 'Войти',

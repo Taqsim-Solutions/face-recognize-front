@@ -20,7 +20,6 @@ import {
 
 const props = defineProps<{
   phoneNumber: string
-  requestId: string
 }>()
 
 const { t } = useI18n()
@@ -71,17 +70,13 @@ const startResendTimer = () => {
 }
 
 const emit = defineEmits<{
-  (e: 'requestIdUpdated', requestId: string): void
   (e: 'back'): void
 }>()
 
 const requestOtp = async () => {
   try {
     loading.value = true
-    const { data } = await axios.post('/api/auth/recover-password', {
-      phoneNumber: props.phoneNumber
-    })
-    emit('requestIdUpdated', data.requestId)
+    await axios.post(`/api/authentication/recovery/${props.phoneNumber}`)
     startResendTimer()
     return true
   } catch (err) {
@@ -123,13 +118,12 @@ const onSubmit = form.handleSubmit(async (values) => {
     }
 
     const payload = {
-      requestId: props.requestId,
-      code: values.pin.join(''),
-      password: values.password,
-      confirmPassword: values.confirmPassword
+      otp: Number(values.pin.join('')),
+      email: props.phoneNumber,
+      newPassword: values.password
     }
 
-    const { status } = await axios.post('/api/auth/recover-password/verify', payload)
+    const { status } = await axios.put('/api/authentication/recovery-confirmation', payload)
     if (status === 200) {
       toast.success(t('auth.password-updated'))
       router.push({ name: 'login' })

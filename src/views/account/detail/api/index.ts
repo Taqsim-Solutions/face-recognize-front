@@ -19,7 +19,7 @@ export const getAccountOrgs = async () => {
 }
 
 export const getAccountInfo = async () => {
-  return await api(`${url}/info`)
+  return await api('/api/users/get-me')
 }
 
 export const getAccountImg = async (id: string) => {

@@ -5,6 +5,6 @@ export const useGetAccountInfo = () => {
   return useQuery({
     queryKey: ['account-info'],
     queryFn: async () => getAccountInfo(),
-    select: (data) => data.data
+    select: (data) => data.data.result
   })
 }
