@@ -265,7 +265,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
     <Button
       type="submit"
-      class="bg-[#12B76A] hover:bg-[#12B76A] text-base hover:opacity-90 transition-all w-full mt-8 h-10 rounded-lg border border-[#12B76A]"
+      class="bg-[#FF7A2E] hover:bg-[#FF7A2E] text-base hover:opacity-90 transition-all w-full mt-8 h-10 rounded-lg"
       :loading="loading"
     >
       {{ t('auth.sign-in') }}
