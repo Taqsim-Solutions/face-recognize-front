@@ -1,0 +1,7 @@
+export { default as OrganizationDetails } from './OrganizationDetails.vue'
+export { default as OrganizationWeekends } from './OrganizationWeekends.vue'
+export { default as OrganizationSalary } from './OrganizationSalary.vue'
+export { default as OrganizationLocation } from './OrganizationLocation.vue'
+export { default as OrganizationLeaveOptions } from './OrganizationLeaveOptions.vue'
+export { default as TelegramSettings } from './TelegramSettings.vue'
+export { default as IntegratorPendingChanges } from './IntegratorPendingChanges.vue'

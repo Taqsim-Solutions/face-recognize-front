@@ -1,0 +1,10 @@
+[
+  {
+    "account": "0000000000",
+    "fullName": "Familiyasi Ismi Otasini ismi",
+    "amount": 100,
+    "cardHolder": "Kartadegi Ismi",
+    "cardNumber": "1234123412341234",
+    "mfo": "00000"
+  }
+]

@@ -1,0 +1,22 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_53_15)">
+<circle cx="152" cy="146" r="55" fill="#CEE051"/>
+<rect x="138" y="45" width="28" height="200" fill="#CEE051"/>
+<rect x="71.3898" y="84.1888" width="28" height="200" transform="rotate(-45 71.3898 84.1888)" fill="#CEE051"/>
+<rect x="212.811" y="65.3898" width="28" height="200" transform="rotate(45 212.811 65.3898)" fill="#CEE051"/>
+<rect x="53.1244" y="159.603" width="28" height="200" transform="rotate(-90 53.1244 159.603)" fill="#CEE051"/>
+<line x1="250" y1="1" x2="300" y2="1" stroke="#CEE051"/>
+<path d="M299 50C299 30.4738 299 19.5262 299 -1.49012e-06" stroke="#CEE051"/>
+<line y1="-0.5" x2="50" y2="-0.5" transform="matrix(1 0 0 -1 250 298.5)" stroke="#CEE051"/>
+<path d="M299 250C299 269.526 299 280.474 299 300" stroke="#CEE051"/>
+<line x1="50" y1="299" y2="299" stroke="#CEE051"/>
+<path d="M1 250C1 269.526 1 280.474 1 300" stroke="#CEE051"/>
+<line x1="1" y1="50" x2="1" stroke="#CEE051"/>
+<path d="M50 1C30.4738 1 19.5262 1 -1.49012e-06 1" stroke="#CEE051"/>
+</g>
+<defs>
+<clipPath id="clip0_53_15">
+<rect width="300" height="300" fill="white"/>
+</clipPath>
+</defs>
+</svg>
