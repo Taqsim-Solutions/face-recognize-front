@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="TValue">
-import type { FlattenedData } from '../ui/EmployeesList.vue'
+import type { FlattenedData } from '../ui/UsersLIst.vue'
 import type { ColumnDef } from '@tanstack/vue-table'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { ChevronRightIcon, ChevronLeftIcon } from '@radix-icons/vue'
+import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-vue-next'
 
 const { t } = useI18n()
 
@@ -40,7 +40,7 @@ const props = defineProps<{
     canNextPage: boolean
   }
   rowSelection?: Record<string, boolean>
-} >()
+}>()
 
 const emit = defineEmits<{
   (e: 'update:sorting', value: { orderBy: string | null; order: 'asc' | 'desc' | null }): void
@@ -68,7 +68,10 @@ const table = useVueTable({
     }
   },
   onRowSelectionChange: (updaterOrValue) => {
-    const value = typeof updaterOrValue === 'function' ? updaterOrValue(props.rowSelection || {}) : updaterOrValue
+    const value =
+      typeof updaterOrValue === 'function'
+        ? updaterOrValue(props.rowSelection || {})
+        : updaterOrValue
     emit('update:rowSelection', value)
   },
   enableRowSelection: true,
@@ -114,9 +117,13 @@ const getPageNumbers = () => {
           <TableHead
             v-for="(header, index) in headerGroup.headers"
             :key="header.id"
-            :style="{ width: `${header.column.getSize()}px`, minWidth: `${header.column.columnDef.minSize}px`, maxWidth: `${header.column.columnDef.maxSize}px` }"
+            :style="{
+              width: `${header.column.getSize()}px`,
+              minWidth: `${header.column.columnDef.minSize}px`,
+              maxWidth: `${header.column.columnDef.maxSize}px`
+            }"
             :class="[
-              'text-nowrap text-sm cursor-pointer select-none border border-t-0 p-3 pl-4 first:pl-3 relative',
+              'text-nowrap text-sm text-[#74757d] cursor-pointer bg-[#f2f5f4] select-none border border-t-0 p-3 pl-4 first:pl-3 relative',
               index === 0 ? 'border-l-0' : '',
               index === headerGroup.headers.length - 1 ? 'border-r-0' : ''
             ]"
@@ -127,36 +134,6 @@ const getPageNumbers = () => {
               :props="header.getContext()"
               class="text-sm"
             />
-
-            <template v-if="['status', 'salary', 'user_lastName'].includes(header.column.id)">
-              <span
-                class="cursor-pointer ml-2"
-                @click.stop="
-                  emit('update:sorting', {
-                    orderBy:
-                      props.sorting.orderBy === header.column.id && props.sorting.order === 'asc'
-                        ? header.column.id
-                        : props.sorting.orderBy === header.column.id &&
-                          props.sorting.order === 'desc'
-                        ? null
-                        : header.column.id,
-                    order:
-                      props.sorting.orderBy !== header.column.id
-                        ? 'asc'
-                        : props.sorting.order === 'asc'
-                        ? 'desc'
-                        : props.sorting.order === 'desc'
-                        ? null
-                        : 'asc'
-                  })
-                "
-              >
-                <template v-if="props.sorting.orderBy === header.column.id">
-                  {{ props.sorting.order === 'desc' ? '↓' : '↑' }}
-                </template>
-                <template v-else> ⇅ </template>
-              </span>
-            </template>
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -182,9 +159,13 @@ const getPageNumbers = () => {
               v-for="(cell, cellIndex) in row.getVisibleCells()"
               :key="cell.id"
               @click="cellIndex === 0 ? $event.stopPropagation() : undefined"
-              :style="{ width: `${cell.column.getSize()}px`, minWidth: `${cell.column.columnDef.minSize}px`, maxWidth: `${cell.column.columnDef.maxSize}px` }"
+              :style="{
+                width: `${cell.column.getSize()}px`,
+                minWidth: `${cell.column.columnDef.minSize}px`,
+                maxWidth: `${cell.column.columnDef.maxSize}px`
+              }"
               :class="[
-                'border p-3.5 font-medium pl-4 first:text-center first:pl-3',
+                'border p-2 font-medium pl-3 first:pl-3',
                 cellIndex === 0 ? 'border-l-0' : '',
                 cellIndex === row.getVisibleCells().length - 1 ? 'border-r-0' : '',
                 rowIndex === 0 ? 'border-t-0' : '',
@@ -236,45 +217,47 @@ const getPageNumbers = () => {
       <span> {{ t('dan') }} {{ props.pagination.totalCount }} </span>
     </div>
 
-    <!-- Right side -->
-    <div class="flex items-center gap-1">
-      <Button
-        variant="outline"
-        class="w-7 h-7 p-0 mr-1"
+    <!-- Right side (New Style) -->
+    <div class="flex items-center gap-2">
+      <!-- Prev Button -->
+      <button
+        class="w-8 h-8 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         :disabled="!props.pagination.canPrevPage"
         @click="handlePageChange(props.pagination.currentPage - 1)"
       >
-        <ChevronLeftIcon class="w-4 h-4" />
-      </Button>
+        <ArrowLeftIcon class="w-4 h-4" />
+      </button>
 
-      <div class="flex items-center gap-1">
+      <!-- Numbers Container -->
+      <div class="flex items-center gap-1 bg-[#f4f4f5] p-1 rounded-lg">
         <template v-for="page in getPageNumbers()" :key="page">
-          <span v-if="page === '...'" class="px-2 text-gray-400 select-none"> ... </span>
+          <span v-if="page === '...'" class="px-2 text-gray-400 font-medium select-none text-sm">
+            ...
+          </span>
 
-          <Button
+          <button
             v-else
-            variant="outline"
-            class="w-7 h-7 p-0 text-sm font-medium border-none"
+            class="min-w-[28px] h-7 px-2 flex items-center justify-center text-sm font-medium rounded-lg transition-all cursor-pointer border-none"
             :class="[
               page === props.pagination.currentPage
-                ? 'bg-blue-100 text-blue-600 hover:text-blue-600 hover:bg-blue-150'
-                : 'hover:bg-gray-50'
+                ? 'bg-white text-black shadow-sm font-semibold'
+                : 'text-gray-600 hover:text-black font-semibold hover:bg-gray-200/50'
             ]"
             @click="handlePageChange(page as number)"
           >
             {{ page }}
-          </Button>
+          </button>
         </template>
       </div>
 
-      <Button
-        variant="outline"
-        class="w-7 h-7 p-0 ml-1"
+      <!-- Next Button -->
+      <button
+        class="w-8 h-8 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         :disabled="!props.pagination.canNextPage"
         @click="handlePageChange(props.pagination.currentPage + 1)"
       >
-        <ChevronRightIcon class="w-4 h-4" />
-      </Button>
+        <ArrowRightIcon class="w-4 h-4" />
+      </button>
     </div>
   </div>
 </template>

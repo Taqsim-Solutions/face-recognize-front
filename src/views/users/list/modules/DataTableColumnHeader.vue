@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Column } from '@tanstack/vue-table'
-import type { FlattenedData } from '../ui/EmployeesList.vue'
+import type { FlattenedData } from '../ui/UsersLIst.vue'
 
 import { useI18n } from 'vue-i18n'
 

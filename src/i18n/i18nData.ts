@@ -2,7 +2,7 @@ export default {
   uz: {
     auth: {
       'incorrect-credentials': 'Login yoki parol xato',
-      'login': 'Login',
+      login: 'Login',
       'enter-login': 'Loginni kiriting',
       'sign-in-label': 'Hisobingizga kiring',
       'sign-in-desc': 'Kirish uchun telefon raqamingiz va parolingizni kiriting',
@@ -64,12 +64,37 @@ export default {
       'advance-percent-max': "Avans foizi maksimal 80% bo'lishi kerak",
       'fte-should-be-valid': "Ish yuklamasi 0.1-3 oraliqda bo'lishi kerak"
     },
-    users: {}
+    users: 'Foydalanuvchilar',
+    full_name: 'F.I.Sh',
+    email: 'Elektron pochta',
+    showing: 'Sahifada',
+    level: 'Rol',
+    roles: {
+      teacher: "O'qituvchi",
+      director: 'Direktor',
+      district: 'Tuman hokimi',
+      region: 'Viloyat hokimi',
+      admin: 'Admin'
+    },
+    loading: 'Yuklanmoqda...',
+    'no-data': "Ma'lumot yo'q",
+    actions: 'Harakatlar',
+    school: 'Maktab',
+    login: 'Login',
+    delete_user: "Foydalanuvchini o'chirish",
+    confirm_delete_msg: "Siz haqiqatdan ham ushbu foydalanuvchini o'chirib yubormoqchimisiz?",
+    delete: "O'chirish",
+    cancel: "Bekor qilish",
+    status_updated: "Status muvaffaqiyatli o'zgartirildi",
+    user_deleted: "Foydalanuvchi muvaffaqiyatli o'chirildi",
+    error_occurred: "Xatolik yuz berdi",
+    blocked_status: "Bloklandi",
+    active_status: "Faollashtirildi"
   },
   uzc: {
     auth: {
       'incorrect-credentials': 'Логин ёки парол хато',
-      'login': 'Логин',
+      login: 'Логин',
       'enter-login': 'Логинни киритинг',
       'sign-in-label': 'Ҳисобингизга киринг',
       'sign-in-desc': 'Кириш учун телефон рақамингиз ва паролингизни киритинг',
@@ -127,12 +152,37 @@ export default {
       'advance-percent-max': 'Аванс фоизи максимал 80% бўлиши керак',
       'fte-should-be-valid': "Ish yuklamasi 0.1-3 oraliqda bo'lishi kerak"
     },
-    users: {}
+    users: 'Фойдаланувчилар',
+    full_name: 'Ф.И.Ш',
+    email: 'Электрон почта',
+    showing: 'Саҳифада',
+    level: 'Роль',
+    roles: {
+      teacher: 'Ўқитувчи',
+      director: 'Директор',
+      district: 'Туман ҳокими',
+      region: 'Вилоят ҳокими',
+      admin: 'Админ'
+    },
+    loading: 'Юкланмоқда...',
+    'no-data': 'Маълумот йўқ',
+    actions: 'Ҳаракатлар',
+    school: 'Школа',
+    login: 'Логин',
+    delete_user: "Фойдаланувчини ўчириш",
+    confirm_delete_msg: "Сиз ҳақиқатдан ҳам ушбу фойдаланувчини ўчириб юбормоқчимисиз?",
+    delete: "Ўчириш",
+    cancel: "Бекор қилиш",
+    status_updated: "Статус муваффақиятли ўзгартирилди",
+    user_deleted: "Фойдаланувчи муваффақиятли ўчирилди",
+    error_occurred: "Хатолик юз берди",
+    blocked_status: "Блокланди",
+    active_status: "Фаоллаштирилди"
   },
   ru: {
     auth: {
       'incorrect-credentials': 'Логин или пароль неверный',
-      'login': 'Логин',
+      login: 'Логин',
       'enter-login': 'Введите логин',
       'sign-in-label': 'Войдите в свой аккаунт',
       'sign-in-desc': 'Введите номер телефона и пароль для входа',
@@ -205,6 +255,31 @@ export default {
       'mfo-should-be-valid': 'MFO должно быть числом длиной 5',
       'fte-should-be-valid': 'Рабочая нагрузка должна находиться в диапазоне 0,1-3'
     },
-    users: {}
+    users: 'Пользователи',
+    full_name: 'Ф.И.Ш',
+    email: 'Электронная почта',
+    showing: 'На странице',
+    level: 'Роль',
+    roles: {
+      teacher: 'Учитель',
+      director: 'Директор',
+      district: 'Районный хокимият',
+      region: 'Областной хокимият',
+      admin: 'Админ'
+    },
+    loading: 'Загрузка...',
+    'no-data': 'Нет данных',
+    actions: 'Действия',
+    school: 'Школа',
+    login: 'Логин',
+    delete_user: "Удаление пользователя",
+    confirm_delete_msg: "Вы действительно хотите удалить этого пользователя?",
+    delete: "Удалить",
+    cancel: "Отмена",
+    status_updated: "Статус успешно обновлен",
+    user_deleted: "Пользователь успешно удален",
+    error_occurred: "Произошла ошибка",
+    blocked_status: "Заблокирован",
+    active_status: "Активирован"
   }
 }

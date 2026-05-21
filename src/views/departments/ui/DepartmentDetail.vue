@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
-import EmployeesList from '@/views/users/list/ui/EmployeesList.vue'
+import EmployeesList from '@/views/users/list/ui/UsersLIst.vue'
 import { useGetDepartment } from '../query'
 
 const { t } = useI18n()

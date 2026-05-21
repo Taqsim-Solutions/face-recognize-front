@@ -1,3 +1,3 @@
-import EmployeesList from "./ui/EmployeesList.vue";
+import EmployeesList from './ui/UsersLIst.vue'
 
-export default EmployeesList;
+export default EmployeesList

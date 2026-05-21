@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import { useGetAccountOrgs } from '@/views/account/detail/queries/useGetAccountOrgs'
 import { useGetAccountInfo } from '@/views/account/detail/queries/useGetAccountInfo'
 import { getAccountImg } from '@/views/account/detail/api'
 import { clearLoginToken } from '@/lib/utils'
@@ -30,7 +29,7 @@ import {
   UserRoundIcon,
   SettingsIcon,
   LanguagesIcon,
-  LogOutIcon,
+  LogOutIcon
 } from 'lucide-vue-next'
 import { links } from './links'
 
@@ -38,29 +37,7 @@ const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const queryClient = useQueryClient()
-
-const { data: orgsList } = useGetAccountOrgs()
 const sidebarState = useStorage('sidebar', 'expanded')
-
-const currentOrg = computed(() => {
-  if (!orgsList.value) return null
-  const selectedOrgId = localStorage.getItem('organizationId')
-  return (
-    orgsList.value.find((org: any) => org.organization?.id?.toString() === selectedOrgId)
-      ?.organization || orgsList.value[0]?.organization
-  )
-})
-
-const orgImgId = computed(() => {
-  if (currentOrg.value) {
-    return currentOrg.value.images?.find(
-      (img: { type: 'avatar' | 'cover'; id: string }) => img.type === 'avatar'
-    )?.id
-  }
-  return ''
-})
-
-const enabled = computed(() => !!currentOrg.value && !!orgImgId.value)
 
 const { data: account, isLoading: accountLoading } = useGetAccountInfo()
 const accountImgId = computed(() => account.value?.mainImageName)
@@ -81,8 +58,6 @@ const onAccountImgError = (e: Event) => {
   ;(e.target as HTMLImageElement).src = '/avatar.png'
 }
 
-const hasPermission = (permission: string) => true
-
 // Filter links based on the permission defined in the route meta
 const filteredLinks = computed(() => {
   return links.filter((link) => {
@@ -100,15 +75,6 @@ const handleLogout = () => {
   clearLoginToken()
   localStorage.removeItem('user_permissions')
   router.push({ name: 'login' })
-}
-
-const handleOrganizationSwitch = async (orgId: string) => {
-  // Save the new organization ID to localStorage
-  localStorage.setItem('organizationId', orgId)
-
-  // Redirect to dashboard and replace the current history entry to prevent 
-  // users from going back to the previous organization's data/panels.
-  window.location.replace('/')
 }
 
 const collapseSidebarOnMobile = () => {
@@ -198,7 +164,7 @@ onMounted(() => {
 
             <RouterLink v-else :to="{ name: link.location }" @click="collapseSidebarOnMobile()">
               <div
-                class="flex items-center border transition-all border-[transparent] gap-x-3 rounded-lg px-3 py-2 text-sm text-[#596881] font-medium hover:bg-[white] hover:text-[black] hover:border-[#EFF3F8]"
+                class="flex items-center border transition-all border-[transparent] gap-x-3 rounded-lg px-3 py-2.5 text-sm text-[#596881] font-medium hover:bg-[white] hover:text-[black] hover:border-[#EFF3F8]"
                 :class="{
                   'bg-[white] border !border-[#E0E6F0] text-accent-foreground !text-black':
                     route.name === link.location
