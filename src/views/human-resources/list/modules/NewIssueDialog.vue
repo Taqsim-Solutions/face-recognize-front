@@ -38,7 +38,7 @@ import {
 } from '@/components/ui/command'
 import { CreateLeaveModel } from '../types'
 import { createEmployeeLeave, uploadEmployeeLeaveAttachment } from '../api'
-import { fetchEmployees } from '@/views/employees/list/api'
+import { fetchEmployees } from '@/views/users/list/api'
 import Can from '@/components/can.vue'
 
 const { t } = useI18n()

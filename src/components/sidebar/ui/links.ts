@@ -19,8 +19,8 @@ export const links: LinkProp[] = [
     icon: LayoutDashboardIcon
   },
   {
-    name: 'employees',
-    location: 'employees-list',
+    name: 'users',
+    location: 'users-list',
     icon: Users2Icon
   },
   {

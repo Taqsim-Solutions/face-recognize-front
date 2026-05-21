@@ -1,5 +1,5 @@
 import { Error } from '@/global-types'
-import { ApiError } from '@/views/employees/types'
+import { ApiError } from '@/views/users/types'
 
 export type EposTermimalModal = {
   id: number

@@ -1,6 +1,6 @@
 import i18n from '@/i18n'
 import type { Attendance, AttendanceFetchResponse, Leave } from '../types'
-import type { EmployeeModel } from '@/views/employees/types'
+import type { EmployeeModel } from '@/views/users/types'
 
 import { useDateFormat } from '@vueuse/core'
 

@@ -5,15 +5,13 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useGetAccountOrgs } from '@/views/account/detail/queries/useGetAccountOrgs'
 import { useGetAccountInfo } from '@/views/account/detail/queries/useGetAccountInfo'
-import { getOrganizationImg } from '@/views/organization-settings/api'
 import { getAccountImg } from '@/views/account/detail/api'
 import { clearLoginToken } from '@/lib/utils'
 import { useStorage } from '@vueuse/core'
 import { onMounted, onUnmounted } from 'vue'
-
+import logoSidebar from '@/assets/logo-sidebar.svg'
 import { Button } from '@/components/ui/button'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,7 +31,6 @@ import {
   SettingsIcon,
   LanguagesIcon,
   LogOutIcon,
-  Building2Icon
 } from 'lucide-vue-next'
 import { links } from './links'
 
@@ -42,7 +39,7 @@ const route = useRoute()
 const router = useRouter()
 const queryClient = useQueryClient()
 
-const { data: orgsList, isLoading } = useGetAccountOrgs()
+const { data: orgsList } = useGetAccountOrgs()
 const sidebarState = useStorage('sidebar', 'expanded')
 
 const currentOrg = computed(() => {
@@ -64,15 +61,6 @@ const orgImgId = computed(() => {
 })
 
 const enabled = computed(() => !!currentOrg.value && !!orgImgId.value)
-
-const { data: orgImage, error: imageError } = useQuery({
-  queryKey: ['organization-img', orgImgId],
-  queryFn: () => getOrganizationImg(orgImgId.value),
-  enabled
-})
-
-const orgImageSrc = ref<string>()
-watch(orgImage, (blob) => (orgImageSrc.value = URL.createObjectURL(blob?.data)))
 
 const { data: account, isLoading: accountLoading } = useGetAccountInfo()
 const accountImgId = computed(() => account.value?.mainImageName)
@@ -143,7 +131,7 @@ onMounted(() => {
   <TooltipProvider>
     <aside
       v-bind="$attrs"
-      class="fixed lg:sticky top-0 z-40 border-r grid grid-rows-[64px_1fr_64px] h-screen bg-[#F7F9FB] transition-all duration-300 ease-in-out border-[#E0E6F0]"
+      class="fixed lg:sticky top-0 z-40 border-r grid grid-rows-[64px_1fr_64px] h-screen bg-[#f2f5f4] transition-all duration-300 ease-in-out"
       :class="[
         sidebarState === 'collapsed' ? '-left-full lg:left-0 w-16' : 'left-0 w-64',
         'lg:relative'
@@ -151,7 +139,7 @@ onMounted(() => {
     >
       <!-- Header -->
       <header
-        class="bg-[#F7F9FB] sticky top-1"
+        class="sticky top-1"
         :class="{
           'w-[47px] flex items-center justify-center': sidebarState === 'collapsed',
           'w-[255px] h-16 pb-3 px-2 pt-2': sidebarState === 'expanded'
@@ -179,82 +167,14 @@ onMounted(() => {
             />
           </svg>
         </Button>
-        <Popover>
-          <PopoverTrigger
-            v-if="sidebarState === 'expanded'"
-            class="flex justify-between w-full h-15 items-center rounded-lg bg-white p-2.5 border border-[#E0E6F0] select-none cursor-pointer"
-          >
-            <Loader2Icon v-if="isLoading" class="animate-spin bg-muted" />
-            <div v-else-if="!isLoading || orgImageSrc" class="flex items-center gap-x-2">
-              <div
-                v-if="imageError || !orgImageSrc"
-                class="border rounded bg-muted flex items-center justify-center w-7 h-7 mt-0.5"
-              >
-                <Building2Icon :size="18" />
-              </div>
-              <img
-                v-if="orgImageSrc"
-                :src="orgImageSrc"
-                alt="Organization logo"
-                class="w-10 h-10 rounded-lg object-cover border mt-[1px]"
-              />
-              <div style="line-height: 0.6; text-align: left">
-                <span class="text-sm font-bold">{{ currentOrg?.name }}</span> <br />
-                <span class="text-xs ml-[1px]">{{ t('Current project') }}</span>
-              </div>
-            </div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-            >
-              <path
-                d="M4.5 6.75L9 11.25L13.5 6.75"
-                stroke="#8796AF"
-                strokeWidth="1.92857"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </PopoverTrigger>
 
-          <PopoverTrigger
-            v-else
-            class="w-9 h-9 hover:bg-muted rounded flex items-center justify-center ml-4"
-          >
-            <Loader2Icon v-if="isLoading" class="animate-spin bg-muted" />
-            <div v-else>
-              <div
-                v-if="imageError"
-                class="border rounded bg-muted flex items-center justify-center w-7 h-7"
-              >
-                <Building2Icon :size="18" />
-              </div>
-              <img v-else :src="orgImageSrc" alt="Organization logo" class="w-7 h-7 rounded" />
-            </div>
-          </PopoverTrigger>
-
-          <PopoverContent class="py-2 px-2 w-60">
-            <ul>
-              <li v-for="org in orgsList" :key="org.organization.id">
-                <Button
-                  variant="ghost"
-                  class="w-full justify-between"
-                  @click="handleOrganizationSwitch(org.organization.id)"
-                >
-                  {{ org.organization.name }}
-                  <CheckIcon v-if="org.organization.id === currentOrg?.id" :size="16" />
-                </Button>
-              </li>
-            </ul>
-          </PopoverContent>
-        </Popover>
+        <div class="mx-3 mt-1">
+          <img :src="logoSidebar" alt="Logo" class="w-[70%]" />
+        </div>
       </header>
 
       <!-- Links -->
-      <nav class="space-y-1 p-2 mt-4">
+      <nav class="space-y-1 p-2 mt-3">
         <ul class="space-y-1">
           <li v-for="link in filteredLinks" :key="link.name">
             <Tooltip v-if="sidebarState === 'collapsed'" :delay-duration="0">
@@ -278,9 +198,9 @@ onMounted(() => {
 
             <RouterLink v-else :to="{ name: link.location }" @click="collapseSidebarOnMobile()">
               <div
-                class="flex items-center border transition-all border-[transparent] gap-x-3 rounded-lg px-3 py-2 text-sm text-[#596881] font-medium hover:bg-accent hover:text-accent-foreground"
+                class="flex items-center border transition-all border-[transparent] gap-x-3 rounded-lg px-3 py-2 text-sm text-[#596881] font-medium hover:bg-[white] hover:text-[black] hover:border-[#EFF3F8]"
                 :class="{
-                  'bg-[#EFF3F8] border !border-[#E0E6F0] text-accent-foreground !text-black':
+                  'bg-[white] border !border-[#E0E6F0] text-accent-foreground !text-black':
                     route.name === link.location
                 }"
               >

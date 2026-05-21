@@ -1,4 +1,4 @@
-import { ApiError } from '@/views/employees/types'
+import { ApiError } from '@/views/users/types'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

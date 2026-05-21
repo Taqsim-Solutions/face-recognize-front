@@ -1,4 +1,4 @@
-import { EmployeeModel } from '@/views/employees/types'
+import { EmployeeModel } from '@/views/users/types'
 
 export type AttendanceTableData = { id: string; employeeNumber: string; fio: string;[key: string]: any }
 

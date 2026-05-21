@@ -54,21 +54,21 @@ export const routes = [
         meta: { permission: '' }
       },
       {
-        path: '/employees',
-        name: 'employees-list',
-        component: () => import('@/views/employees/list'),
+        path: '/users',
+        name: 'users-list',
+        component: () => import('@/views/users/list'),
         meta: { permission: 'employees.list' }
       },
       {
-        path: '/employee/:id',
-        name: 'employees-detail',
-        component: () => import('@/views/employees/detail'),
-        meta: { permission: 'employees.detail' }
+        path: '/users/create',
+        name: 'users-create',
+        component: () => import('@/views/users/create'),
+        meta: { permission: 'employees.create' }
       },
       {
-        path: '/employee/edit/:id',
-        name: 'employees-edit',
-        component: () => import('@/views/employees/edit'),
+        path: '/users/edit/:id',
+        name: 'users-edit',
+        component: () => import('@/views/users/edit'),
         meta: { permission: 'employees.update' }
       },
       {

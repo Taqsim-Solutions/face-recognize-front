@@ -38,7 +38,7 @@ export const useColumns = (router: Router) => {
                   const employeeId = row.original.employee?.id
                   if (employeeId) {
                     router.push({
-                      name: 'employees-detail',
+                      name: 'users-edit',
                       params: { id: employeeId }
                     })
                   }

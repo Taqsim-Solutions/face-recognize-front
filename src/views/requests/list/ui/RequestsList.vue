@@ -27,7 +27,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { useQuery } from '@tanstack/vue-query'
-import { fetchEmployees } from '@/views/employees/list/api'
+import { fetchEmployees } from '@/views/users/list/api'
 import { MenuIcon } from 'lucide-vue-next'
 import {
   Sheet,

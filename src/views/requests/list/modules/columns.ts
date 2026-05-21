@@ -30,7 +30,7 @@ export const useColumns = (router: Router, hasDetailPermission: ComputedRef<bool
                 if (hasDetailPermission.value) {
                   e.stopPropagation()
                   router.push({
-                    name: 'employees-detail',
+                    name: 'users-edit',
                     params: { id: row.original.employee.id }
                   })
                 }
