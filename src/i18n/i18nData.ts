@@ -144,7 +144,18 @@ export default {
     'success.school-updated': "Maktab muvaffaqiyatli tahrirlandi",
     'school_deleted': "Maktab muvaffaqiyatli o'chirildi",
     region: 'Viloyat',
-    region_city: 'Viloyat/Tuman'
+    region_city: 'Viloyat/Tuman',
+    teachers: "O'qituvchilar",
+    'new-teacher-add': "O'qituvchi qo'shish",
+    'edit-teacher': "O'qituvchini tahrirlash",
+    'delete-teacher': "O'qituvchini o'chirish",
+    'confirm-delete-teacher-msg': "Siz haqiqatdan ham ushbu o'qituvchini o'chirib yubormoqchimisiz?",
+    'success.teacher-added': "O'qituvchi muvaffaqiyatli qo'shildi",
+    'success.teacher-updated': "O'qituvchi muvaffaqiyatli tahrirlandi",
+    'teacher_deleted': "O'qituvchi muvaffaqiyatli o'chirildi",
+    'teacher-middleName': "Sharif",
+    'unassigned-school': "Maktabga biriktirilmagan",
+    'search-teacher': "O'qituvchi ism-familiyasi bo'yicha qidiruv"
   },
   uzc: {
     auth: {
@@ -287,7 +298,18 @@ export default {
     'success.school-updated': "Мактаб муваффақиятли таҳрирланди",
     'school_deleted': "Мактаб муваффақиятли ўчирилди",
     region: 'Вилоят',
-    region_city: 'Вилоят/Туман'
+    region_city: 'Вилоят/Туман',
+    teachers: 'Ўқитувчилар',
+    'new-teacher-add': "Ўқитувчи қўшиш",
+    'edit-teacher': "Ўқитувчини таҳрирлаш",
+    'delete-teacher': "Ўқитувчини ўчириш",
+    'confirm-delete-teacher-msg': "Сиз ҳақиқатдан ҳам ушбу ўқитувчини ўчириб юбормоқчимисиз?",
+    'success.teacher-added': "Ўқитувчи муваффақиятли қўшилди",
+    'success.teacher-updated': "Ўқитувчи муваффақиятли таҳрирланди",
+    'teacher_deleted': "Ўқитувчи муваффақиятли ўчирилди",
+    'teacher-middleName': "Шариф",
+    'unassigned-school': "Мактабга бириктирилмаган",
+    'search-teacher': "Ўқитувчи исм-фамилияси бўйича қидирув"
   },
   ru: {
     auth: {
@@ -445,6 +467,17 @@ export default {
     'success.school-updated': "Школа успешно отредактирована",
     'school_deleted': "Школа успешно удалена",
     region: 'Область',
-    region_city: 'Область/Район'
+    region_city: 'Область/Район',
+    teachers: 'Учителя',
+    'new-teacher-add': "Добавить учителя",
+    'edit-teacher': "Редактировать учителя",
+    'delete-teacher': "Уdалить учителя",
+    'confirm-delete-teacher-msg': "Вы действительно хотите удалить этого учителя?",
+    'success.teacher-added': "Учитель успешно добавлен",
+    'success.teacher-updated': "Учитель успешно отредактирован",
+    'teacher_deleted': "Учитель успешно удален",
+    'teacher-middleName': "Отчество",
+    'unassigned-school': "Не прикреплен к школе",
+    'search-teacher': "Поиск учителя по имени и фамилии"
   }
 }

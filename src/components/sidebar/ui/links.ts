@@ -1,7 +1,8 @@
 import {
   LayoutDashboardIcon,
   UserCheck2Icon,
-  SettingsIcon
+  SettingsIcon,
+  GraduationCap
 } from 'lucide-vue-next'
 
 import type { LinkProp } from '..'
@@ -249,6 +250,11 @@ export const links: LinkProp[] = [
     name: 'schools',
     location: 'schools-list',
     icon: SchoolIcon
+  },
+  {
+    name: 'teachers',
+    location: 'teachers-list',
+    icon: GraduationCap
   },
   {
     name: 'attendances',
