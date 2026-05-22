@@ -136,6 +136,99 @@ const GovernmentIcon = (props: any) =>
     ]
   )
 
+const SchoolIcon = (props: any) =>
+  h(
+    'svg',
+    {
+      class: 'w-5 h-5',
+      xmlns: 'http://www.w3.org/2000/svg',
+      width: '20',
+      height: '20',
+      viewBox: '0 0 20 20',
+      fill: 'none',
+      ...props
+    },
+    [
+      h('path', {
+        d: 'M1.66319 17.5031H18.3368',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M7.08212 14.131H12.9179',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M10 14.1309V17.5031',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M2.49688 17.5032V11.6674C2.49688 11.207 2.87013 10.8337 3.33056 10.8337H4.99792',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M15.0021 10.8337H16.6694C17.1299 10.8337 17.5031 11.207 17.5031 11.6674V17.5032',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M4.99791 17.5031V8.63028C4.99733 8.33184 5.15631 8.05586 5.41476 7.90664L9.58316 5.52482C9.8394 5.37845 10.1539 5.37845 10.4102 5.52482L14.5786 7.90664C14.837 8.05586 14.996 8.33184 14.9954 8.63028V17.5031',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M10 7.92252C9.98895 7.92252 9.97834 7.92691 9.97053 7.93473C9.96271 7.94255 9.95832 7.95315 9.95832 7.9642C9.95832 7.98722 9.97698 8.00589 10 8.00589C10.023 8.00589 10.0417 7.98722 10.0417 7.9642C10.0417 7.95315 10.0373 7.94255 10.0295 7.93473C10.0217 7.92691 10.0111 7.92252 10 7.92252',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M12.501 14.1309V17.5031',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M7.49896 17.5031V14.1309',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M10 5.41477V2.08005C10 1.84983 10.1866 1.66321 10.4168 1.66321H12.9179C13.1481 1.66321 13.3347 1.84983 13.3347 2.08005V3.26221C13.3347 3.49242 13.1481 3.67905 12.9179 3.67905H10',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M12.501 10.8337H7.49896',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      })
+    ]
+  )
+
 export const links: LinkProp[] = [
   {
     name: 'dashboard',
@@ -153,6 +246,11 @@ export const links: LinkProp[] = [
     icon: GovernmentIcon
   },
   {
+    name: 'schools',
+    location: 'schools-list',
+    icon: SchoolIcon
+  },
+  {
     name: 'attendances',
     location: 'attendances-list',
     icon: UserCheck2Icon
@@ -163,3 +261,4 @@ export const links: LinkProp[] = [
     icon: SettingsIcon
   }
 ]
+

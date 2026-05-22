@@ -128,7 +128,23 @@ export default {
     'city-label': "Shahar/Tuman",
     'success.government-added': "Hokim muvaffaqiyatli qo'shildi",
     'success.government-updated': "Hokim muvaffaqiyatli tahrirlandi",
-    'government_deleted': "Hokim muvaffaqiyatli o'chirildi"
+    'government_deleted': "Hokim muvaffaqiyatli o'chirildi",
+    schools: 'Maktablar',
+    'new-school-add': "Maktab qo'shish",
+    'edit-school': "Maktabni tahrirlash",
+    'delete-school': "Maktabni o'chirish",
+    'confirm-delete-school-msg': "Siz haqiqatdan ham ushbu maktabni o'chirib yubormoqchimisiz?",
+    'school-name': 'Maktab nomi',
+    'school-name-placeholder': 'Maktab nomini kiriting',
+    'school-director': 'Direktor',
+    'select-school-director': 'Maktab direktorini tanlang',
+    'no-director': 'Tanlanmagan',
+    'search-school': 'Maktab nomi bo\'yicha qidiruv',
+    'success.school-added': "Maktab muvaffaqiyatli qo'shildi",
+    'success.school-updated': "Maktab muvaffaqiyatli tahrirlandi",
+    'school_deleted': "Maktab muvaffaqiyatli o'chirildi",
+    region: 'Viloyat',
+    region_city: 'Viloyat/Tuman'
   },
   uzc: {
     auth: {
@@ -255,7 +271,23 @@ export default {
     'city-label': "Шаҳар/Туман",
     'success.government-added': "Ҳоким муваффақиятли қўшилди",
     'success.government-updated': "Ҳоким муваффақиятли таҳрирланди",
-    'government_deleted': "Ҳоким муваффақиятли ўчирилди"
+    'government_deleted': "Ҳоким муваффақиятли ўчирилди",
+    schools: 'Мактаблар',
+    'new-school-add': "Мактаб қўшиш",
+    'edit-school': "Мактабни таҳрирлаш",
+    'delete-school': "Мактабни ўчириш",
+    'confirm-delete-school-msg': "Сиз ҳақиқатдан ҳам ушбу мактабни ўчириб юбормоқчимисиз?",
+    'school-name': 'Мактаб номи',
+    'school-name-placeholder': 'Мактаб номини киритинг',
+    'school-director': 'Директор',
+    'select-school-director': 'Мактаб директорини танланг',
+    'no-director': 'Танланмаган',
+    'search-school': 'Мактаб номи бўйича қидирув',
+    'success.school-added': "Мактаб муваффақиятли қўшилди",
+    'success.school-updated': "Мактаб муваффақиятли таҳрирланди",
+    'school_deleted': "Мактаб муваффақиятли ўчирилди",
+    region: 'Вилоят',
+    region_city: 'Вилоят/Туман'
   },
   ru: {
     auth: {
@@ -397,6 +429,22 @@ export default {
     'city-label': "Город/Район",
     'success.government-added': "Хоким успешно добавлен",
     'success.government-updated': "Хоким успешно отредактирован",
-    'government_deleted': "Хоким успешно удален"
+    'government_deleted': "Хоким успешно удален",
+    schools: 'Школы',
+    'new-school-add': "Добавить школу",
+    'edit-school': "Редактировать школу",
+    'delete-school': "Удалить школу",
+    'confirm-delete-school-msg': "Вы действительно хотите удалить эту школу?",
+    'school-name': 'Название школы',
+    'school-name-placeholder': 'Введите название школы',
+    'school-director': 'Директор',
+    'select-school-director': 'Выберите директора школы',
+    'no-director': 'Не выбран',
+    'search-school': 'Поиск по названию школы',
+    'success.school-added': "Школа успешно добавлена",
+    'success.school-updated': "Школа успешно отредактирована",
+    'school_deleted': "Школа успешно удалена",
+    region: 'Область',
+    region_city: 'Область/Район'
   }
 }

@@ -1,0 +1,294 @@
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useForm } from 'vee-validate'
+import * as z from 'zod'
+import { toast } from 'vue-sonner'
+import { AxiosError } from 'axios'
+import { Plus } from 'lucide-vue-next'
+
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose
+} from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { createSchool, updateSchoolDirector, fetchRegions, fetchDirectors } from '../api'
+
+const { t } = useI18n()
+const queryClient = useQueryClient()
+const isOpen = ref(false)
+
+// Fetch regions list
+const { data: regionsRes } = useQuery({
+  queryKey: ['regions'],
+  queryFn: fetchRegions,
+  staleTime: Infinity
+})
+const regions = computed(() => {
+  const res = regionsRes.value as any
+  return res?.data?.result || res?.result || []
+})
+
+// Fetch directors (users with level=2)
+const { data: directorsRes } = useQuery({
+  queryKey: ['directors'],
+  queryFn: fetchDirectors,
+  staleTime: Infinity
+})
+const directors = computed(() => {
+  const res = directorsRes.value as any
+  const data = res?.data?.result?.data || res?.data?.data || res?.result?.data || []
+  return data
+})
+
+const formSchema = toTypedSchema(
+  z.object({
+    name: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }),
+    regionId: z.number({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }),
+    cityId: z.number({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }),
+    directorId: z.number().nullable().optional()
+  })
+)
+
+const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
+  validationSchema: formSchema,
+  initialValues: {
+    name: '',
+    regionId: undefined as any,
+    cityId: undefined as any,
+    directorId: undefined as any
+  }
+})
+
+// Cities list based on selected region
+const availableCities = computed(() => {
+  if (!values.regionId) return []
+  const selectedRegion = regions.value.find((r: any) => r.id === values.regionId)
+  return selectedRegion?.cities || []
+})
+
+// Reset city when region changes
+watch(() => values.regionId, () => {
+  setFieldValue('cityId', undefined)
+})
+
+const { isPending, mutate } = useMutation({
+  mutationFn: createSchool,
+  onSuccess: async (res: any, vars: any) => {
+    const schoolId = res?.data?.result?.id || res?.data?.id
+    // Assign director if selected
+    if (vars.directorId && vars.directorId > 0 && schoolId) {
+      try {
+        await updateSchoolDirector({ id: schoolId, directorId: vars.directorId })
+      } catch (dirErr: any) {
+        const msg =
+          dirErr?.response?.data?.message ||
+          dirErr?.response?.data?.title ||
+          'error_occurred'
+        toast.error(msg)
+        queryClient.invalidateQueries({ queryKey: ['schools'] })
+        isOpen.value = false
+        resetForm()
+        return
+      }
+    }
+    toast.success(t('success.school-added'))
+    isOpen.value = false
+    queryClient.invalidateQueries({ queryKey: ['schools'] })
+    resetForm()
+  },
+  onError: (error: AxiosError) => {
+    const errorRes = (error.response as any) ?? {}
+    const errorData = errorRes.data
+    let firstMsg = 'error_occurred'
+
+    if (Array.isArray(errorData) && errorData.length > 0) {
+      firstMsg = errorData[0]?.errorMessage || errorData[0]?.message || 'error_occurred'
+    } else {
+      firstMsg =
+        errorRes?.data?.error?.errors?.[0] ||
+        errorRes?.data?.error?.message ||
+        errorRes?.data?.message ||
+        errorRes?.data?.title ||
+        'error_occurred'
+    }
+
+    toast.error(t(firstMsg))
+  }
+})
+
+const onSubmit = handleSubmit((formValues) => {
+  const payload: any = {
+    name: formValues.name,
+    cityId: formValues.cityId,
+    directorId: formValues.directorId ?? null
+  }
+  mutate(payload)
+})
+
+const handleCancel = () => {
+  isOpen.value = false
+  resetForm()
+}
+</script>
+
+<template>
+  <Sheet v-model:open="isOpen">
+    <SheetTrigger as-child>
+      <Button variant="outline"
+        class="bg-[#ff792d] hover:bg-[#e05e1a] flex gap-1 border-none text-white rounded-lg h-9 hover:text-white transition-all shadow-none"
+        type="button">
+        <Plus :size="18" class="text-white" />
+        {{ t('new-school-add') }}
+      </Button>
+    </SheetTrigger>
+
+    <SheetContent side="right" class="w-full sm:max-w-[500px] flex flex-col p-0 bg-white [&>button]:hidden">
+      <SheetHeader
+        class="flex flex-row items-center justify-between bg-white p-3 px-6 border-b border-gray-200 space-y-0">
+        <SheetTitle class="text-[17px] font-semibold text-[#1b1b1b]">
+          {{ t('new-school-add') }}
+        </SheetTitle>
+        <SheetClose
+          class="rounded-full border border-gray-200 w-8 h-8 flex items-center justify-center hover:text-gray-600 hover:bg-gray-50 transition-all cursor-pointer bg-white">
+          <svg class="ml-0.5" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 12 12">
+            <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </SheetClose>
+      </SheetHeader>
+
+      <form @submit="onSubmit" class="flex flex-col flex-1 overflow-hidden">
+        <div class="flex-1 overflow-y-auto px-6 space-y-3 pb-10">
+
+          <!-- School Name -->
+          <FormField v-slot="{ componentField }" name="name">
+            <FormItem>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('school-name') }}</FormLabel>
+              <FormControl>
+                <Input type="text" v-bind="componentField" :placeholder="t('school-name-placeholder')"
+                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- Region Dropdown -->
+          <FormField v-slot="{ componentField }" name="regionId">
+            <FormItem>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('region-label') }}</FormLabel>
+              <FormControl>
+                <Select :model-value="componentField.modelValue ? String(componentField.modelValue) : undefined"
+                  @update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))" name="regionId">
+                  <SelectTrigger
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white">
+                    <SelectValue :placeholder="t('select-region')" />
+                  </SelectTrigger>
+                  <SelectContent class="bg-white">
+                    <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
+                      {{ region.name }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- City Dropdown -->
+          <FormField v-slot="{ componentField }" name="cityId">
+            <FormItem>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('city-label') }}</FormLabel>
+              <FormControl>
+                <Select :model-value="componentField.modelValue ? String(componentField.modelValue) : undefined"
+                  @update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))" name="cityId">
+                  <SelectTrigger
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
+                    :disabled="!values.regionId">
+                    <SelectValue :placeholder="t('select-city')" />
+                  </SelectTrigger>
+                  <SelectContent class="bg-white">
+                    <SelectItem v-for="city in availableCities" :key="city.id" :value="String(city.id)">
+                      {{ city.name }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- Director Dropdown -->
+          <FormField v-slot="{ componentField }" name="directorId">
+            <FormItem>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('school-director') }}</FormLabel>
+              <FormControl>
+                <Select :model-value="componentField.modelValue !== undefined && componentField.modelValue !== null ? String(componentField.modelValue) : undefined"
+                  @update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))" name="directorId">
+                  <SelectTrigger
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white">
+                    <SelectValue :placeholder="t('select-school-director')" />
+                  </SelectTrigger>
+                  <SelectContent class="bg-white">
+                    <SelectItem value="0">
+                      {{ t('no-director') }}
+                    </SelectItem>
+                    <SelectItem v-for="director in directors" :key="director.id" :value="String(director.id)">
+                      <span class="flex items-center gap-2">
+                        <span>{{ [director.lastName, director.firstName].filter(Boolean).join(' ') || director.login }}</span>
+                        <span v-if="director.schoolName" class="text-xs text-gray-400 font-normal">({{ director.schoolName }})</span>
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="p-4 px-6 border-t border-gray-100 flex items-center justify-end gap-3 bg-white">
+          <Button type="button" variant="outline" @click="handleCancel"
+            class="h-10 px-5 rounded-lg border-gray-200 text-gray-700 hover:bg-gray-50 font-medium transition-all">
+            {{ t('cancel') }}
+          </Button>
+          <Button type="submit" :loading="isPending" :disabled="!meta.valid || isPending"
+            class="h-10 px-5 rounded-lg bg-[#ff792d] hover:bg-[#e05e1a] text-white font-medium transition-all shadow-none border-none disabled:opacity-60 disabled:cursor-not-allowed">
+            {{ t('save_add') }}
+          </Button>
+        </div>
+      </form>
+    </SheetContent>
+  </Sheet>
+</template>
+
+<style scoped>
+:deep(.absolute.right-4.top-4),
+:deep(button[class*="absolute"][class*="right-4"]),
+:deep(button[class*="opacity-70"]) {
+  display: none !important;
+}
+</style>
