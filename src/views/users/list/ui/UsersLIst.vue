@@ -39,7 +39,6 @@ const sorting = ref<{
 
 const rowSelection = ref<Record<string, boolean>>({})
 
-const departmentParams = ref({ isAll: true })
 const selectedDepartmentId = ref<string>(props.departmentId || 'all')
 
 let searchTimeout: NodeJS.Timeout | null = null

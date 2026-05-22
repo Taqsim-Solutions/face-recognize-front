@@ -115,7 +115,20 @@ export default {
     'success.employee-updated': "Foydalanuvchi muvaffaqiyatli tahrirlandi",
     error_occurred: "Xatolik yuz berdi",
     blocked_status: "Bloklandi",
-    active_status: "Faollashtirildi"
+    active_status: "Faollashtirildi",
+    governments: 'Hokimliklar',
+    'new-government-add': "Hokim qo'shish",
+    'edit-government': "Hokimni tahrirlash",
+    'delete-government': "Hokimni o'chirish",
+    'confirm-delete-govt-msg': "Siz haqiqatdan ham ushbu hokimni o'chirib yubormoqchimisiz?",
+    'select-govt-type': "Qayer hokimini qo'shmoqchisiz?",
+    'select-region': "Viloyatni tanlang",
+    'select-city': "Tumanni tanlang",
+    'region-label': "Viloyat/Shahar",
+    'city-label': "Shahar/Tuman",
+    'success.government-added': "Hokim muvaffaqiyatli qo'shildi",
+    'success.government-updated': "Hokim muvaffaqiyatli tahrirlandi",
+    'government_deleted': "Hokim muvaffaqiyatli o'chirildi"
   },
   uzc: {
     auth: {
@@ -229,7 +242,20 @@ export default {
     'success.employee-updated': "Фойдаланувчи муваффақиятли таҳрирланди",
     error_occurred: "Хатолик юз берди",
     blocked_status: "Блокланди",
-    active_status: "Фаоллаштирилди"
+    active_status: "Фаоллаштирилди",
+    governments: 'Ҳокимликлар',
+    'new-government-add': "Ҳоким қўшиш",
+    'edit-government': "Ҳокимни таҳрирлаш",
+    'delete-government': "Ҳокимни ўчириш",
+    'confirm-delete-govt-msg': "Сиз ҳақиқатдан ҳам ушбу ҳокимни ўчириб юбормоқчимисиз?",
+    'select-govt-type': "Қаер ҳокимини қўшмоқчисиз?",
+    'select-region': "Вилоятни танланг",
+    'select-city': "Туманни танланг",
+    'region-label': "Вилоят/Шаҳар",
+    'city-label': "Шаҳар/Туман",
+    'success.government-added': "Ҳоким муваффақиятли қўшилди",
+    'success.government-updated': "Ҳоким муваффақиятли таҳрирланди",
+    'government_deleted': "Ҳоким муваффақиятли ўчирилди"
   },
   ru: {
     auth: {
@@ -358,6 +384,19 @@ export default {
     'success.employee-updated': "Пользователь успешно изменен",
     error_occurred: "Произошла ошибка",
     blocked_status: "Заблокирован",
-    active_status: "Активирован"
+    active_status: "Активирован",
+    governments: 'Хокимияты',
+    'new-government-add': "Добавить хокима",
+    'edit-government': "Редактировать хокима",
+    'delete-government': "Удалить хокима",
+    'confirm-delete-govt-msg': "Вы действительно хотите удалить этого хокима?",
+    'select-govt-type': "Хокима какого региона вы хотите добавить?",
+    'select-region': "Выберите область",
+    'select-city': "Выберите район",
+    'region-label': "Область/Город",
+    'city-label': "Город/Район",
+    'success.government-added': "Хоким успешно добавлен",
+    'success.government-updated': "Хоким успешно отредактирован",
+    'government_deleted': "Хоким успешно удален"
   }
 }

@@ -46,6 +46,12 @@ export const routes = [
         meta: { permission: 'employees.list' }
       },
       {
+        path: '/governments',
+        name: 'governments-list',
+        component: () => import('@/views/governments/list'),
+        meta: { permission: 'employees.list' }
+      },
+      {
         path: '/attendances',
         name: 'attendances-list',
         component: () => import('@/views/attendances/list'),
