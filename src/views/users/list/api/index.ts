@@ -30,3 +30,12 @@ export const bulkUpdatePercentAllowed = async (data: {
 export const deleteEmployee = async (id: string) => {
   return await api.delete(`${url}/${id}`)
 }
+
+export const getUserById = async (id: string) => {
+  const res = await api.get(`${url}/${id}`)
+  return res.data
+}
+
+export const updateEmployee = async ({ id, payload }: { id: string; payload: any }) => {
+  return await api.put(`${url}/${id}`, payload)
+}

@@ -60,18 +60,6 @@ export const routes = [
         meta: { permission: 'employees.list' }
       },
       {
-        path: '/users/create',
-        name: 'users-create',
-        component: () => import('@/views/users/create'),
-        meta: { permission: 'employees.create' }
-      },
-      {
-        path: '/users/edit/:id',
-        name: 'users-edit',
-        component: () => import('@/views/users/edit'),
-        meta: { permission: 'employees.update' }
-      },
-      {
         path: '/departments',
         name: 'departments-list',
         component: () => import('@/views/departments'),
