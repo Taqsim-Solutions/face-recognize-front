@@ -2,7 +2,6 @@
 import type { FlattenedData } from '../ui/UsersLIst.vue'
 import type { ColumnDef } from '@tanstack/vue-table'
 import { useI18n } from 'vue-i18n'
-import { Button } from '@/components/ui/button'
 import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import {
   Table,

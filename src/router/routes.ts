@@ -34,20 +34,6 @@ export const routes = [
     component: () => import('@/layouts/DefaultLayout.vue'),
     children: [
       {
-        path: '/manual-payments',
-        name: 'manual-payments-list',
-        component: () => import('@/views/manual-payments/list'),
-        meta: { permission: 'salary.payments.list' }
-      },
-      {
-        path: '/manual-payments/create',
-        name: 'manual-payments-create',
-        component: () => import('@/views/manual-payments/create'),
-        meta: { permission: 'salary.payments.create' }
-      },
-
-
-      {
         path: '/',
         name: 'home',
         component: () => import('@/views/dashboard'),
@@ -60,52 +46,10 @@ export const routes = [
         meta: { permission: 'employees.list' }
       },
       {
-        path: '/departments',
-        name: 'departments-list',
-        component: () => import('@/views/departments'),
-        meta: { permission: 'departments.list' }
-      },
-      {
-        path: '/departments/:id',
-        name: 'departments-detail',
-        component: () => import('@/views/departments/ui/DepartmentDetail.vue'),
-        meta: { permission: 'departments.list' }
-      },
-      {
         path: '/attendances',
         name: 'attendances-list',
         component: () => import('@/views/attendances/list'),
         meta: { permission: 'attendances.list' }
-      },
-      {
-        path: '/payments',
-        name: 'payments-list',
-        component: () => import('@/views/payments/list'),
-        meta: { permission: 'salary.payments.list' }
-      },
-      {
-        path: '/terminal/:id/:orgId',
-        name: 'terminal-view',
-        component: () => import('@/views/terminal-view'),
-        meta: { permission: 'payment.terminals' }
-      },
-      {
-        path: '/requests',
-        name: 'requests-list',
-        component: () => import('@/views/requests/list'),
-        meta: { permission: 'salary.requests.list' }
-      },
-      {
-        path: 'hr',
-        name: 'hr-list',
-        component: () => import('@/views/human-resources/list'),
-        meta: { permission: 'employee.leaves.list' }
-      },
-      {
-        path: '/notification-templates',
-        name: 'notification-templates-list',
-        component: () => import('@/views/notifications/ui/NotificationsList.vue'),
-        meta: { permission: 'notifications.list' }
       },
       {
         path: '/settings',

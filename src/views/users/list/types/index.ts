@@ -13,6 +13,7 @@ export type FetchEmployeesParams = {
   search?: string
   status?: string | null
   departmentId?: string
+  level?: number | null
 }
 
 export type EmployeeModelIEnumerableResult = {

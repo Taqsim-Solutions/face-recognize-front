@@ -5,11 +5,9 @@ import RecoveryForm from './RecoveryForm.vue'
 
 const showRecoveryForm = ref(false)
 const phoneNumber = ref('')
-const requestId = ref('')
 
-const handleOtpRequested = (phone: string, id: string) => {
+const handleOtpRequested = (phone: string) => {
   phoneNumber.value = phone
-  requestId.value = id
   showRecoveryForm.value = true
 }
 </script>
@@ -17,6 +15,6 @@ const handleOtpRequested = (phone: string, id: string) => {
 <template>
   <div class="w-full">
     <PhoneForm v-if="!showRecoveryForm" @otp-requested="handleOtpRequested" />
-    <RecoveryForm v-else :phone-number="phoneNumber" :request-id="requestId" />
+    <RecoveryForm v-else :phone-number="phoneNumber" />
   </div>
 </template>

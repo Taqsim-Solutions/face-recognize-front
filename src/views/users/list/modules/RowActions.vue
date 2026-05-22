@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FlattenedData } from '../ui/UsersLIst.vue'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { bulkUpdateStatus, deleteEmployee } from '../api'
+import { deleteEmployee } from '../api'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { ref } from 'vue'
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import EditUserDrawer from './EditUserDrawer.vue'
+import UpdatePasswordDrawer from './UpdatePasswordDrawer.vue'
 
 const props = defineProps<{
   employee: FlattenedData
@@ -22,30 +23,14 @@ const { t } = useI18n()
 const queryClient = useQueryClient()
 const isDeleteDialogOpen = ref(false)
 const isEditOpen = ref(false)
+const isPasswordUpdateOpen = ref(false)
 
 // 1. Edit Action
 const handleEdit = () => {
   isEditOpen.value = true
 }
 
-// 2. Lock Toggle Action
-const { isPending: isLockPending, mutate: toggleLock } = useMutation({
-  mutationFn: () => {
-    const nextStatus = props.employee.status === 'blocked' ? 'active' : 'blocked'
-    return bulkUpdateStatus({
-      employeeIds: [props.employee.id],
-      status: nextStatus
-    })
-  },
-  onSuccess: () => {
-    const action = props.employee.status === 'blocked' ? t('active_status') : t('blocked_status')
-    toast.success(`${t('status_updated')} (${action})`)
-    queryClient.invalidateQueries({ queryKey: ['employees'] })
-  },
-  onError: () => {
-    toast.error(t('error_occurred'))
-  }
-})
+// Lock toggle status mutation removed as button is now mapped to change password drawer
 
 // 3. Delete Action
 const { isPending: isDeletePending, mutate: performDelete } = useMutation({
@@ -85,9 +70,9 @@ const handleDeleteClick = () => {
       </svg>
     </button>
 
-    <!-- Lock Toggle Button (Orange) -->
-    <button @click="toggleLock()" :disabled="isLockPending" title="Toggle Status"
-      class="w-8 h-8 rounded-full flex items-center justify-center bg-[#FFF3E0] hover:bg-[#FFE0B2] text-[#E65100] transition-colors border-none shadow-none cursor-pointer disabled:opacity-50">
+    <!-- Lock Toggle Button (Orange) - Now triggers Change Password -->
+    <button @click="isPasswordUpdateOpen = true" title="Change Password"
+      class="w-8 h-8 rounded-full flex items-center justify-center bg-[#FFF3E0] hover:bg-[#FFE0B2] text-[#E65100] transition-colors border-none shadow-none cursor-pointer">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path
           d="M5.33337 6.66667V4.66667V4.66667C5.33337 3.194 6.52737 2 8.00004 2V2C9.47271 2 10.6667 3.194 10.6667 4.66667V4.66667V6.66667"
@@ -145,5 +130,8 @@ const handleDeleteClick = () => {
 
     <!-- Edit User Drawer -->
     <EditUserDrawer v-model:open="isEditOpen" :employee="props.employee" />
+
+    <!-- Update Password Drawer -->
+    <UpdatePasswordDrawer v-model:open="isPasswordUpdateOpen" :employee="props.employee" />
   </div>
 </template>

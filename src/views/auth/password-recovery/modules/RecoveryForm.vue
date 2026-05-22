@@ -69,9 +69,8 @@ const startResendTimer = () => {
   }, 1000)
 }
 
-const emit = defineEmits<{
-  (e: 'back'): void
-}>()
+
+
 
 const requestOtp = async () => {
   try {

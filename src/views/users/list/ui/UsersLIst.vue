@@ -9,11 +9,9 @@ import ServerError from '@/components/error/ServerError.vue'
 import type { FetchEmployeesParams } from '../types'
 import { fetchEmployees } from '../api'
 import { Button } from '@/components/ui/button'
-import { useGetDepartments } from '@/views/departments/query/useGetDepartments'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { MenuIcon, DownloadIcon } from 'lucide-vue-next'
-import * as XLSX from 'xlsx'
-import { prettify, prettifyPhoneNumber } from '@/lib/utils'
+import { MenuIcon, Search } from 'lucide-vue-next'
+
 
 // Export the flattened data type for use in DataTable
 export type FlattenedData = Record<string, any>
@@ -30,7 +28,7 @@ fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5)
 
 const search = ref('')
 const debouncedSearch = ref('')
-const status = ref<string>('active')
+const levelFilter = ref<string>('all')
 const sorting = ref<{
   orderBy: string | null
   order: 'asc' | 'desc' | null
@@ -42,12 +40,7 @@ const sorting = ref<{
 const rowSelection = ref<Record<string, boolean>>({})
 
 const departmentParams = ref({ isAll: true })
-const { data: departmentsData } = useGetDepartments(departmentParams)
 const selectedDepartmentId = ref<string>(props.departmentId || 'all')
-
-const selectedEmployeeIds = computed(() => {
-  return Object.keys(rowSelection.value).filter((key) => rowSelection.value[key])
-})
 
 let searchTimeout: NodeJS.Timeout | null = null
 
@@ -66,7 +59,6 @@ const params = ref<FetchEmployeesParams>({
   size: 20,
   departmentId: props.departmentId,
   search: '',
-  status: 'active',
   orderBy: 'createdAt',
   order: 'desc'
 })
@@ -80,10 +72,10 @@ watch(sorting, () => {
   }
 })
 
-watch([status], () => {
+watch([levelFilter], () => {
   params.value = {
     ...params.value,
-    status: status.value === 'all' ? undefined : status.value,
+    level: levelFilter.value === 'all' ? undefined : Number(levelFilter.value),
     page: 1
   }
 })
@@ -217,77 +209,6 @@ import {
   SelectValue
 } from '@/components/ui/select'
 
-const isLoadingExport = ref(false)
-
-const exportToExcel = async () => {
-  try {
-    isLoadingExport.value = true
-    const response = await fetchEmployees({
-      ...params.value,
-      isAll: true
-    })
-
-    const resData = response.data?.result?.data || response.data?.data
-    if (!resData) return
-
-    const rawData = resData.map((employee: any) => flattenObject(employee))
-    const wsData: any[][] = []
-
-    // Header
-    const headers = [
-      'ID',
-      t('fio'),
-      t('phone-number'),
-      'INN',
-      'passport',
-      'PINFL',
-      'account-number',
-      'MFO',
-      t('salary'),
-      'gross-salary',
-      t('allowed-percent'),
-      t('contract-type'),
-      t('status')
-    ]
-    wsData.push(headers)
-
-    // Rows
-    rawData.forEach((item) => {
-      const fullName = item.user_lastName
-        ? `${item.user_lastName} ${item.user_firstName}`
-        : item.comment
-
-      const row = [
-        item.employeeNumber || '',
-        fullName || t('no-data'),
-        item.phoneNumber ? prettifyPhoneNumber(item.phoneNumber) : '',
-        item.inn || '',
-        item.passportSerialNumber || '',
-        item.pinfl || '',
-        item.accountCredit || '',
-        item.mfo || '',
-        item.salary ? prettify(item.salary) : '',
-        item.grossSalary ? prettify(item.grossSalary) : '',
-        item.percentAllowed ? `${item.percentAllowed}%` : '',
-        item.contractType || '',
-        t(item.status)
-      ]
-      wsData.push(row)
-    })
-
-    const ws = XLSX.utils.aoa_to_sheet(wsData)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, t('employees'))
-
-    const fileName = `${t('employees')}_${new Date().toISOString().split('T')[0]}.xlsx`
-    XLSX.writeFile(wb, fileName)
-  } catch (e) {
-    console.error('Export failed:', e)
-  } finally {
-    isLoadingExport.value = false
-  }
-}
-
 const handleRowClick = () => {
   // Row click is disabled since edit is handled via drawer in RowActions
 }
@@ -307,36 +228,31 @@ const handleRowClick = () => {
         <!-- Search - Always visible but expands on desktop -->
         <div class="flex-1 lg:flex-none lg:w-[200px] custom-xl:w-[200px]">
           <Can i="employees.list">
-            <Input id="employees-search" name="search" v-model="search" :placeholder="t('search')"
-              class="h-9 focus:ring-0 focus:ring-offset-0 ring-0 outline-none">
-              <template #left>
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </template>
-            </Input>
+            <Input id="employees-search" name="search" v-model="search" :placeholder="t('search')" :left="Search"
+              class="h-9 focus:ring-0 focus:ring-offset-0 ring-0 outline-none" />
           </Can>
         </div>
 
         <!-- Desktop Actions (Visible on 1400px+) -->
         <div class="hidden custom-xl:flex items-center gap-3">
-          <!-- Status -->
+          <!-- Role -->
           <div
             class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all">
-            <label for="status-desktop"
+            <label for="level-desktop"
               class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer">{{
-                t('status') }}</label>
-            <Select v-model="status" name="status">
-              <SelectTrigger id="status-desktop"
+                t('level') }}</label>
+            <Select v-model="levelFilter" name="level">
+              <SelectTrigger id="level-desktop"
                 class="border-none shadow-none h-8 min-w-[120px] max-w-[200px] focus:ring-0 text-gray-700 font-medium">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{{ t('all') }}</SelectItem>
-                <SelectItem value="active">{{ t('active') }}</SelectItem>
-                <SelectItem value="blocked">{{ t('blocked') }}</SelectItem>
-                <SelectItem value="leftTheCompany">{{ t('left-the-company') }}</SelectItem>
+                <SelectItem value="1">{{ t('roles.teacher') }}</SelectItem>
+                <SelectItem value="2">{{ t('roles.director') }}</SelectItem>
+                <SelectItem value="3">{{ t('roles.district') }}</SelectItem>
+                <SelectItem value="4">{{ t('roles.region') }}</SelectItem>
+                <SelectItem value="5">{{ t('roles.admin') }}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -362,48 +278,29 @@ const handleRowClick = () => {
               <div class="flex flex-col gap-6">
                 <!-- Mobile Filters -->
                 <div class="flex flex-col gap-4">
-                  <!-- Department Mobile -->
-                  <template v-if="!props.departmentId">
-                    <div class="flex flex-col gap-1.5">
-                      <label for="department-mobile" class="text-sm font-medium text-gray-700 ml-1 cursor-pointer">{{
-                        t('departments') }}</label>
-                      <Select v-model="selectedDepartmentId" name="department-mobile">
-                        <SelectTrigger id="department-mobile" class="h-10 w-full border-[#E0E6F0]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">{{ t('all') }}</SelectItem>
-                          <SelectItem v-for="dept in departmentsData?.data?.data as any" :key="dept.id"
-                            :value="dept.id">{{ dept.name }}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </template>
-
-                  <!-- Status Mobile -->
+                  <!-- Role Mobile -->
                   <div class="flex flex-col gap-1.5">
-                    <label for="status-mobile" class="text-sm font-medium text-gray-700 ml-1 cursor-pointer">{{
-                      t('status')
+                    <label for="level-mobile" class="text-sm font-medium text-gray-700 ml-1 cursor-pointer">{{
+                      t('level')
                     }}</label>
-                    <Select v-model="status" name="status-mobile">
-                      <SelectTrigger id="status-mobile" class="h-10 w-full border-[#E0E6F0]">
+                    <Select v-model="levelFilter" name="level-mobile">
+                      <SelectTrigger id="level-mobile" class="h-10 w-full border-[#E0E6F0]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">{{ t('all') }}</SelectItem>
-                        <SelectItem value="active">{{ t('active') }}</SelectItem>
-                        <SelectItem value="blocked">{{ t('blocked') }}</SelectItem>
-                        <SelectItem value="leftTheCompany">{{ t('left-the-company') }}</SelectItem>
+                        <SelectItem value="1">{{ t('roles.teacher') }}</SelectItem>
+                        <SelectItem value="2">{{ t('roles.director') }}</SelectItem>
+                        <SelectItem value="3">{{ t('roles.district') }}</SelectItem>
+                        <SelectItem value="4">{{ t('roles.region') }}</SelectItem>
+                        <SelectItem value="5">{{ t('roles.admin') }}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
                 <!-- Mobile Add/Upload Buttons -->
-                <div class="flex flex-col gap-3 mt-4 [&_button]:w-full">
-                  <span class="text-xs font-semibold text-gray-500 uppercase">{{
-                    t('tools')
-                  }}</span>
+                <div class="flex flex-col gap-3 mt-1 [&_button]:w-full">
                   <Can i="employees.add">
                     <CreateUserDrawer />
                   </Can>

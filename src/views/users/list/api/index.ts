@@ -39,3 +39,12 @@ export const getUserById = async (id: string) => {
 export const updateEmployee = async ({ id, payload }: { id: string; payload: any }) => {
   return await api.put(`${url}/${id}`, payload)
 }
+
+export const updatePassword = async ({ id, newPassword }: { id: string | number; newPassword: string }) => {
+  return await api.put(`/api/users/password/${id}`, null, {
+    params: {
+      newPassword
+    }
+  })
+}
+

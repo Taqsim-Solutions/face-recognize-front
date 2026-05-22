@@ -60,7 +60,7 @@ const onAccountImgError = (e: Event) => {
 
 // Filter links based on the permission defined in the route meta
 const filteredLinks = computed(() => {
-  return links.filter((link) => {
+  return links.filter(() => {
     return true
   })
 })
