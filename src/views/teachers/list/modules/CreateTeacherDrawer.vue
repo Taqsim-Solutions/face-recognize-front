@@ -21,7 +21,13 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { createTeacher, uploadTeacherPhoto, fetchRegions, fetchSchoolsByCity } from '../api'
+import {
+  createTeacher,
+  uploadTeacherPhoto,
+  fetchRegions,
+  fetchSchoolsByCity,
+  fetchClassesBySchool
+} from '../api'
 
 const props = defineProps<{
   open: boolean
@@ -76,7 +82,8 @@ const formSchema = toTypedSchema(
       .min(8, { message: 'validation.password-min' }),
     regionId: z.number({ required_error: 'validation.required-field' }),
     cityId: z.number({ required_error: 'validation.required-field' }),
-    schoolId: z.number({ required_error: 'validation.required-field' })
+    schoolId: z.number({ required_error: 'validation.required-field' }),
+    classId: z.number().nullable().optional()
   })
 )
 
@@ -90,7 +97,8 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
     password: '',
     regionId: undefined as any,
     cityId: undefined as any,
-    schoolId: undefined as any
+    schoolId: undefined as any,
+    classId: undefined as any
   }
 })
 
@@ -126,6 +134,63 @@ watch(
   () => values.cityId,
   () => {
     setFieldValue('schoolId', undefined as any)
+  }
+)
+
+// 4. Classes list based on selected school
+const { data: classesRes, isPending: isClassesLoading } = useQuery({
+  queryKey: ['classes-by-school', values.schoolId],
+  queryFn: () => fetchClassesBySchool(values.schoolId as number),
+  enabled: () => !!values.schoolId
+})
+const classes = computed(() => {
+  const res = classesRes.value as any
+  const rawList = res?.data?.result?.data || res?.data?.result || res?.result?.data || []
+
+  const allowedSymbols = new Set([
+    // Latin common class letters
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    // Cyrillic common class letters
+    'А',
+    'Б',
+    'В',
+    'Г',
+    'Д',
+    'Е'
+  ])
+
+  return rawList
+    .filter((cls: any) => {
+      if (!cls) return false
+      const deg = Number(cls.degree)
+      if (isNaN(deg) || deg < 1 || deg > 11) return false
+
+      const sym = (cls.symbol || '').trim().toUpperCase()
+      return allowedSymbols.has(sym)
+    })
+    .sort((a: any, b: any) => {
+      const degA = Number(a.degree) || 0
+      const degB = Number(b.degree) || 0
+      if (degA !== degB) {
+        return degA - degB
+      }
+      const symA = (a.symbol || '').trim().toUpperCase()
+      const symB = (b.symbol || '').trim().toUpperCase()
+      return symA.localeCompare(symB, 'uz-UZ')
+    })
+})
+
+// Reset class when school changes
+watch(
+  () => values.schoolId,
+  () => {
+    setFieldValue('classId', undefined as any)
   }
 )
 
@@ -281,7 +346,7 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       password: payload.password,
       isDirectorOrAssistandDirector: false,
       schoolId: payload.schoolId,
-      classId: 0 // defaulted to 0
+      classId: payload.classId || 0
     })
 
     const responseData = res.data as any
@@ -473,13 +538,52 @@ const handleCancel = () => {
                           ? t('select-city-first', 'Avval tumanni tanlang')
                           : isSchoolsLoading
                             ? t('loading') + '...'
-                            : t('select-govt-type', 'Maktabni tanlang')
+                            : t('select-school', 'Maktabni tanlang')
                       "
                     />
                   </SelectTrigger>
                   <SelectContent class="bg-white">
                     <SelectItem v-for="sch in schools" :key="sch.id" :value="String(sch.id)">
                       {{ sch.name }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- Class Dropdown -->
+          <FormField v-slot="{ componentField }" name="classId">
+            <FormItem>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('sinf') }}</FormLabel>
+              <FormControl>
+                <Select
+                  :model-value="
+                    componentField.modelValue ? String(componentField.modelValue) : undefined
+                  "
+                  @update:model-value="
+                    (val) => componentField['onUpdate:modelValue']?.(Number(val))
+                  "
+                  name="classId"
+                >
+                  <SelectTrigger
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
+                    :disabled="!values.schoolId || isClassesLoading"
+                  >
+                    <SelectValue
+                      :placeholder="
+                        !values.schoolId
+                          ? t('select-school-first', 'Avval maktabni tanlang')
+                          : isClassesLoading
+                            ? t('loading') + '...'
+                            : t('select-class', 'Sinfni tanlang')
+                      "
+                    />
+                  </SelectTrigger>
+                  <SelectContent class="bg-white">
+                    <SelectItem v-for="cls in classes" :key="cls.id" :value="String(cls.id)">
+                      {{ cls.degree }}-{{ cls.symbol }}
                     </SelectItem>
                   </SelectContent>
                 </Select>

@@ -23,9 +23,13 @@ export const createColumns = (): ColumnDef<TeacherModel>[] => [
 
       const initials = ((lastName[0] || '') + (firstName[0] || '')).toUpperCase() || 'T'
 
-      // Profile image or initials avatar using mainImageName from API
-      const avatarUrl = teacher.mainImageName
-        ? `/api/images?filename=${teacher.mainImageName}`
+      // Profile image or initials avatar using mainImageName or last item in imageIds from API
+      const lastImage = teacher.imageIds && teacher.imageIds.length > 0
+        ? teacher.imageIds[teacher.imageIds.length - 1]
+        : teacher.mainImageName
+
+      const avatarUrl = lastImage
+        ? `/api/images?filename=${lastImage}`
         : null
 
       const avatarChild = avatarUrl
@@ -97,7 +101,19 @@ export const createColumns = (): ColumnDef<TeacherModel>[] => [
       })
     },
     cell: ({ row }) => {
-      const cls = row.original.class
+      const teacher = row.original
+      if (teacher.level === 2) {
+        return h(
+          'span',
+          {
+            class:
+              'font-semibold text-[#ff792d] bg-[#fdf2ec] px-2.5 py-1 rounded-lg text-xs border border-orange-100'
+          },
+          i18n.global.t('roles.director', 'Direktor')
+        )
+      }
+
+      const cls = teacher.class
       if (!cls || !cls.degree) {
         return h(
           'span',
