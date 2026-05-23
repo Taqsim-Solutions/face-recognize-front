@@ -173,6 +173,9 @@ export default {
     'upload-excel-file': 'Excel fayl yuklash',
     'unknown-faces': 'Tanilmagan yuzlar',
     'known-faces': 'Tanilgan yuzlar',
+    davomad: 'Davomad',
+    'kelgan-vaqti': 'Kelgan vaqti',
+    status: 'Status',
     student: "O'quvchi",
     teacher: "O'qituvchi",
     'pick-date': 'Sana',
@@ -190,7 +193,48 @@ export default {
     'teacher-middleName': 'Sharif',
     sinf: 'Sinf',
     'unassigned-school': 'Maktabga biriktirilmagan',
-    'search-teacher': "O'qituvchi ism-familiyasi bo'yicha qidiruv"
+    'search-teacher': "O'qituvchi ism-familiyasi bo'yicha qidiruv",
+    dashboard: {
+      statistics: 'Statistika',
+      'all-schools': 'Barcha maktablar',
+      'connected-schools': 'Ulangan maktablar',
+      'teachers-count': 'O’quvchilar soni',
+      'absent-teachers-count': 'Kelmagan o’quvchilar',
+      'failed-to-load': "Statistika ma'lumotlarini yuklashda xatolik yuz berdi. Iltimos qayta urinib ko'ring.",
+      retry: 'Qayta urinish',
+      'weekly-stats': 'Haftalar bo’yicha maktablar statistikasi',
+      'monthly-stats': 'Oylar bo’yicha maktablar statistikasi',
+      'this-week': 'Hozirgi xafta',
+      'last-week': 'O’tgan xafta',
+      'this-month': 'Xozirgi oy',
+      'last-month': 'O’tgan oy',
+      attended: 'Kelganlar',
+      absent: 'Kelmaganlar',
+      percentage: 'Ko’rsatkich',
+      overall: {
+        students: "O'quvchilar",
+        boys: "O'g'il bolalar",
+        girls: 'Qiz bolalar',
+        absents: 'Kelmaganlar'
+      },
+      'student-stats-title': "O'quvchilar statistikasi",
+      absents: {
+        title: 'Kelmaganlar',
+        fish: 'F.I.Sh',
+        school: 'Maktab',
+        class: 'Sinf'
+      },
+      'school-details': {
+        'school-table-title': 'Maktablar bo’yicha batafsil statistika',
+        school: 'Maktab',
+        'all-students': "Barcha o'quvchilar",
+        boys: "O'g'il bolalar",
+        girls: 'Qiz bolalar',
+        attended: 'Kelganlar (%)',
+        absent: 'Kelmaganlar (%)',
+        'page-info': 'Sahifa {current} dan {total}'
+      }
+    }
   },
   uzc: {
     auth: {
@@ -352,6 +396,9 @@ export default {
     'search-teacher': 'Ўқитувчи исм-фамилияси бўйича қидирув',
     'unknown-faces': 'Танилмаган юзлар',
     'known-faces': 'Танилган юзлар',
+    davomad: 'Давомад',
+    'kelgan-vaqti': 'Келган вақти',
+    status: 'Статус',
     student: 'Ўқувчи',
     teacher: 'Ўқитувчи',
     'pick-date': 'Сана',
@@ -378,7 +425,48 @@ export default {
     phoneNumber: 'Телефон рақам',
     edit: 'Таҳрирлаш',
     'download-excel-example': 'Намуна юклаб олиш',
-    'upload-excel-file': 'Excel файл юклаш'
+    'upload-excel-file': 'Excel файл юклаш',
+    dashboard: {
+      statistics: 'Статистика',
+      'all-schools': 'Барча мактаблар',
+      'connected-schools': 'Уланган мактаблар',
+      'teachers-count': 'Ўқувчилар сони',
+      'absent-teachers-count': 'Келмаган ўқувчилар',
+      'failed-to-load': 'Статистика маълумотларини юклашда хатолик юз берди. Илтимос қайта уриниб кўринг.',
+      retry: 'Қайта уриниш',
+      'weekly-stats': 'Ҳафталар бўйича мактаблар статистикаси',
+      'monthly-stats': 'Ойлар бўйича мактаблар статистикаси',
+      'this-week': 'Ҳозирги ҳафта',
+      'last-week': 'Ўтган ҳафта',
+      'this-month': 'Ҳозирги ой',
+      'last-month': 'Ўтган ой',
+      attended: 'Келганлар',
+      absent: 'Келмаганлар',
+      percentage: 'Кўрсаткич',
+      overall: {
+        students: 'Ўқувчилар',
+        boys: 'Ўғил болалар',
+        girls: 'Қиз болалар',
+        absents: 'Келмаганлар'
+      },
+      'student-stats-title': 'Ўқувчилар статистикаси',
+      absents: {
+        title: 'Келмаганлар',
+        fish: 'Ф.И.Ш',
+        school: 'Мактаб',
+        class: 'Синф'
+      },
+      'school-details': {
+        'school-table-title': 'Мактаблар бўйича батафсил статистика',
+        school: 'Мактаб',
+        'all-students': 'Барча ўқувчилар',
+        boys: 'Ўғил болалар',
+        girls: 'Қиз болалар',
+        attended: 'Келганлар (%)',
+        absent: 'Келмаганлар (%)',
+        'page-info': 'Саҳифа {current} дан {total}'
+      }
+    }
   },
   ru: {
     auth: {
@@ -555,6 +643,9 @@ export default {
     'search-teacher': 'Поиск учителя по имени и фамилии',
     'unknown-faces': 'Неопознанные лица',
     'known-faces': 'Распознанные лица',
+    davomad: 'Посещаемость',
+    'kelgan-vaqti': 'Время прибытия',
+    status: 'Статус',
     student: 'Ученик',
     teacher: 'Учитель',
     'pick-date': 'Дата',
@@ -580,6 +671,47 @@ export default {
     phoneNumber: 'Номер телефона',
     edit: 'Редактировать',
     'download-excel-example': 'Скачать образец',
-    'upload-excel-file': 'Загрузить Excel файл'
+    'upload-excel-file': 'Загрузить Excel файл',
+    dashboard: {
+      statistics: 'Статистика',
+      'all-schools': 'Все школы',
+      'connected-schools': 'Подключенные школы',
+      'teachers-count': 'Количество учеников',
+      'absent-teachers-count': 'Непришедшие ученики',
+      'failed-to-load': 'Произошла ошибка при загрузке статистических данных. Пожалуйста, попробуйте еще раз.',
+      retry: 'Повторить попытку',
+      'weekly-stats': 'Статистика школ по неделям',
+      'monthly-stats': 'Статистика школ по месяцам',
+      'this-week': 'Текущая неделя',
+      'last-week': 'Прошедшая неделя',
+      'this-month': 'Текущий месяц',
+      'last-month': 'Прошедший месяц',
+      attended: 'Присутствующие',
+      absent: 'Отсутствующие',
+      percentage: 'Показатель',
+      overall: {
+        students: 'Ученики',
+        boys: 'Мальчики',
+        girls: 'Девочки',
+        absents: 'Отсутствующие'
+      },
+      'student-stats-title': 'Статистика учеников',
+      absents: {
+        title: 'Отсутствующие',
+        fish: 'Ф.И.О',
+        school: 'Школа',
+        class: 'Класс'
+      },
+      'school-details': {
+        'school-table-title': 'Подробная статистика по школам',
+        school: 'Школа',
+        'all-students': 'Все ученики',
+        boys: 'Мальчики',
+        girls: 'Девочки',
+        attended: 'Присутствующие (%)',
+        absent: 'Отсутствующие (%)',
+        'page-info': 'Страница {current} из {total}'
+      }
+    }
   }
 }

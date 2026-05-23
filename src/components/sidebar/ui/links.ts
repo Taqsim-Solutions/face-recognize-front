@@ -1,7 +1,34 @@
-import { LayoutDashboardIcon, UserCheck2Icon, SettingsIcon } from 'lucide-vue-next'
-
 import type { LinkProp } from '..'
 import { h } from 'vue'
+
+const DashboardIcon = (props: any) =>
+  h(
+    'svg',
+    {
+      xmlns: 'http://www.w3.org/2000/svg',
+      width: '22',
+      height: '22',
+      viewBox: '0 0 20 20',
+      fill: 'none',
+      ...props
+    },
+    [
+      h('path', {
+        'fill-rule': 'evenodd',
+        'clip-rule': 'evenodd',
+        d: 'M16.535 6.91604L11.535 3.02687C10.6325 2.32438 9.36833 2.32438 8.465 3.02687L3.465 6.91604C2.85583 7.38938 2.5 8.11771 2.5 8.88937V15.0002C2.5 16.381 3.61917 17.5002 5 17.5002H15C16.3808 17.5002 17.5 16.381 17.5 15.0002V8.88937C17.5 8.11771 17.1442 7.38938 16.535 6.91604Z',
+        stroke: 'currentColor',
+        'stroke-width': '1.5'
+      }),
+      h('path', {
+        d: 'M7.5 14.1667H12.5',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      })
+    ]
+  )
 
 const UsersIcon = (props: any) =>
   h(
@@ -330,11 +357,91 @@ const KnownFacesIcon = (props: any) =>
     ]
   )
 
+const DavomadIcon = (props: any) =>
+  h(
+    'svg',
+    {
+      xmlns: 'http://www.w3.org/2000/svg',
+      width: '20',
+      height: '20',
+      viewBox: '0 0 20 20',
+      fill: 'none',
+      ...props
+    },
+    [
+      h('path', {
+        d: 'M13.3333 1.66602V4.99935',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M6.66667 1.66602V4.99935',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M2.5 7.50065H17.5',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        'fill-rule': 'evenodd',
+        'clip-rule': 'evenodd',
+        d: 'M15.8333 3.33398H4.16667C3.24583 3.33398 2.5 4.07982 2.5 5.00065V15.834C2.5 16.7548 3.24583 17.5007 4.16667 17.5007H15.8333C16.7542 17.5007 17.5 16.7548 17.5 15.834V5.00065C17.5 4.07982 16.7542 3.33398 15.8333 3.33398Z',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M5.84418 10.6068C5.72918 10.6068 5.63585 10.7001 5.63668 10.8151C5.63668 10.9301 5.73001 11.0234 5.84501 11.0234C5.96001 11.0234 6.05335 10.9301 6.05335 10.8151C6.05335 10.7001 5.96001 10.6068 5.84418 10.6068',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M10.0108 10.6068C9.89581 10.6068 9.80247 10.7001 9.80331 10.8151C9.80331 10.9301 9.89664 11.0234 10.0116 11.0234C10.1266 11.0234 10.22 10.9301 10.22 10.8151C10.22 10.7001 10.1266 10.6068 10.0108 10.6068',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M14.1776 10.6068C14.0626 10.6068 13.9692 10.7001 13.9701 10.8151C13.9701 10.9301 14.0634 11.0234 14.1784 11.0234C14.2934 11.0234 14.3867 10.9301 14.3867 10.8151C14.3867 10.7001 14.2934 10.6068 14.1776 10.6068',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M5.84418 13.9408C5.72918 13.9408 5.63585 14.0341 5.63668 14.1491C5.63668 14.2641 5.73001 14.3574 5.84501 14.3574C5.96001 14.3574 6.05335 14.2641 6.05335 14.1491C6.05335 14.0341 5.96001 13.9408 5.84418 13.9408',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M10.0108 13.9408C9.89581 13.9408 9.80247 14.0341 9.80331 14.1491C9.80331 14.2641 9.89664 14.3574 10.0116 14.3574C10.1266 14.3574 10.22 14.2641 10.22 14.1491C10.22 14.0341 10.1266 13.9408 10.0108 13.9408',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      })
+    ]
+  )
+
 export const links: LinkProp[] = [
   {
-    name: 'dashboard',
+    name: 'dashboard.statistics',
     location: 'home',
-    icon: LayoutDashboardIcon
+    icon: DashboardIcon
   },
   {
     name: 'users',
@@ -364,7 +471,7 @@ export const links: LinkProp[] = [
   {
     name: 'davomad',
     location: 'attendances-list',
-    icon: KnownFacesIcon
+    icon: DavomadIcon
   },
   {
     name: 'known-faces',
