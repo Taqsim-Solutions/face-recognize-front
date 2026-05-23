@@ -67,7 +67,8 @@ const routeLevelPermissions: Record<string, number[]> = {
   'teachers-list': [2, 3, 4, 5],
   'schools-list': [3, 4, 5],
   'governments-list': [4, 5],
-  'users-list': [5]
+  'users-list': [5],
+  'organization-settings': [5]
 }
 
 // Filter links based on the permission defined in the route meta
