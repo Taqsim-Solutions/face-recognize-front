@@ -1,4 +1,4 @@
-import { LayoutDashboardIcon, UserCheck2Icon, SettingsIcon, GraduationCap } from 'lucide-vue-next'
+import { LayoutDashboardIcon, UserCheck2Icon, SettingsIcon } from 'lucide-vue-next'
 
 import type { LinkProp } from '..'
 import { h } from 'vue'
@@ -225,13 +225,34 @@ const SchoolIcon = (props: any) =>
     ]
   )
 
+const StudentsIcon = (props: any) =>
+  h(
+    'svg',
+    {
+      xmlns: 'http://www.w3.org/2000/svg',
+      width: '23',
+      height: '17',
+      viewBox: '0 0 19 13',
+      fill: 'none',
+      ...props
+    },
+    [
+      h('path', {
+        d: 'M14.0833 6.38661V9.71994C14.0833 11.1007 12.964 12.2199 11.5833 12.2199H6.58333C5.20262 12.2199 4.08333 11.1007 4.08333 9.71994V6.38661M8.33798 0.925955L0.75 4.71994L8.33798 8.51393C8.80719 8.74854 9.35948 8.74854 9.82869 8.51393L17.4167 4.71994L9.82869 0.925955C9.35948 0.691348 8.80719 0.691348 8.33798 0.925955Z',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linejoin': 'round'
+      })
+    ]
+  )
+
 const TeachersIcon = (props: any) =>
   h(
     'svg',
     {
       xmlns: 'http://www.w3.org/2000/svg',
-      width: '19',
-      height: '19',
+      width: '21',
+      height: '21',
       viewBox: '0 0 19 19',
       fill: 'none',
       ...props
@@ -334,6 +355,16 @@ export const links: LinkProp[] = [
     name: 'teachers',
     location: 'teachers-list',
     icon: TeachersIcon
+  },
+  {
+    name: 'students',
+    location: 'students-list',
+    icon: StudentsIcon
+  },
+  {
+    name: 'davomad',
+    location: 'attendances-list',
+    icon: KnownFacesIcon
   },
   {
     name: 'known-faces',

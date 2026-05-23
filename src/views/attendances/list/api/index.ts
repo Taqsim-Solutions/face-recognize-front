@@ -1,15 +1,7 @@
 import api from '@/api'
-const url = '/api/attendances'
 
-import type { AttendancesFetchParams, AttendanceFetchResponse } from '../types'
-import type { AxiosResponse } from 'axios'
+const url = '/api/Attendances'
 
-export const fetchAttendances = async (
-  params: AttendancesFetchParams
-): Promise<AxiosResponse<AttendanceFetchResponse[]>> => {
-  const response = await api(url, { params })
-  return {
-    ...response,
-    data: response.data.data
-  }
+export const fetchAttendancesByDate = async (date: string) => {
+  return await api.get(`${url}/date/${date}`)
 }
