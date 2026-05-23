@@ -9,7 +9,7 @@ import type {
 const url = '/api/teachers'
 
 export const fetchTeachers = async (params: FetchTeachersParams) => {
-  const { page, size, search, regionId, cityId, schoolId, orderBy, order } = params
+  const { page, size, search, regionId, cityId, schoolId, classId, orderBy, order } = params
   const mappedParams: Record<string, any> = {}
 
   if (page !== undefined) mappedParams.PageIndex = page
@@ -18,10 +18,20 @@ export const fetchTeachers = async (params: FetchTeachersParams) => {
   if (regionId) mappedParams.RegionId = regionId
   if (cityId) mappedParams.CityId = cityId
   if (schoolId) mappedParams.SchoolId = schoolId
+  if (classId) mappedParams.ClassId = classId
   if (orderBy) mappedParams.OrderBy = orderBy
   if (order) mappedParams.Order = order
 
   return await api<TeacherModelIEnumerableResult>(url, { params: mappedParams })
+}
+
+export const fetchClassesBySchool = async (schoolId: number) => {
+  return await api.get<{ code: number; message: string; result: any }>('/api/classes', {
+    params: {
+      SchoolId: schoolId,
+      PageSize: 999
+    }
+  })
 }
 
 export const createTeacher = async (payload: CreateTeacherPayload) => {

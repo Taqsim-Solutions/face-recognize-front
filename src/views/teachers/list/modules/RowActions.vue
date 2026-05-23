@@ -4,7 +4,6 @@ import { deleteTeacher } from '../api'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 import { ref } from 'vue'
-import { KeyRound } from 'lucide-vue-next'
 import {
   Dialog,
   DialogContent,
@@ -71,10 +70,18 @@ const handleDeleteClick = () => {
       </svg>
     </button>
 
-    <!-- Change Password Button (Blue) -->
+    <!-- Change Password Button (Orange Lock) -->
     <button @click="handlePassword" :title="t('update-password')"
-      class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E3F2FD] hover:bg-[#BBDEFB] text-[#1976D2] transition-colors border-none shadow-none cursor-pointer">
-      <KeyRound class="w-4 h-4" />
+      class="w-8 h-8 rounded-full flex items-center justify-center bg-[#FFF3E0] hover:bg-[#FFE0B2] text-[#E65100] transition-colors border-none shadow-none cursor-pointer">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path
+          d="M5.33337 6.66667V4.66667V4.66667C5.33337 3.194 6.52737 2 8.00004 2V2C9.47271 2 10.6667 3.194 10.6667 4.66667V4.66667V6.66667"
+          stroke="#FF7A2E" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M7.99996 9.33333V11.3333" stroke="#FF7A2E" stroke-linecap="round" stroke-linejoin="round" />
+        <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M11.3334 14H4.66671C3.93004 14 3.33337 13.4033 3.33337 12.6667V8.00001C3.33337 7.26334 3.93004 6.66667 4.66671 6.66667H11.3334C12.07 6.66667 12.6667 7.26334 12.6667 8.00001V12.6667C12.6667 13.4033 12.07 14 11.3334 14Z"
+          stroke="#FF7A2E" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
     </button>
 
     <!-- Delete Button (Red) -->

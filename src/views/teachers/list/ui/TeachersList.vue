@@ -6,7 +6,7 @@ import { createColumns, DataTable, CreateTeacherDrawer } from '../modules'
 import Can from '@/components/can.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchTeachersParams } from '../types'
-import { fetchTeachers, fetchRegions, fetchSchoolsByCity } from '../api'
+import { fetchTeachers, fetchRegions, fetchSchoolsByCity, fetchClassesBySchool } from '../api'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -22,6 +22,7 @@ const { t } = useI18n()
 const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
 const schoolFilter = ref<string>('all')
+const classFilter = ref<string>('all')
 const searchQuery = ref<string>('')
 const isCreateDrawerOpen = ref(false)
 
@@ -58,10 +59,12 @@ watch([regionFilter], () => {
     regionId: regionFilter.value === 'all' ? undefined : Number(regionFilter.value),
     cityId: undefined,
     schoolId: undefined,
+    classId: undefined,
     page: 1
   }
   cityFilter.value = 'all'
   schoolFilter.value = 'all'
+  classFilter.value = 'all'
 })
 
 watch([cityFilter], () => {
@@ -69,15 +72,27 @@ watch([cityFilter], () => {
     ...params.value,
     cityId: cityFilter.value === 'all' ? undefined : Number(cityFilter.value),
     schoolId: undefined,
+    classId: undefined,
     page: 1
   }
   schoolFilter.value = 'all'
+  classFilter.value = 'all'
 })
 
 watch([schoolFilter], () => {
   params.value = {
     ...params.value,
     schoolId: schoolFilter.value === 'all' ? undefined : Number(schoolFilter.value),
+    classId: undefined,
+    page: 1
+  }
+  classFilter.value = 'all'
+})
+
+watch([classFilter], () => {
+  params.value = {
+    ...params.value,
+    classId: classFilter.value === 'all' ? undefined : Number(classFilter.value),
     page: 1
   }
 })
@@ -129,6 +144,25 @@ const { data: schoolsRes, isPending: isSchoolsLoading } = useQuery({
 const schools = computed(() => {
   const res = schoolsRes.value as any
   return res?.data?.result?.data || res?.data?.data || res?.result?.data || []
+})
+
+// Fetch classes list when school is selected
+const { data: classesRes, isPending: isClassesLoading } = useQuery({
+  queryKey: ['classes-by-school-filter', schoolFilter],
+  queryFn: () => fetchClassesBySchool(Number(schoolFilter.value)),
+  enabled: computed(() => schoolFilter.value !== 'all'),
+  staleTime: 60000
+})
+const classes = computed(() => {
+  const res = classesRes.value as any
+  return (
+    res?.data?.result?.data ||
+    res?.data?.result ||
+    res?.data?.data ||
+    res?.result?.data ||
+    res?.result ||
+    []
+  )
 })
 
 const tablePagination = computed(() => {
@@ -184,123 +218,112 @@ const handleRowClick = () => {
 
 <template>
   <div>
+    <!-- Header Title & Add Button -->
     <header
-      class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 border-b lg:pb-3 pb-5 px-6"
+      class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
     >
-      <div class="flex flex-col">
-        <h1 class="text-[17px] font-semibold text-[#1b1b1b]">
-          {{ t('teachers', "O'qituvchilar") }}
-        </h1>
-      </div>
+      <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
+        {{ t('teachers', "O'qituvchilar") }}
+      </h1>
 
-      <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-        <!-- Search Input -->
-        <div
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-[#ff792d]/20 focus-within:border-[#ff792d]/50 transition-all"
+      <Can i="employees.add">
+        <Button
+          @click="isCreateDrawerOpen = true"
+          class="h-10 px-5 rounded-xl bg-[#ff792d] hover:bg-[#e05e1a] text-white font-bold text-sm flex items-center gap-1.5 transition-all shadow-none border-none cursor-pointer"
         >
-          <SearchIcon class="w-4 h-4 text-gray-400 mr-2 shrink-0" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            :placeholder="t('search-teachers', 'Ism va familiya qidirish')"
-            class="border-none outline-none bg-transparent text-sm text-gray-700 placeholder-gray-400 w-60 font-semibold"
-          />
-        </div>
-
-        <!-- Region Filter Select -->
-        <div
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-[#ff792d]/20 focus-within:border-[#ff792d]/50 transition-all"
-        >
-          <label
-            for="region-filter"
-            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
-          >
-            {{ t('region', 'Viloyat') }}
-          </label>
-          <Select v-model="regionFilter" name="regionId">
-            <SelectTrigger
-              id="region-filter"
-              class="border-none shadow-none h-8 min-w-[120px] max-w-[180px] focus:ring-0 text-gray-700 font-semibold bg-transparent"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent class="bg-white">
-              <SelectItem value="all">{{ t('all', 'Barchasi') }}</SelectItem>
-              <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
-                {{ region.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <!-- City Filter Select (shown only when region is selected) -->
-        <div
-          v-if="regionFilter !== 'all'"
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-[#ff792d]/20 focus-within:border-[#ff792d]/50 transition-all"
-        >
-          <label
-            for="city-filter"
-            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
-          >
-            {{ t('city-label', 'Tuman') }}
-          </label>
-          <Select v-model="cityFilter" name="cityId">
-            <SelectTrigger
-              id="city-filter"
-              class="border-none shadow-none h-8 min-w-[120px] max-w-[180px] focus:ring-0 text-gray-700 font-semibold bg-transparent"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent class="bg-white">
-              <SelectItem value="all">{{ t('all', 'Barchasi') }}</SelectItem>
-              <SelectItem v-for="city in citiesForFilter" :key="city.id" :value="String(city.id)">
-                {{ city.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <!-- School Filter Select (shown only when city is selected) -->
-        <div
-          v-if="cityFilter !== 'all'"
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-[#ff792d]/20 focus-within:border-[#ff792d]/50 transition-all"
-        >
-          <label
-            for="school-filter"
-            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
-          >
-            {{ t('school', 'Maktab') }}
-          </label>
-          <Select v-model="schoolFilter" name="schoolId">
-            <SelectTrigger
-              id="school-filter"
-              class="border-none shadow-none h-8 min-w-[140px] max-w-[200px] focus:ring-0 text-gray-700 font-semibold bg-transparent"
-              :disabled="isSchoolsLoading"
-            >
-              <SelectValue :placeholder="isSchoolsLoading ? t('loading') + '...' : undefined" />
-            </SelectTrigger>
-            <SelectContent class="bg-white">
-              <SelectItem value="all">{{ t('all', 'Barchasi') }}</SelectItem>
-              <SelectItem v-for="sch in schools" :key="sch.id" :value="String(sch.id)">
-                {{ sch.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <!-- Add Teacher Button -->
-        <Can i="employees.add">
-          <Button
-            @click="isCreateDrawerOpen = true"
-            class="h-9 px-4 rounded-lg bg-[#ff792d] hover:bg-[#e05e1a] text-white font-semibold text-sm flex items-center gap-1.5 transition-all shadow-none border-none cursor-pointer"
-          >
-            <Plus class="w-4 h-4 stroke-[2.5]" />
-            {{ t('new-teacher-add', "Yangi o'qituvchi") }}
-          </Button>
-        </Can>
-      </div>
+          <Plus class="w-4 h-4 stroke-[2.5]" />
+          {{ t('new-teacher-add', "O'qituvchi qo'shish") }}
+        </Button>
+      </Can>
     </header>
 
+    <!-- Filters Row -->
+    <div class="flex flex-wrap items-center gap-3 px-6 pt-5 bg-white">
+      <!-- Search Input -->
+      <div
+        class="flex items-center h-10 w-full sm:w-[420px] border border-gray-200 rounded-xl bg-white px-3 focus-within:ring-1 focus-within:ring-[#ff792d]/20 focus-within:border-[#ff792d]/50 transition-all"
+      >
+        <SearchIcon class="w-4 h-4 text-gray-400 mr-2 shrink-0" />
+        <input
+          v-model="searchQuery"
+          type="text"
+          :placeholder="t('search-teacher', 'O\'qituvchi ism-familiyasi bo\'yicha qidiruv')"
+          class="border-none outline-none bg-transparent text-sm text-gray-600 placeholder-gray-400 w-full font-medium"
+        />
+      </div>
+
+      <!-- Region Filter Select -->
+      <Select v-model="regionFilter" name="regionId">
+        <SelectTrigger
+          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium"
+        >
+          <SelectValue :placeholder="t('select-region', 'Viloyatni tanlang')" />
+        </SelectTrigger>
+        <SelectContent class="bg-white">
+          <SelectItem value="all">{{ t('all-regions', 'Viloyatni tanlang') }}</SelectItem>
+          <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
+            {{ region.name }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
+      <!-- City Filter Select -->
+      <Select v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all'">
+        <SelectTrigger
+          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
+        >
+          <SelectValue :placeholder="t('select-city', 'Tumanni tanlang')" />
+        </SelectTrigger>
+        <SelectContent class="bg-white">
+          <SelectItem value="all">{{ t('all-cities', 'Tumanni tanlang') }}</SelectItem>
+          <SelectItem v-for="city in citiesForFilter" :key="city.id" :value="String(city.id)">
+            {{ city.name }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
+      <!-- School Filter Select -->
+      <Select
+        v-model="schoolFilter"
+        name="schoolId"
+        :disabled="cityFilter === 'all' || isSchoolsLoading"
+      >
+        <SelectTrigger
+          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
+        >
+          <SelectValue
+            :placeholder="isSchoolsLoading ? t('loading') + '...' : t('school', 'Maktab')"
+          />
+        </SelectTrigger>
+        <SelectContent class="bg-white">
+          <SelectItem value="all">{{ t('all-schools', 'Maktab') }}</SelectItem>
+          <SelectItem v-for="sch in schools" :key="sch.id" :value="String(sch.id)">
+            {{ sch.name }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
+      <!-- Class Filter Select -->
+      <Select
+        v-model="classFilter"
+        name="classId"
+        :disabled="schoolFilter === 'all' || isClassesLoading"
+      >
+        <SelectTrigger
+          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
+        >
+          <SelectValue :placeholder="isClassesLoading ? t('loading') + '...' : t('sinf', 'Sinf')" />
+        </SelectTrigger>
+        <SelectContent class="bg-white">
+          <SelectItem value="all">{{ t('sinf', 'Sinf') }}</SelectItem>
+          <SelectItem v-for="cls in classes" :key="cls.id" :value="String(cls.id)">
+            {{ cls.degree }}-{{ cls.symbol }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+
+    <!-- Table Section -->
     <Can i="employees.list">
       <template v-if="isError">
         <ServerError />

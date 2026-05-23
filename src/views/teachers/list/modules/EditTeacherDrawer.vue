@@ -9,22 +9,10 @@ import { toast } from 'vue-sonner'
 import { AxiosError } from 'axios'
 import { UploadCloud, X } from 'lucide-vue-next'
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetClose
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
   Select,
   SelectContent,
@@ -32,7 +20,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { updateTeacher, uploadTeacherPhoto, fetchRegions, fetchSchoolsByCity, fetchAllSchools } from '../api'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { updateTeacher, uploadTeacherPhoto, fetchRegions, fetchSchoolsByCity } from '../api'
 import type { TeacherModel } from '../types'
 
 const props = defineProps<{
@@ -63,32 +52,27 @@ const fileInputRef = ref<HTMLInputElement | null>(null)
 const { data: regionsRes } = useQuery({
   queryKey: ['regions'],
   queryFn: fetchRegions,
-  staleTime: Infinity,
-  enabled: computed(() => props.open)
+  staleTime: Infinity
 })
 const regions = computed(() => {
   const res = regionsRes.value as any
   return res?.data?.result || res?.result || []
 })
 
-// 2. Fetch All Schools to prefill cascade dropdowns from schoolId
-const { data: allSchoolsRes } = useQuery({
-  queryKey: ['all-schools-lookup'],
-  queryFn: fetchAllSchools,
-  staleTime: Infinity,
-  enabled: computed(() => props.open)
-})
-const allSchoolsList = computed(() => {
-  const res = allSchoolsRes.value as any
-  return res?.data?.result?.data || res?.data?.data || res?.result?.data || []
-})
-
 const formSchema = toTypedSchema(
   z.object({
-    firstName: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }),
-    lastName: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }),
-    email: z.string({ required_error: 'validation.required-field' }).email({ message: 'validation.email-should-be-valid' }),
-    login: z.string({ required_error: 'validation.required-field' }).min(3, { message: 'validation.required-field' }),
+    firstName: z
+      .string({ required_error: 'validation.required-field' })
+      .min(1, { message: 'validation.required-field' }),
+    lastName: z
+      .string({ required_error: 'validation.required-field' })
+      .min(1, { message: 'validation.required-field' }),
+    email: z
+      .string({ required_error: 'validation.required-field' })
+      .email({ message: 'validation.email-should-be-valid' }),
+    login: z
+      .string({ required_error: 'validation.required-field' })
+      .min(3, { message: 'validation.required-field' }),
     regionId: z.number({ required_error: 'validation.required-field' }),
     cityId: z.number({ required_error: 'validation.required-field' }),
     schoolId: z.number({ required_error: 'validation.required-field' })
@@ -112,32 +96,14 @@ const isPrefilling = ref(false)
 
 // Prefill form when drawer opens or teacher changes
 watch(
-  [() => props.open, () => allSchoolsList.value],
-  ([isOpenVal, schoolsList]) => {
+  () => props.open,
+  (isOpenVal) => {
     if (isOpenVal && props.teacher) {
       isPrefilling.value = true
-      
-      let matchedRegionId = undefined as any
-      let matchedCityId = undefined as any
-      let matchedSchoolId = undefined as any
 
-      if (props.teacher.schoolId && schoolsList && schoolsList.length > 0) {
-        const matchedSchool = schoolsList.find((s: any) => Number(s.id) === Number(props.teacher.schoolId))
-        if (matchedSchool) {
-          matchedSchoolId = Number(matchedSchool.id)
-          matchedCityId = Number(matchedSchool.cityId)
-          
-          // Find region containing this city
-          if (regions.value && regions.value.length > 0) {
-            const matchedRegion = regions.value.find((r: any) => 
-              r.cities?.some((c: any) => Number(c.id) === matchedCityId)
-            )
-            if (matchedRegion) {
-              matchedRegionId = Number(matchedRegion.id)
-            }
-          }
-        }
-      }
+      const matchedRegionId = props.teacher.region?.id ? Number(props.teacher.region.id) : undefined
+      const matchedCityId = props.teacher.city?.id ? Number(props.teacher.city.id) : undefined
+      const matchedSchoolId = props.teacher.schoolId ? Number(props.teacher.schoolId) : undefined
 
       resetForm({
         values: {
@@ -153,7 +119,9 @@ watch(
 
       // Set photo preview to teacher's existing profile photo if any
       photoFile.value = null
-      photoPreviewUrl.value = props.teacher.photoUrl || null
+      photoPreviewUrl.value = props.teacher.mainImageName
+        ? `/api/images?filename=${props.teacher.mainImageName}`
+        : null
 
       nextTick(() => {
         isPrefilling.value = false
@@ -163,7 +131,7 @@ watch(
   { immediate: true }
 )
 
-// 3. Cities list based on selected region
+// 2. Cities list based on selected region
 const availableCities = computed(() => {
   if (!values.regionId) return []
   const selectedRegion = regions.value.find((r: any) => r.id === values.regionId)
@@ -171,17 +139,20 @@ const availableCities = computed(() => {
 })
 
 // Reset city & school when region changes (skip during prefill)
-watch(() => values.regionId, () => {
-  if (isPrefilling.value) return
-  setFieldValue('cityId', undefined as any)
-  setFieldValue('schoolId', undefined as any)
-})
+watch(
+  () => values.regionId,
+  () => {
+    if (isPrefilling.value) return
+    setFieldValue('cityId', undefined as any)
+    setFieldValue('schoolId', undefined as any)
+  }
+)
 
-// 4. Schools list based on selected city
+// 3. Schools list based on selected city
 const { data: schoolsRes, isPending: isSchoolsLoading } = useQuery({
   queryKey: ['schools-by-city', values.cityId],
   queryFn: () => fetchSchoolsByCity(values.cityId as number),
-  enabled: computed(() => !!values.cityId)
+  enabled: () => !!values.cityId
 })
 const schools = computed(() => {
   const res = schoolsRes.value as any
@@ -189,10 +160,13 @@ const schools = computed(() => {
 })
 
 // Reset school when city changes (skip during prefill)
-watch(() => values.cityId, () => {
-  if (isPrefilling.value) return
-  setFieldValue('schoolId', undefined as any)
-})
+watch(
+  () => values.cityId,
+  () => {
+    if (isPrefilling.value) return
+    setFieldValue('schoolId', undefined as any)
+  }
+)
 
 // Photo drag & drop handlers
 const triggerFileInput = () => {
@@ -209,11 +183,11 @@ const handleFileSelect = (event: Event) => {
 
 const processFile = (file: File) => {
   if (!file.type.startsWith('image/')) {
-    toast.error('Faqat rasm fayllari qabul qilinadi')
+    toast.error(t('validation.only-images-allowed', 'Faqat rasm fayllari qabul qilinadi'))
     return
   }
-  if (file.size > 5 * 1024 * 1024) {
-    toast.error('Rasm hajmi 5MB dan oshmasligi kerak')
+  if (file.size > 10 * 1024 * 1024) {
+    toast.error(t('validation.image-size-limit-10mb', 'Rasm hajmi 10MB dan oshmasligi kerak'))
     return
   }
   photoFile.value = file
@@ -248,6 +222,84 @@ const removePhoto = () => {
     fileInputRef.value.value = ''
   }
 }
+
+// Camera capture logic
+const isCameraOpen = ref(false)
+const videoRef = ref<HTMLVideoElement | null>(null)
+const mediaStream = ref<MediaStream | null>(null)
+const cameraError = ref<string | null>(null)
+
+const openCamera = async () => {
+  isCameraOpen.value = true
+  cameraError.value = null
+  await nextTick()
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: 640, height: 480 }
+    })
+    mediaStream.value = stream
+    if (videoRef.value) {
+      videoRef.value.srcObject = stream
+    }
+  } catch (err: any) {
+    console.error('Kameraga kirishda xatolik:', err)
+    cameraError.value = t(
+      'camera.failed-to-start',
+      "Kamerani ishga tushirib bo'lmadi. Kameraga ruxsat berilganini tekshiring."
+    )
+  }
+}
+
+const closeCamera = () => {
+  if (mediaStream.value) {
+    mediaStream.value.getTracks().forEach((track) => track.stop())
+    mediaStream.value = null
+  }
+  isCameraOpen.value = false
+}
+
+const capturePhoto = () => {
+  if (videoRef.value) {
+    const canvas = document.createElement('canvas')
+    canvas.width = videoRef.value.videoWidth || 640
+    canvas.height = videoRef.value.videoHeight || 480
+    const ctx = canvas.getContext('2d')
+    if (ctx) {
+      // Mirror the image to match screen preview
+      ctx.translate(canvas.width, 0)
+      ctx.scale(-1, 1)
+      ctx.drawImage(videoRef.value, 0, 0, canvas.width, canvas.height)
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' })
+            photoFile.value = file
+
+            if (
+              photoPreviewUrl.value &&
+              !photoPreviewUrl.value.startsWith('/api') &&
+              photoPreviewUrl.value.startsWith('blob:')
+            ) {
+              URL.revokeObjectURL(photoPreviewUrl.value)
+            }
+            photoPreviewUrl.value = URL.createObjectURL(blob)
+
+            closeCamera()
+          }
+        },
+        'image/jpeg',
+        0.95
+      )
+    }
+  }
+}
+
+watch(isCameraOpen, (val) => {
+  if (!val) {
+    closeCamera()
+  }
+})
 
 // Mutation to update teacher and optionally upload photo
 const { isPending: isSubmitPending, mutate } = useMutation({
@@ -308,89 +360,64 @@ const handleCancel = () => {
 
 <template>
   <Sheet v-model:open="isOpen">
-    <SheetContent side="right" class="w-full sm:max-w-[500px] flex flex-col p-0 bg-white [&>button]:hidden">
+    <SheetContent
+      side="right"
+      class="w-full sm:max-w-[500px] flex flex-col p-0 bg-white [&>button]:hidden"
+    >
       <SheetHeader
-        class="flex flex-row items-center justify-between bg-white p-3 px-6 border-b border-gray-200 space-y-0">
+        class="flex flex-row items-center justify-between bg-white p-3 px-6 border-b border-gray-200 space-y-0"
+      >
         <SheetTitle class="text-[17px] font-semibold text-[#1b1b1b]">
           {{ t('edit-teacher') }}
         </SheetTitle>
         <SheetClose
-          class="rounded-full border border-gray-200 w-8 h-8 flex items-center justify-center hover:text-gray-600 hover:bg-gray-50 transition-all cursor-pointer bg-white">
-          <svg class="ml-0.5" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 12 12">
-            <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-              stroke-linejoin="round" />
+          class="rounded-full border border-gray-200 w-8 h-8 flex items-center justify-center hover:text-gray-600 hover:bg-gray-50 transition-all cursor-pointer bg-white"
+        >
+          <svg
+            class="ml-0.5"
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 12 12"
+          >
+            <path
+              d="M9 3L3 9M3 3L9 9"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </SheetClose>
       </SheetHeader>
 
       <form @submit="onSubmit" class="flex flex-col flex-1 overflow-hidden">
-        <div class="flex-1 overflow-y-auto px-6 space-y-4 pt-4 pb-10">
-
-          <!-- Image Upload Drag and Drop -->
-          <div class="space-y-1.5">
-            <FormLabel class="text-sm font-semibold text-gray-700">Rasm (F.I.Sh)</FormLabel>
-            <div
-              @dragover="onDragOver"
-              @dragleave="onDragLeave"
-              @drop="onDrop"
-              @click="triggerFileInput"
-              :class="[
-                'border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden group min-h-[140px]',
-                isDragging ? 'border-[#ff792d] bg-orange-50/20' : 'border-gray-300 hover:border-[#ff792d] hover:bg-orange-50/10'
-              ]"
-            >
-              <input
-                ref="fileInputRef"
-                type="file"
-                class="hidden"
-                accept="image/png, image/jpeg, image/jpg"
-                @change="handleFileSelect"
-              />
-
-              <template v-if="photoPreviewUrl">
-                <div class="relative w-24 h-24 rounded-full overflow-hidden border border-gray-200 shadow-sm">
-                  <img :src="photoPreviewUrl" class="w-full h-full object-cover" />
-                  <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span class="text-white text-xs font-semibold">Tahrirlash</span>
-                  </div>
-                </div>
-                <!-- Remove Button -->
-                <button
-                  type="button"
-                  @click.stop="removePhoto"
-                  class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/95 hover:bg-red-50 text-gray-500 hover:text-red-600 flex items-center justify-center shadow-sm border border-gray-100 transition-all z-10 cursor-pointer"
-                >
-                  <X class="w-4 h-4" />
-                </button>
-              </template>
-
-              <template v-else>
-                <div class="w-10 h-10 rounded-full bg-[#fdf2ec] text-[#ff792d] flex items-center justify-center mb-2">
-                  <UploadCloud class="w-5 h-5" />
-                </div>
-                <div class="text-xs text-gray-600 font-semibold mb-1">
-                  Rasm yuklash yoki bu yerga tortib olib keling
-                </div>
-                <div class="text-[10px] text-gray-400">
-                  PNG, JPG yoki JPEG (maksimal 5MB)
-                </div>
-              </template>
-            </div>
-          </div>
-
+        <div class="flex-1 overflow-y-auto px-6 space-y-4 pb-10">
           <!-- Region Dropdown -->
           <FormField v-slot="{ componentField }" name="regionId">
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('region') }}</FormLabel>
               <FormControl>
-                <Select :model-value="componentField.modelValue ? String(componentField.modelValue) : undefined"
-                  @update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))" name="regionId">
+                <Select
+                  :model-value="
+                    componentField.modelValue ? String(componentField.modelValue) : undefined
+                  "
+                  @update:model-value="
+                    (val) => componentField['onUpdate:modelValue']?.(Number(val))
+                  "
+                  name="regionId"
+                >
                   <SelectTrigger
-                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white">
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
+                  >
                     <SelectValue :placeholder="t('select-region')" />
                   </SelectTrigger>
                   <SelectContent class="bg-white">
-                    <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
+                    <SelectItem
+                      v-for="region in regions"
+                      :key="region.id"
+                      :value="String(region.id)"
+                    >
                       {{ region.name }}
                     </SelectItem>
                   </SelectContent>
@@ -403,17 +430,37 @@ const handleCancel = () => {
           <!-- City Dropdown -->
           <FormField v-slot="{ componentField }" name="cityId">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('city-label') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{
+                t('city-label')
+              }}</FormLabel>
               <FormControl>
-                <Select :model-value="componentField.modelValue ? String(componentField.modelValue) : undefined"
-                  @update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))" name="cityId">
+                <Select
+                  :model-value="
+                    componentField.modelValue ? String(componentField.modelValue) : undefined
+                  "
+                  @update:model-value="
+                    (val) => componentField['onUpdate:modelValue']?.(Number(val))
+                  "
+                  name="cityId"
+                >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
-                    :disabled="!values.regionId">
-                    <SelectValue :placeholder="t('select-city')" />
+                    :disabled="!values.regionId"
+                  >
+                    <SelectValue
+                      :placeholder="
+                        !values.regionId
+                          ? t('select-region-first', 'Avval viloyatni tanlang')
+                          : t('select-city')
+                      "
+                    />
                   </SelectTrigger>
                   <SelectContent class="bg-white">
-                    <SelectItem v-for="city in availableCities" :key="city.id" :value="String(city.id)">
+                    <SelectItem
+                      v-for="city in availableCities"
+                      :key="city.id"
+                      :value="String(city.id)"
+                    >
                       {{ city.name }}
                     </SelectItem>
                   </SelectContent>
@@ -428,12 +475,28 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('school') }}</FormLabel>
               <FormControl>
-                <Select :model-value="componentField.modelValue ? String(componentField.modelValue) : undefined"
-                  @update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))" name="schoolId">
+                <Select
+                  :model-value="
+                    componentField.modelValue ? String(componentField.modelValue) : undefined
+                  "
+                  @update:model-value="
+                    (val) => componentField['onUpdate:modelValue']?.(Number(val))
+                  "
+                  name="schoolId"
+                >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
-                    :disabled="!values.cityId || isSchoolsLoading">
-                    <SelectValue :placeholder="isSchoolsLoading ? t('loading') + '...' : t('select-govt-type', 'Maktabni tanlang')" />
+                    :disabled="!values.cityId || isSchoolsLoading"
+                  >
+                    <SelectValue
+                      :placeholder="
+                        !values.cityId
+                          ? t('select-city-first', 'Avval tumanni tanlang')
+                          : isSchoolsLoading
+                            ? t('loading') + '...'
+                            : t('select-govt-type', 'Maktabni tanlang')
+                      "
+                    />
                   </SelectTrigger>
                   <SelectContent class="bg-white">
                     <SelectItem v-for="sch in schools" :key="sch.id" :value="String(sch.id)">
@@ -446,13 +509,133 @@ const handleCancel = () => {
             </FormItem>
           </FormField>
 
+          <!-- Image Upload Drag and Drop -->
+          <div class="space-y-1.5">
+            <label class="text-sm font-semibold text-gray-700">{{
+              t('camera.upload-photo-label', 'Fotosuratni yuklang')
+            }}</label>
+            <div
+              @dragover="onDragOver"
+              @dragleave="onDragLeave"
+              @drop="onDrop"
+              @click="triggerFileInput"
+              :class="[
+                'border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden group min-h-[140px]',
+                isDragging
+                  ? 'border-[#ff792d] bg-orange-50/20'
+                  : 'border-gray-300 hover:border-[#ff792d] hover:bg-orange-50/10'
+              ]"
+            >
+              <input
+                ref="fileInputRef"
+                type="file"
+                class="hidden"
+                accept="image/png, image/jpeg, image/jpg"
+                @change="handleFileSelect"
+              />
+
+              <template v-if="photoPreviewUrl">
+                <div
+                  class="relative w-24 h-24 rounded-full overflow-hidden border border-gray-200 shadow-sm"
+                >
+                  <img :src="photoPreviewUrl" class="w-full h-full object-cover" />
+                  <div
+                    class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                  >
+                    <span class="text-white text-xs font-semibold">{{ t('edit') }}</span>
+                  </div>
+                </div>
+                <!-- Remove Button -->
+                <button
+                  type="button"
+                  @click.stop="removePhoto"
+                  class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/95 hover:bg-red-50 text-gray-500 hover:text-red-600 flex items-center justify-center shadow-sm border border-gray-100 transition-all z-10 cursor-pointer"
+                >
+                  <X class="w-4 h-4" />
+                </button>
+              </template>
+
+              <template v-else>
+                <div
+                  class="w-10 h-10 rounded-full bg-[#fdf2ec] text-[#ff792d] flex items-center justify-center mb-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-upload-cloud"
+                  >
+                    <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+                    <path d="M12 12v9" />
+                    <path d="m16 16-4-4-4 4" />
+                  </svg>
+                </div>
+                <div class="text-xs text-gray-600 font-semibold mb-1 text-center">
+                  {{
+                    t('camera.drag-drop-text', 'Rasmni yuklash uchun bu yerga sudrab olib keling')
+                  }}
+                </div>
+                <div class="text-[10px] text-gray-400 mb-4 text-center">
+                  {{
+                    t('camera.drag-drop-subtext', 'JPG yoki PNG formatida, maksimal hajmi 10 MB')
+                  }}
+                </div>
+                <div class="flex items-center gap-3" @click.stop>
+                  <button
+                    type="button"
+                    @click="triggerFileInput"
+                    class="h-9 px-4 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-xs transition-all cursor-pointer bg-white"
+                  >
+                    {{ t('camera.select-file', 'Fayl tanlash') }}
+                  </button>
+                  <button
+                    type="button"
+                    @click="openCamera"
+                    class="h-9 px-4 rounded-lg bg-[#ff792d] hover:bg-[#e05e1a] text-white font-semibold text-xs transition-all flex items-center gap-1.5 shadow-none border-none cursor-pointer"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="lucide lucide-camera"
+                    >
+                      <path
+                        d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"
+                      />
+                      <circle cx="12" cy="13" r="3" />
+                    </svg>
+                    {{ t('camera.open-camera', 'Kamerani ochish') }}
+                  </button>
+                </div>
+              </template>
+            </div>
+          </div>
+
           <!-- First Name -->
           <FormField v-slot="{ componentField }" name="firstName">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('firstName') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{
+                t('firstName')
+              }}</FormLabel>
               <FormControl>
-                <Input type="text" v-bind="componentField" :placeholder="t('firstName_placeholder')"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white" />
+                <Input
+                  type="text"
+                  v-bind="componentField"
+                  :placeholder="t('firstName_placeholder')"
+                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -463,8 +646,12 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('lastName') }}</FormLabel>
               <FormControl>
-                <Input type="text" v-bind="componentField" :placeholder="t('lastName_placeholder')"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white" />
+                <Input
+                  type="text"
+                  v-bind="componentField"
+                  :placeholder="t('lastName_placeholder')"
+                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -475,8 +662,12 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('email') }}</FormLabel>
               <FormControl>
-                <Input type="email" v-bind="componentField" :placeholder="t('email_placeholder')"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white" />
+                <Input
+                  type="email"
+                  v-bind="componentField"
+                  :placeholder="t('email_placeholder')"
+                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -487,35 +678,143 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('login') }}</FormLabel>
               <FormControl>
-                <Input type="text" v-bind="componentField" :placeholder="t('login_placeholder')"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white" />
+                <Input
+                  type="text"
+                  v-bind="componentField"
+                  :placeholder="t('login_placeholder')"
+                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           </FormField>
-
         </div>
 
         <!-- Footer Actions -->
         <div class="p-4 px-6 border-t border-gray-100 flex items-center justify-end gap-3 bg-white">
-          <Button type="button" variant="outline" @click="handleCancel"
-            class="h-10 px-5 rounded-lg border-gray-200 text-gray-700 hover:bg-gray-50 font-medium transition-all">
+          <Button
+            type="button"
+            variant="outline"
+            @click="handleCancel"
+            class="h-10 px-5 rounded-lg border-gray-200 text-gray-700 hover:bg-gray-50 font-medium transition-all"
+          >
             {{ t('cancel') }}
           </Button>
-          <Button type="submit" :loading="isSubmitPending" :disabled="!meta.valid || isSubmitPending"
-            class="h-10 px-5 rounded-lg bg-[#ff792d] hover:bg-[#e05e1a] text-white font-medium transition-all shadow-none border-none disabled:opacity-60 disabled:cursor-not-allowed">
+          <Button
+            type="submit"
+            :loading="isSubmitPending"
+            :disabled="!meta.valid || isSubmitPending"
+            class="h-10 px-5 rounded-lg bg-[#ff792d] hover:bg-[#e05e1a] text-white font-medium transition-all shadow-none border-none disabled:opacity-60 disabled:cursor-not-allowed"
+          >
             {{ t('save') }}
           </Button>
         </div>
       </form>
+      <!-- Camera Capture Dialog -->
+      <Dialog v-model:open="isCameraOpen">
+        <DialogContent class="sm:max-w-[500px] !rounded-xl p-5 gap-0 border-none bg-white">
+          <DialogHeader class="border-b border-gray-300 pb-3 text-left">
+            <DialogTitle class="text-base sm:text-lg font-semibold text-[#1b1b1b] -mt-1">
+              {{ t('camera.capture-title', 'Kameradan rasmga olish') }}
+            </DialogTitle>
+          </DialogHeader>
+          <!-- Custom Close Button -->
+          <button
+            type="button"
+            @click="closeCamera"
+            class="absolute z-10 right-3 top-3 rounded-full border border-gray-200 w-8 h-8 flex items-center justify-center hover:text-gray-600 hover:bg-gray-50 transition-all cursor-pointer bg-white"
+          >
+            <svg
+              class="ml-0.5"
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 12 12"
+            >
+              <path
+                d="M9 3L3 9M3 3L9 9"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+
+          <div class="py-5 flex flex-col items-center">
+            <div
+              class="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-900 border border-gray-200 flex items-center justify-center"
+            >
+              <template v-if="cameraError">
+                <p class="text-sm text-red-500 font-semibold px-6 text-center">{{ cameraError }}</p>
+              </template>
+              <template v-else>
+                <video
+                  ref="videoRef"
+                  autoplay
+                  playsinline
+                  class="w-full h-full object-cover transform scale-x-[-1]"
+                ></video>
+                <div
+                  v-if="!mediaStream"
+                  class="absolute inset-0 flex items-center justify-center bg-slate-950/80"
+                >
+                  <span class="text-white text-sm font-semibold flex items-center gap-2">
+                    <svg
+                      class="animate-spin h-5 w-5 text-[#ff792d]"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    {{ t('camera.loading', 'Kamera yuklanmoqda...') }}
+                  </span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 mt-2">
+            <Button
+              type="button"
+              variant="outline"
+              @click="closeCamera"
+              class="h-10 px-5 border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold text-sm shadow-none cursor-pointer transition-all bg-white"
+            >
+              {{ t('cancel') }}
+            </Button>
+            <Button
+              type="button"
+              @click="capturePhoto"
+              :disabled="!mediaStream"
+              class="h-10 px-5 bg-[#ff792d] hover:bg-[#e05e1a] text-white rounded-lg font-semibold text-sm shadow-none cursor-pointer transition-all border-none disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ t('camera.take-photo', 'Rasmga olish') }}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </SheetContent>
   </Sheet>
 </template>
 
 <style scoped>
 :deep(.absolute.right-4.top-4),
-:deep(button[class*="absolute"][class*="right-4"]),
-:deep(button[class*="opacity-70"]) {
+:deep(button[class*='absolute'][class*='right-4']),
+:deep(button[class*='opacity-70']) {
   display: none !important;
 }
 </style>

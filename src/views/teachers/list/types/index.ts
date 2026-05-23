@@ -7,11 +7,30 @@ export type TeacherModel = {
   level?: number
   schoolId?: number | null
   schoolName?: string | null
-  photoUrl?: string | null
+  mainImageName?: string | null
+  imageIds?: string[]
+  region?: {
+    id: number
+    name: string
+    cities?: {
+      id: number
+      name: string
+      regionId: number
+    }[]
+  } | null
+  city?: {
+    id: number
+    name: string
+    regionId: number
+  } | null
+  createdAt?: string
+  updatedAt?: string | null
+  isDeleted?: boolean
   class?: {
     id: number
     degree: number | string
     symbol: string
+    studyDays?: any
   } | null
 }
 
@@ -22,6 +41,7 @@ export type FetchTeachersParams = {
   regionId?: number | null
   cityId?: number | null
   schoolId?: number | null
+  classId?: number | null
   orderBy?: string
   order?: 'asc' | 'desc'
 }
