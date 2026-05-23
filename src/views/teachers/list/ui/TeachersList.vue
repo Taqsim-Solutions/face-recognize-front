@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { toast } from 'vue-sonner'
 import { createColumns, DataTable, CreateTeacherDrawer } from '../modules'
 import Can from '@/components/can.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchTeachersParams } from '../types'
-import { fetchTeachers, fetchRegions, fetchSchoolsByCity, fetchClassesBySchool } from '../api'
+import {
+  fetchTeachers,
+  fetchRegions,
+  fetchSchoolsByCity,
+  fetchClassesBySchool,
+  downloadExcelExample,
+  uploadExcelFile
+} from '../api'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -15,9 +23,16 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { SearchIcon, Plus } from 'lucide-vue-next'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
+} from '@/components/ui/dropdown-menu'
+import { SearchIcon, Plus, ChevronDown, Download, Upload } from 'lucide-vue-next'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
+const queryClient = useQueryClient()
 
 const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
@@ -214,6 +229,113 @@ const tableData = computed(() => {
 const handleRowClick = () => {
   // Row click disabled; actions handled via row actions
 }
+
+const excelFileInputRef = ref<HTMLInputElement | null>(null)
+
+const handleDownloadExample = async () => {
+  try {
+    const fileData = await downloadExcelExample()
+    
+    // Check if the returned blob is actually a JSON error response
+    if (fileData instanceof Blob && fileData.type.includes('application/json')) {
+      const text = await fileData.text()
+      try {
+        const json = JSON.parse(text)
+        if (json && (json.code === 500 || json.message)) {
+          toast.error(json.message || t('error.failed-to-download-example', 'Namuna yuklab olishda xatolik yuz berdi'))
+          return
+        }
+      } catch (e) {
+        // Ignore JSON parse error, proceed
+      }
+    }
+    
+    // Check if the response is a plain object with error code (if Axios parsed it or if it wasn't a Blob)
+    if (fileData && typeof fileData === 'object' && !(fileData instanceof Blob)) {
+      if ((fileData as any).code === 500 || (fileData as any).message) {
+        toast.error((fileData as any).message || t('error.failed-to-download-example', 'Namuna yuklab olishda xatolik yuz berdi'))
+        return
+      }
+    }
+
+    const blob = new Blob([fileData], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'teachers_example.xlsx')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    toast.success(t('success.example-downloaded', 'Namuna muvaffaqiyatli yuklab olindi'))
+  } catch (error: any) {
+    console.error('Download excel example error:', error)
+    let msg = t('error.failed-to-download-example', 'Namuna yuklab olishda xatolik yuz berdi')
+    
+    if (error.response && error.response.data instanceof Blob) {
+      try {
+        const text = await error.response.data.text()
+        const json = JSON.parse(text)
+        if (json.message) {
+          msg = json.message
+        }
+      } catch (e) {
+        // Ignore
+      }
+    } else if (error.response?.data?.message) {
+      msg = error.response.data.message
+    } else if (error.message) {
+      msg = error.message
+    }
+    
+    toast.error(msg)
+  }
+}
+
+const triggerExcelUpload = () => {
+  excelFileInputRef.value?.click()
+}
+
+const handleExcelFileSelect = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  // Reset value so same file can be uploaded again if needed
+  target.value = ''
+
+  try {
+    toast.loading(t('loading.uploading-excel', 'Excel yuklanmoqda...'), { id: 'excel-upload' })
+    await uploadExcelFile(file)
+    toast.success(t('success.excel-uploaded', 'Excel muvaffaqiyatli yuklandi'), { id: 'excel-upload' })
+    // Invalidate teachers queries to refresh list
+    queryClient.invalidateQueries({ queryKey: ['teachers'] })
+  } catch (error: any) {
+    console.error('Upload excel error:', error)
+    const errorRes = error.response ?? {}
+    const errorData = errorRes.data
+    let firstMsg = ''
+
+    if (Array.isArray(errorData) && errorData.length > 0) {
+      firstMsg = errorData[0]?.errorMessage || errorData[0]?.message || ''
+    } else {
+      firstMsg =
+        errorRes?.data?.error?.errors?.[0] ||
+        errorRes?.data?.error?.message ||
+        errorRes?.data?.message ||
+        errorRes?.data?.title ||
+        ''
+    }
+
+    if (!firstMsg) {
+      firstMsg = 'error.failed-to-upload-excel'
+    }
+
+    // Translate if key exists in locale files, otherwise display raw error message
+    const displayMsg = te(firstMsg) ? t(firstMsg) : firstMsg
+    toast.error(displayMsg, { id: 'excel-upload' })
+  }
+}
 </script>
 
 <template>
@@ -226,15 +348,69 @@ const handleRowClick = () => {
         {{ t('teachers', "O'qituvchilar") }}
       </h1>
 
-      <Can i="employees.add">
-        <Button
-          @click="isCreateDrawerOpen = true"
-          class="h-10 px-5 rounded-xl bg-[#ff792d] hover:bg-[#e05e1a] text-white font-bold text-sm flex items-center gap-1.5 transition-all shadow-none border-none cursor-pointer"
-        >
-          <Plus class="w-4 h-4 stroke-[2.5]" />
-          {{ t('new-teacher-add', "O'qituvchi qo'shish") }}
-        </Button>
-      </Can>
+      <div class="flex items-center gap-2.5">
+        <!-- Excel Dropdown Menu -->
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <Button
+              class="h-10 px-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm flex items-center gap-2 transition-all shadow-none cursor-pointer"
+            >
+              <!-- Excel Logo SVG -->
+              <svg class="w-[18px] h-[18px] shrink-0 text-[#1b1b1b]" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <g clip-path="url(#clip0_142_11314)">
+                  <path d="M19.375 3.12584H11.25V1.25084C11.25 1.06459 11.1675 0.888342 11.0238 0.769592C10.8813 0.650842 10.69 0.599592 10.51 0.637092L0.51 2.51209C0.21375 2.56709 0 2.82459 0 3.12584V16.8758C0 17.1758 0.21375 17.4346 0.51 17.4896L10.51 19.3646C10.5475 19.3721 10.5863 19.3758 10.625 19.3758C10.77 19.3758 10.9113 19.3258 11.0238 19.2321C11.1675 19.1133 11.25 18.9358 11.25 18.7508V16.8758H19.375C19.72 16.8758 20 16.5958 20 16.2508V3.75084C20 3.40584 19.72 3.12584 19.375 3.12584ZM8.595 12.0896C8.8225 12.3483 8.79625 12.7433 8.53625 12.9708C8.4175 13.0746 8.27125 13.1258 8.125 13.1258C7.95125 13.1258 7.77875 13.0533 7.655 12.9121L5.8375 10.8358L4.24375 12.8858C4.12 13.0433 3.935 13.1258 3.75 13.1258C3.61625 13.1258 3.48125 13.0833 3.36625 12.9946C3.09375 12.7821 3.045 12.3896 3.25 12.1171L4.99875 9.87709L3.28 7.91209C3.0525 7.65334 3.07875 7.25834 3.33875 7.03084C3.5975 6.80334 3.99125 6.82834 4.22125 7.08959L5.78125 8.87209L7.6325 6.49209C7.845 6.22084 8.2375 6.17084 8.51 6.38334C8.7825 6.59459 8.83125 6.98709 8.61875 7.26084L6.61875 9.83084L8.595 12.0896ZM18.75 15.6258H11.25V14.3758H13.125C13.47 14.3758 13.75 14.0958 13.75 13.7508C13.75 13.4058 13.47 13.1258 13.125 13.1258H11.25V11.8758H13.125C13.47 11.8758 13.75 11.5958 13.75 11.2508C13.75 10.9058 13.47 10.6258 13.125 10.6258H11.25V9.37584H13.125C13.47 9.37584 13.75 9.09584 13.75 8.75084C13.75 8.40584 13.47 8.12584 13.125 8.12584H11.25V6.87584H13.125C13.47 6.87584 13.75 6.59584 13.75 6.25084C13.75 5.90584 13.47 5.62584 13.125 5.62584H11.25V4.37584H18.75V15.6258Z" fill="currentColor"/>
+                  <path d="M16.875 5.625H15.625C15.28 5.625 15 5.905 15 6.25C15 6.595 15.28 6.875 15.625 6.875H16.875C17.22 6.875 17.5 6.595 17.5 6.25C17.5 5.905 17.22 5.625 16.875 5.625Z" fill="currentColor"/>
+                  <path d="M16.875 8.125H15.625C15.28 8.125 15 8.405 15 8.75C15 9.095 15.28 9.375 15.625 9.375H16.875C17.22 9.375 17.5 9.095 17.5 8.75C17.5 8.405 17.22 8.125 16.875 8.125Z" fill="currentColor"/>
+                  <path d="M16.875 10.625H15.625C15.28 10.625 15 10.905 15 11.25C15 11.595 15.28 11.875 15.625 11.875H16.875C17.22 11.875 17.5 11.595 17.5 11.25C17.5 10.905 17.22 10.625 16.875 10.625Z" fill="currentColor"/>
+                  <path d="M16.875 13.125H15.625C15.28 13.125 15 13.405 15 13.75C15 14.095 15.28 14.375 15.625 14.375H16.875C17.22 14.375 17.5 14.095 17.5 13.75C17.5 13.405 17.22 13.125 16.875 13.125Z" fill="currentColor"/>
+                </g>
+                <defs>
+                  <clipPath id="clip0_142_11314">
+                    <rect width="20" height="20" fill="white"/>
+                  </clipPath>
+                </defs>
+              </svg>
+              <span>Excel</span>
+              <ChevronDown class="w-4 h-4 text-gray-400" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" class="w-56 bg-white rounded-xl shadow-lg border border-gray-100 p-1.5 z-[100]">
+            <DropdownMenuItem
+              @click="handleDownloadExample"
+              class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 cursor-pointer"
+            >
+              <Download class="w-4 h-4 text-gray-500" />
+              <span>{{ t('download-excel-example', 'Namuna yuklab olish') }}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              @click="triggerExcelUpload"
+              class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 cursor-pointer"
+            >
+              <Upload class="w-4 h-4 text-gray-500" />
+              <span>{{ t('upload-excel-file', 'Excel fayl yuklash') }}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <!-- Hidden input for file selection -->
+        <input
+          ref="excelFileInputRef"
+          type="file"
+          accept=".xlsx, .xls"
+          class="hidden"
+          @change="handleExcelFileSelect"
+        />
+
+        <Can i="employees.add">
+          <Button
+            @click="isCreateDrawerOpen = true"
+            class="h-10 px-5 rounded-xl bg-[#ff792d] hover:bg-[#e05e1a] text-white font-bold text-sm flex items-center gap-1.5 transition-all shadow-none border-none cursor-pointer"
+          >
+            <Plus class="w-4 h-4 stroke-[2.5]" />
+            {{ t('new-teacher-add', "O'qituvchi qo'shish") }}
+          </Button>
+        </Can>
+      </div>
     </header>
 
     <!-- Filters Row -->
@@ -340,6 +516,7 @@ const handleRowClick = () => {
             @update:sorting="(val) => (sorting = val as any)"
             v-model:row-selection="rowSelection"
             @row-click="handleRowClick"
+            :is-teacher="true"
           />
         </div>
       </template>

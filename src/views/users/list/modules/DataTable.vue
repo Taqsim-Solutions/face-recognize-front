@@ -109,7 +109,7 @@ const getPageNumbers = () => {
 </script>
 
 <template>
-  <div class="relative border rounded-t-lg w-full overflow-auto lg:max-h-[calc(100vh-175px)]">
+  <div class="relative border rounded-t-lg w-full overflow-auto lg:max-h-[calc(100vh-244px)]">
     <Table class="text-nowrap">
       <TableHeader class="sticky top-0 bg-white drop-shadow-sm z-20">
         <TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">

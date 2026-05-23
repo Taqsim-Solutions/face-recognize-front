@@ -197,11 +197,10 @@ const handleCancel = () => {
   <Sheet v-model:open="isOpen">
     <SheetTrigger as-child>
       <Button
-        variant="outline"
-        class="bg-[#ff792d] hover:bg-[#e05e1a] flex gap-1 border-none text-white rounded-lg h-9 hover:text-white transition-all shadow-none"
+        class="h-10 px-5 rounded-xl bg-[#ff792d] hover:bg-[#e05e1a] text-white font-bold text-sm flex items-center gap-1.5 transition-all shadow-none border-none cursor-pointer hover:text-white"
         type="button"
       >
-        <Plus :size="18" class="text-white" />
+        <Plus class="w-4 h-4 stroke-[2.5]" />
         {{ t('new-government-add', "Hokim qo'shish") }}
       </Button>
     </SheetTrigger>

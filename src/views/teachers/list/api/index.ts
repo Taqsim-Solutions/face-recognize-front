@@ -98,3 +98,20 @@ export const fetchAllSchools = async () => {
     }
   })
 }
+
+export const downloadExcelExample = async () => {
+  const response = await api.get('/api/teachers/excel-example', {
+    responseType: 'blob'
+  })
+  return response.data
+}
+
+export const uploadExcelFile = async (file: File) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return await api.post('/api/teachers/upload-excel', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}

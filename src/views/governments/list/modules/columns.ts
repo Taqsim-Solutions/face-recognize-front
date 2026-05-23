@@ -90,15 +90,24 @@ export const createColumns = (_regions: any[]): ColumnDef<any>[] => [
       }
 
       if (level === 4) {
-        return h('span', { class: 'font-medium text-slate-900' }, region.name)
+        return h('div', { class: 'font-medium text-slate-800 text-left leading-normal' }, [h('span', region.name)])
       }
 
       if (level === 3) {
-        const text = city && city.name ? `${region.name}, ${city.name}` : region.name
-        return h('span', { class: 'font-medium text-slate-900' }, text)
+        const children: any[] = []
+        if (region.name) {
+          children.push(h('span', region.name + (city && city.name ? ',' : '')))
+        }
+        if (region.name && city && city.name) {
+          children.push(h('br'))
+        }
+        if (city && city.name) {
+          children.push(h('span', city.name))
+        }
+        return h('div', { class: 'font-medium text-slate-800 text-left leading-normal' }, children)
       }
 
-      return h('span', { class: 'text-gray-400' }, '-')
+      return h('span', { class: 'text-gray-400 font-medium' }, '-')
     }
   },
   {

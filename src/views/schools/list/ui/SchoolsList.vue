@@ -168,86 +168,64 @@ const handleRowClick = () => {
 
 <template>
   <div>
+    <!-- Header Title & Add Button -->
     <header
-      class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 border-b lg:pb-3 pb-5 px-6"
+      class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
     >
-      <div class="flex flex-col">
-        <h1 class="text-[17px] font-semibold text-[#1b1b1b]">{{ t('schools') }}</h1>
-      </div>
+      <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
+        {{ t('schools', 'Maktablar') }}
+      </h1>
 
-      <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-        <!-- Search Input -->
-        <div
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all"
-        >
-          <SearchIcon class="w-4 h-4 text-gray-400 mr-2 shrink-0" />
-          <input
-            v-model="searchQuery"
-            type="text"
-            :placeholder="t('search-school')"
-            class="border-none outline-none bg-transparent text-sm text-gray-700 placeholder-gray-400 w-64 font-medium"
-          />
-        </div>
-
-        <!-- Region Filter Select -->
-        <div
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all"
-        >
-          <label
-            for="region-filter"
-            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
-          >
-            {{ t('region', 'Viloyat') }}
-          </label>
-          <Select v-model="regionFilter" name="regionId">
-            <SelectTrigger
-              id="region-filter"
-              class="border-none shadow-none h-8 min-w-[130px] max-w-[200px] focus:ring-0 text-gray-700 font-semibold bg-transparent"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent class="bg-white">
-              <SelectItem value="all">{{ t('all', 'Barchasi') }}</SelectItem>
-              <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
-                {{ region.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <!-- City Filter Select (shown only when region is selected) -->
-        <div
-          v-if="regionFilter !== 'all'"
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all"
-        >
-          <label
-            for="city-filter"
-            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
-          >
-            {{ t('city-label', 'Tuman') }}
-          </label>
-          <Select v-model="cityFilter" name="cityId">
-            <SelectTrigger
-              id="city-filter"
-              class="border-none shadow-none h-8 min-w-[130px] max-w-[200px] focus:ring-0 text-gray-700 font-semibold bg-transparent"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent class="bg-white">
-              <SelectItem value="all">{{ t('all', 'Barchasi') }}</SelectItem>
-              <SelectItem v-for="city in citiesForFilter" :key="city.id" :value="String(city.id)">
-                {{ city.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <!-- Add School Button -->
-        <Can i="employees.add">
-          <CreateSchoolDrawer />
-        </Can>
-      </div>
+      <Can i="employees.add">
+        <CreateSchoolDrawer />
+      </Can>
     </header>
+
+    <!-- Filters Row -->
+    <div class="flex flex-wrap items-center gap-3 px-6 pt-5 bg-white">
+      <!-- Search Input -->
+      <div
+        class="flex items-center h-10 w-full sm:w-[420px] border border-gray-200 rounded-xl bg-white px-3 focus-within:ring-1 focus-within:ring-[#ff792d]/20 focus-within:border-[#ff792d]/50 transition-all"
+      >
+        <SearchIcon class="w-4 h-4 text-gray-400 mr-2 shrink-0" />
+        <input
+          v-model="searchQuery"
+          type="text"
+          :placeholder="t('search-school', 'Maktab nomi bo\'yicha qidiruv')"
+          class="border-none outline-none bg-transparent text-sm text-gray-600 placeholder-gray-400 w-full font-medium"
+        />
+      </div>
+
+      <!-- Region Filter Select -->
+      <Select v-model="regionFilter" name="regionId">
+        <SelectTrigger
+          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium"
+        >
+          <SelectValue :placeholder="t('select-region', 'Viloyatni tanlang')" />
+        </SelectTrigger>
+        <SelectContent class="bg-white">
+          <SelectItem value="all">{{ t('all-regions', 'Viloyatni tanlang') }}</SelectItem>
+          <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
+            {{ region.name }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
+      <!-- City Filter Select -->
+      <Select v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all'">
+        <SelectTrigger
+          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
+        >
+          <SelectValue :placeholder="t('select-city', 'Tumanni tanlang')" />
+        </SelectTrigger>
+        <SelectContent class="bg-white">
+          <SelectItem value="all">{{ t('all-cities', 'Tumanni tanlang') }}</SelectItem>
+          <SelectItem v-for="city in citiesForFilter" :key="city.id" :value="String(city.id)">
+            {{ city.name }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
 
     <Can i="employees.list">
       <template v-if="isError">
@@ -265,6 +243,7 @@ const handleRowClick = () => {
             @update:sorting="(val) => (sorting = val as any)"
             v-model:row-selection="rowSelection"
             @row-click="handleRowClick"
+            :is-teacher="true"
           />
         </div>
       </template>

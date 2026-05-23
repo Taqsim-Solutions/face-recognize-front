@@ -138,7 +138,7 @@ const handleRowClick = () => {
 <template>
   <div>
     <header
-      class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 border-b lg:pb-3 pb-5 px-6"
+      class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
     >
       <div class="flex flex-col">
         <!-- Segmented Tab Filter instead of Title -->
@@ -185,38 +185,30 @@ const handleRowClick = () => {
       </div>
 
       <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-        <!-- Region Filter Select -->
-        <div
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all"
-        >
-          <label
-            for="region-filter"
-            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
-          >
-            {{ t('region', 'Viloyat') }}
-          </label>
-          <Select v-model="regionFilter" name="regionId">
-            <SelectTrigger
-              id="region-filter"
-              class="border-none shadow-none h-8 min-w-[130px] max-w-[200px] focus:ring-0 text-gray-700 font-semibold bg-transparent"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent class="bg-white">
-              <SelectItem value="all">{{ t('all', 'Barchasi') }}</SelectItem>
-              <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
-                {{ region.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         <!-- Add Government Button -->
         <Can i="employees.add">
           <CreateGovernmentDrawer />
         </Can>
       </div>
     </header>
+
+    <!-- Filters Row -->
+    <div class="flex flex-wrap items-center gap-3 px-6 pt-5 bg-white">
+      <!-- Region Filter Select -->
+      <Select v-model="regionFilter" name="regionId">
+        <SelectTrigger
+          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium"
+        >
+          <SelectValue :placeholder="t('select-region', 'Viloyatni tanlang')" />
+        </SelectTrigger>
+        <SelectContent class="bg-white">
+          <SelectItem value="all">{{ t('all-regions', 'Viloyatni tanlang') }}</SelectItem>
+          <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
+            {{ region.name }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
 
     <Can i="employees.list">
       <template v-if="isError">
@@ -234,6 +226,7 @@ const handleRowClick = () => {
             @update:sorting="(val) => (sorting = val as any)"
             v-model:row-selection="rowSelection"
             @row-click="handleRowClick"
+            :is-teacher="true"
           />
         </div>
       </template>

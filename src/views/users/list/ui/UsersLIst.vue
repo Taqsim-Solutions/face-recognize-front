@@ -3,14 +3,12 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { createColumns, DataTable, CreateUserDrawer } from '../modules'
-import { Input } from '@/components/ui/input'
 import Can from '@/components/can.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchEmployeesParams } from '../types'
 import { fetchEmployees } from '../api'
 import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { MenuIcon, Search } from 'lucide-vue-next'
+import { SearchIcon } from 'lucide-vue-next'
 
 // Export the flattened data type for use in DataTable
 export type FlattenedData = Record<string, any>
@@ -214,115 +212,51 @@ const handleRowClick = () => {
 
 <template>
   <div>
+    <!-- Header Title & Add Button -->
     <header
-      class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 border-b lg:pb-3 pb-5 px-6"
+      class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
     >
-      <div class="flex flex-col mt-1">
-        <h2 class="scroll-m-20 lg:text-xl text-2xl font-semibold tracking-tight transition-colors">
-          {{ t('users') }}
-        </h2>
-      </div>
+      <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
+        {{ t('users', 'Foydalanuvchilar') }}
+      </h1>
 
-      <div class="flex items-center gap-3 w-full lg:w-auto">
-        <!-- Search - Always visible but expands on desktop -->
-        <div class="flex-1 lg:flex-none lg:w-[200px] custom-xl:w-[300px]">
-          <Can i="employees.list">
-            <Input
-              id="employees-search"
-              name="search"
-              v-model="search"
-              :placeholder="t('search')"
-              :left="Search"
-              class="h-9 focus:ring-0 focus:ring-offset-0 ring-0 outline-none"
-            />
-          </Can>
-        </div>
-
-        <!-- Desktop Actions (Visible on 1400px+) -->
-        <div class="hidden custom-xl:flex items-center gap-3">
-          <!-- Role -->
-          <div
-            class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all"
-          >
-            <label
-              for="level-desktop"
-              class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
-              >{{ t('level') }}</label
-            >
-            <Select v-model="levelFilter" name="level">
-              <SelectTrigger
-                id="level-desktop"
-                class="border-none shadow-none h-8 min-w-[120px] max-w-[200px] focus:ring-0 text-gray-700 font-medium"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{{ t('all') }}</SelectItem>
-                <SelectItem value="1">{{ t('roles.teacher') }}</SelectItem>
-                <SelectItem value="2">{{ t('roles.director') }}</SelectItem>
-                <SelectItem value="3">{{ t('roles.district') }}</SelectItem>
-                <SelectItem value="4">{{ t('roles.region') }}</SelectItem>
-                <SelectItem value="5">{{ t('roles.admin') }}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Can i="employees.add">
-            <CreateUserDrawer />
-          </Can>
-        </div>
-
-        <!-- Mobile/Compact Menu (Visible below 1400px) -->
-        <div class="flex custom-xl:hidden items-center gap-2">
-          <Sheet>
-            <SheetTrigger as-child>
-              <Button variant="outline" size="icon" class="h-9 w-9 border-[#E0E6F0]">
-                <MenuIcon :size="20" class="text-gray-600" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" class="w-[300px] sm:w-[400px]">
-              <SheetHeader class="mb-6">
-                <SheetTitle>{{ t('actions') }}</SheetTitle>
-              </SheetHeader>
-
-              <div class="flex flex-col gap-6">
-                <!-- Mobile Filters -->
-                <div class="flex flex-col gap-4">
-                  <!-- Role Mobile -->
-                  <div class="flex flex-col gap-1.5">
-                    <label
-                      for="level-mobile"
-                      class="text-sm font-medium text-gray-700 ml-1 cursor-pointer"
-                      >{{ t('level') }}</label
-                    >
-                    <Select v-model="levelFilter" name="level-mobile">
-                      <SelectTrigger id="level-mobile" class="h-10 w-full border-[#E0E6F0]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">{{ t('all') }}</SelectItem>
-                        <SelectItem value="1">{{ t('roles.teacher') }}</SelectItem>
-                        <SelectItem value="2">{{ t('roles.director') }}</SelectItem>
-                        <SelectItem value="3">{{ t('roles.district') }}</SelectItem>
-                        <SelectItem value="4">{{ t('roles.region') }}</SelectItem>
-                        <SelectItem value="5">{{ t('roles.admin') }}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <!-- Mobile Add/Upload Buttons -->
-                <div class="flex flex-col gap-3 mt-1 [&_button]:w-full">
-                  <Can i="employees.add">
-                    <CreateUserDrawer />
-                  </Can>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
+      <Can i="employees.add">
+        <CreateUserDrawer />
+      </Can>
     </header>
+
+    <!-- Filters Row -->
+    <div class="flex flex-wrap items-center gap-3 px-6 pt-5 bg-white">
+      <!-- Search Input -->
+      <div
+        class="flex items-center h-10 w-full sm:w-[420px] border border-gray-200 rounded-xl bg-white px-3 focus-within:ring-1 focus-within:ring-[#ff792d]/20 focus-within:border-[#ff792d]/50 transition-all"
+      >
+        <SearchIcon class="w-4 h-4 text-gray-400 mr-2 shrink-0" />
+        <input
+          v-model="search"
+          type="text"
+          :placeholder="t('search-placeholder', 'Ism-familiya bo\'yicha qidiruv')"
+          class="border-none outline-none bg-transparent text-sm text-gray-600 placeholder-gray-400 w-full font-medium"
+        />
+      </div>
+
+      <!-- Level (Role) Filter Select -->
+      <Select v-model="levelFilter" name="level">
+        <SelectTrigger
+          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium"
+        >
+          <SelectValue :placeholder="t('select-role', 'Rolni tanlang')" />
+        </SelectTrigger>
+        <SelectContent class="bg-white">
+          <SelectItem value="all">{{ t('all-roles', 'Rolni tanlang') }}</SelectItem>
+          <SelectItem value="1">{{ t('roles.teacher') }}</SelectItem>
+          <SelectItem value="2">{{ t('roles.director') }}</SelectItem>
+          <SelectItem value="3">{{ t('roles.district') }}</SelectItem>
+          <SelectItem value="4">{{ t('roles.region') }}</SelectItem>
+          <SelectItem value="5">{{ t('roles.admin') }}</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
 
     <Can i="employees.list">
       <template v-if="isError">
@@ -340,6 +274,7 @@ const handleRowClick = () => {
             @update:sorting="(val) => (sorting = val as any)"
             v-model:row-selection="rowSelection"
             @row-click="handleRowClick"
+            :is-teacher="true"
           />
         </div>
       </template>

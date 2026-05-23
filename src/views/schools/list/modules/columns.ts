@@ -64,8 +64,18 @@ export const createColumns = (directors: any[] = []): ColumnDef<any>[] => [
         return h('span', { class: 'text-gray-400 font-medium' }, i18n.global.t('no-data'))
       }
 
-      const text = city && city.name ? `${region.name}, ${city.name}` : region.name
-      return h('span', { class: 'font-medium text-slate-900' }, text)
+      const children: any[] = []
+      if (region.name) {
+        children.push(h('span', region.name + (city && city.name ? ',' : '')))
+      }
+      if (region.name && city && city.name) {
+        children.push(h('br'))
+      }
+      if (city && city.name) {
+        children.push(h('span', city.name))
+      }
+
+      return h('div', { class: 'font-medium text-slate-800 text-left leading-normal' }, children)
     }
   },
   {

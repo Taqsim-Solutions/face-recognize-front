@@ -147,10 +147,10 @@ const roles = computed(() => [
 <template>
   <Sheet v-model:open="isOpen">
     <SheetTrigger as-child>
-      <Button variant="outline"
-        class="bg-primary flex gap-1 border-none text-white rounded-lg h-9 hover:bg-primary hover:text-white hover:opacity-85 transition-all"
+      <Button
+        class="h-10 px-5 rounded-xl bg-[#ff792d] hover:bg-[#e05e1a] text-white font-bold text-sm flex items-center gap-1.5 transition-all shadow-none border-none cursor-pointer hover:text-white"
         type="button">
-        <Plus :size="18" class="text-white" />
+        <Plus class="w-4 h-4 stroke-[2.5]" />
         {{ t('new-employee-add', "Foydalanuvchi qo'shish") }}
       </Button>
     </SheetTrigger>
