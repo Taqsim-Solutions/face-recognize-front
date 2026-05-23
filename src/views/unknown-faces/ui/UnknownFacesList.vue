@@ -785,7 +785,7 @@ const handleImgError = (e: Event) => {
     <!-- Full Screen Image Preview Dialog -->
     <Dialog v-model:open="isFullScreenOpen">
       <DialogContent
-        class="max-w-[90vw] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[700px] !rounded-2xl p-0 overflow-hidden border-none bg-black/95 flex items-center justify-center aspect-[3/4]"
+        class="max-w-[90vw] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[700px] max-h-[90vh] !rounded-2xl p-0 overflow-hidden border-none bg-black/95 flex items-center justify-center"
       >
         <!-- Custom Close Button -->
         <button
@@ -800,7 +800,7 @@ const handleImgError = (e: Event) => {
           v-if="selectedFace"
           :src="getImageUrl(selectedFace.imageName)"
           :alt="formatCardName(selectedFace.id)"
-          class="w-full h-full object-contain select-none"
+          class="w-full h-auto max-h-[90vh] object-contain select-none"
         />
       </DialogContent>
     </Dialog>

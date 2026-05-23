@@ -157,6 +157,9 @@ export default {
     'unassigned-school': "Maktabga biriktirilmagan",
     'search-teacher': "O'qituvchi ism-familiyasi bo'yicha qidiruv",
     'unknown-faces': 'Tanilmagan yuzlar',
+    'known-faces': 'Tanilgan yuzlar',
+    student: "O'quvchi",
+    teacher: "O'qituvchi",
     'pick-date': 'Sana',
     'confirm-delete-image-title': "Rasimni o'chirish",
     'confirm-delete-image-msg': "Siz haqiqatdan ham ushbu foydalanuvchini rasimini o'chirib yubormoqchimisiz?"
@@ -315,6 +318,9 @@ export default {
     'unassigned-school': "Мактабга бириктирилмаган",
     'search-teacher': "Ўқитувчи исм-фамилияси бўйича қидирув",
     'unknown-faces': 'Танилмаган юзлар',
+    'known-faces': 'Танилган юзлар',
+    student: 'Ўқувчи',
+    teacher: 'Ўқитувчи',
     'pick-date': 'Сана',
     'confirm-delete-image-title': 'Расмни ўчириш',
     'confirm-delete-image-msg': 'Сиз ҳақиқатдан ҳам ушбу фойдаланувчи расмини ўчириб юбормоқчимисиз?'
@@ -488,6 +494,9 @@ export default {
     'unassigned-school': "Не прикреплен к школе",
     'search-teacher': "Поиск учителя по имени и фамилии",
     'unknown-faces': 'Неопознанные лица',
+    'known-faces': 'Распознанные лица',
+    student: 'Ученик',
+    teacher: 'Учитель',
     'pick-date': 'Дата',
     'confirm-delete-image-title': 'Удаление изображения',
     'confirm-delete-image-msg': 'Вы действительно хотите удалить изображение этого пользователя?'

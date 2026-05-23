@@ -86,6 +86,12 @@ export const routes = [
         name: 'unknown-faces',
         component: () => import('@/views/unknown-faces'),
         meta: { permission: '' }
+      },
+      {
+        path: '/known-faces',
+        name: 'known-faces',
+        component: () => import('@/views/known-faces'),
+        meta: { permission: '' }
       }
     ]
   }
