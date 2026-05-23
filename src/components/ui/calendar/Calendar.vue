@@ -22,7 +22,7 @@ import {
   CalendarPrevButton
 } from '.'
 
-const { t } = useI18n()
+const { locale } = useI18n()
 const props = defineProps<CalendarRootProps & { class?: HTMLAttributes['class'] }>()
 
 const emits = defineEmits<CalendarRootEmits>()
@@ -34,6 +34,44 @@ const delegatedProps = computed(() => {
 })
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
+
+const translateWeekday = (day: string) => {
+  const cleanDay = day.trim().toLowerCase()
+  let dayIndex = -1
+
+  if (cleanDay.includes('sun') || cleanDay.includes('вс') || cleanDay.includes('yak') || cleanDay === 'su' || cleanDay === 'в') {
+    dayIndex = 0
+  } else if (cleanDay.includes('mon') || cleanDay.includes('пн') || cleanDay.includes('du') || cleanDay === 'mo' || cleanDay === 'п') {
+    dayIndex = 1
+  } else if (cleanDay.includes('tue') || cleanDay.includes('вт') || cleanDay.includes('se') || cleanDay === 'tu' || cleanDay === 'в') {
+    dayIndex = 2
+  } else if (cleanDay.includes('wed') || cleanDay.includes('ср') || cleanDay.includes('ch') || cleanDay === 'we' || cleanDay === 'с') {
+    dayIndex = 3
+  } else if (cleanDay.includes('thu') || cleanDay.includes('чт') || cleanDay.includes('pa') || cleanDay === 'th' || cleanDay === 'ч') {
+    dayIndex = 4
+  } else if (cleanDay.includes('fri') || cleanDay.includes('пт') || cleanDay.includes('ju') || cleanDay === 'fr' || cleanDay === 'п') {
+    dayIndex = 5
+  } else if (cleanDay.includes('sat') || cleanDay.includes('сб') || cleanDay.includes('sha') || cleanDay === 'sa' || cleanDay === 'с') {
+    dayIndex = 6
+  }
+
+  if (dayIndex === -1) return day
+
+  const currentLang = locale.value
+  if (currentLang === 'ru') {
+    const ruWeekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+    return ruWeekdays[dayIndex]
+  } else if (currentLang === 'uzc') {
+    const uzcWeekdays = ['Як', 'Ду', 'Се', 'Чо', 'Па', 'Жу', 'Ша']
+    return uzcWeekdays[dayIndex]
+  } else if (currentLang === 'uz') {
+    const uzWeekdays = ['Yak', 'Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sha']
+    return uzWeekdays[dayIndex]
+  } else {
+    const enWeekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    return enWeekdays[dayIndex]
+  }
+}
 </script>
 
 <template>
@@ -49,7 +87,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
         <CalendarGridHead>
           <CalendarGridRow>
             <CalendarHeadCell v-for="day in weekDays" :key="day">
-              {{ t(day.toLowerCase()) }}
+              {{ translateWeekday(day) }}
             </CalendarHeadCell>
           </CalendarGridRow>
         </CalendarGridHead>

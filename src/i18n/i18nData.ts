@@ -155,7 +155,11 @@ export default {
     'teacher_deleted': "O'qituvchi muvaffaqiyatli o'chirildi",
     'teacher-middleName': "Sharif",
     'unassigned-school': "Maktabga biriktirilmagan",
-    'search-teacher': "O'qituvchi ism-familiyasi bo'yicha qidiruv"
+    'search-teacher': "O'qituvchi ism-familiyasi bo'yicha qidiruv",
+    'unknown-faces': 'Tanilmagan yuzlar',
+    'pick-date': 'Sana',
+    'confirm-delete-image-title': "Rasimni o'chirish",
+    'confirm-delete-image-msg': "Siz haqiqatdan ham ushbu foydalanuvchini rasimini o'chirib yubormoqchimisiz?"
   },
   uzc: {
     auth: {
@@ -309,7 +313,11 @@ export default {
     'teacher_deleted': "Ўқитувчи муваффақиятли ўчирилди",
     'teacher-middleName': "Шариф",
     'unassigned-school': "Мактабга бириктирилмаган",
-    'search-teacher': "Ўқитувчи исм-фамилияси бўйича қидирув"
+    'search-teacher': "Ўқитувчи исм-фамилияси бўйича қидирув",
+    'unknown-faces': 'Танилмаган юзлар',
+    'pick-date': 'Сана',
+    'confirm-delete-image-title': 'Расмни ўчириш',
+    'confirm-delete-image-msg': 'Сиз ҳақиқатдан ҳам ушбу фойдаланувчи расмини ўчириб юбормоқчимисиз?'
   },
   ru: {
     auth: {
@@ -478,6 +486,10 @@ export default {
     'teacher_deleted': "Учитель успешно удален",
     'teacher-middleName': "Отчество",
     'unassigned-school': "Не прикреплен к школе",
-    'search-teacher': "Поиск учителя по имени и фамилии"
+    'search-teacher': "Поиск учителя по имени и фамилии",
+    'unknown-faces': 'Неопознанные лица',
+    'pick-date': 'Дата',
+    'confirm-delete-image-title': 'Удаление изображения',
+    'confirm-delete-image-msg': 'Вы действительно хотите удалить изображение этого пользователя?'
   }
 }
