@@ -104,6 +104,10 @@
   body {
     @apply bg-background text-foreground;
   }
+  select:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
 }
 
 .leaflet-control-attribution {

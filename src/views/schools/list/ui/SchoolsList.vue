@@ -93,7 +93,9 @@ const { data: regionsRes } = useQuery({
   queryFn: fetchRegions,
   staleTime: Infinity
 })
-const regions = computed(() => (regionsRes.value as any)?.data?.result || (regionsRes.value as any)?.result || [])
+const regions = computed(
+  () => (regionsRes.value as any)?.data?.result || (regionsRes.value as any)?.result || []
+)
 
 // Fetch directors to resolve names in table
 const { data: directorsRes } = useQuery({
@@ -167,31 +169,41 @@ const handleRowClick = () => {
 <template>
   <div>
     <header
-      class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 border-b lg:pb-3 pb-5 px-6">
+      class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 border-b lg:pb-3 pb-5 px-6"
+    >
       <div class="flex flex-col">
         <h1 class="text-[17px] font-semibold text-[#1b1b1b]">{{ t('schools') }}</h1>
       </div>
 
       <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-
         <!-- Search Input -->
         <div
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all">
+          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all"
+        >
           <SearchIcon class="w-4 h-4 text-gray-400 mr-2 shrink-0" />
-          <input v-model="searchQuery" type="text" :placeholder="t('search-school')"
-            class="border-none outline-none bg-transparent text-sm text-gray-700 placeholder-gray-400 w-64 font-medium" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            :placeholder="t('search-school')"
+            class="border-none outline-none bg-transparent text-sm text-gray-700 placeholder-gray-400 w-64 font-medium"
+          />
         </div>
 
         <!-- Region Filter Select -->
         <div
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all">
-          <label for="region-filter"
-            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer">
+          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all"
+        >
+          <label
+            for="region-filter"
+            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
+          >
             {{ t('region', 'Viloyat') }}
           </label>
           <Select v-model="regionFilter" name="regionId">
-            <SelectTrigger id="region-filter"
-              class="border-none shadow-none h-8 min-w-[130px] max-w-[200px] focus:ring-0 text-gray-700 font-semibold bg-transparent">
+            <SelectTrigger
+              id="region-filter"
+              class="border-none shadow-none h-8 min-w-[130px] max-w-[200px] focus:ring-0 text-gray-700 font-semibold bg-transparent"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent class="bg-white">
@@ -204,15 +216,21 @@ const handleRowClick = () => {
         </div>
 
         <!-- City Filter Select (shown only when region is selected) -->
-        <div v-if="regionFilter !== 'all'"
-          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all">
-          <label for="city-filter"
-            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer">
+        <div
+          v-if="regionFilter !== 'all'"
+          class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all"
+        >
+          <label
+            for="city-filter"
+            class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
+          >
             {{ t('city-label', 'Tuman') }}
           </label>
           <Select v-model="cityFilter" name="cityId">
-            <SelectTrigger id="city-filter"
-              class="border-none shadow-none h-8 min-w-[130px] max-w-[200px] focus:ring-0 text-gray-700 font-semibold bg-transparent">
+            <SelectTrigger
+              id="city-filter"
+              class="border-none shadow-none h-8 min-w-[130px] max-w-[200px] focus:ring-0 text-gray-700 font-semibold bg-transparent"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent class="bg-white">
@@ -237,10 +255,17 @@ const handleRowClick = () => {
       </template>
       <template v-else>
         <div class="mt-5 w-full px-6">
-          <DataTable :data="tableData" :columns="columns" :pagination="tablePagination" :loading="isLoading"
-            @update:pagination="handlePaginationUpdate" :sorting="sorting"
-            @update:sorting="(val) => (sorting = val as any)" v-model:row-selection="rowSelection"
-            @row-click="handleRowClick" />
+          <DataTable
+            :data="tableData"
+            :columns="columns"
+            :pagination="tablePagination"
+            :loading="isLoading"
+            @update:pagination="handlePaginationUpdate"
+            :sorting="sorting"
+            @update:sorting="(val) => (sorting = val as any)"
+            v-model:row-selection="rowSelection"
+            @row-click="handleRowClick"
+          />
         </div>
       </template>
     </Can>

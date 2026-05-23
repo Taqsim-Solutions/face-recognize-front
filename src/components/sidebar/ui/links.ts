@@ -1,9 +1,4 @@
-import {
-  LayoutDashboardIcon,
-  UserCheck2Icon,
-  SettingsIcon,
-  GraduationCap
-} from 'lucide-vue-next'
+import { LayoutDashboardIcon, UserCheck2Icon, SettingsIcon, GraduationCap } from 'lucide-vue-next'
 
 import type { LinkProp } from '..'
 import { h } from 'vue'
@@ -141,10 +136,10 @@ const SchoolIcon = (props: any) =>
   h(
     'svg',
     {
-      class: 'w-5 h-5',
+      class: 'w-[22px] h-[22px]',
       xmlns: 'http://www.w3.org/2000/svg',
-      width: '20',
-      height: '20',
+      width: '24',
+      height: '24',
       viewBox: '0 0 20 20',
       fill: 'none',
       ...props
@@ -267,4 +262,3 @@ export const links: LinkProp[] = [
     icon: SettingsIcon
   }
 ]
-

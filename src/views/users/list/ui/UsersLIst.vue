@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { MenuIcon, Search } from 'lucide-vue-next'
 
-
 // Export the flattened data type for use in DataTable
 export type FlattenedData = Record<string, any>
 
@@ -216,7 +215,8 @@ const handleRowClick = () => {
 <template>
   <div>
     <header
-      class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 border-b lg:pb-3 pb-5 px-6">
+      class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 border-b lg:pb-3 pb-5 px-6"
+    >
       <div class="flex flex-col mt-1">
         <h2 class="scroll-m-20 lg:text-xl text-2xl font-semibold tracking-tight transition-colors">
           {{ t('users') }}
@@ -225,10 +225,16 @@ const handleRowClick = () => {
 
       <div class="flex items-center gap-3 w-full lg:w-auto">
         <!-- Search - Always visible but expands on desktop -->
-        <div class="flex-1 lg:flex-none lg:w-[200px] custom-xl:w-[200px]">
+        <div class="flex-1 lg:flex-none lg:w-[200px] custom-xl:w-[300px]">
           <Can i="employees.list">
-            <Input id="employees-search" name="search" v-model="search" :placeholder="t('search')" :left="Search"
-              class="h-9 focus:ring-0 focus:ring-offset-0 ring-0 outline-none" />
+            <Input
+              id="employees-search"
+              name="search"
+              v-model="search"
+              :placeholder="t('search')"
+              :left="Search"
+              class="h-9 focus:ring-0 focus:ring-offset-0 ring-0 outline-none"
+            />
           </Can>
         </div>
 
@@ -236,13 +242,18 @@ const handleRowClick = () => {
         <div class="hidden custom-xl:flex items-center gap-3">
           <!-- Role -->
           <div
-            class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all">
-            <label for="level-desktop"
-              class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer">{{
-                t('level') }}</label>
+            class="flex items-center h-9 border border-gray-200 rounded-lg bg-white pl-3 focus-within:ring-1 focus-within:ring-primary/20 focus-within:border-primary/50 transition-all"
+          >
+            <label
+              for="level-desktop"
+              class="text-[10px] font-bold uppercase text-[#8796AF] mr-1 border-r border-gray-100 pr-2 whitespace-nowrap cursor-pointer"
+              >{{ t('level') }}</label
+            >
             <Select v-model="levelFilter" name="level">
-              <SelectTrigger id="level-desktop"
-                class="border-none shadow-none h-8 min-w-[120px] max-w-[200px] focus:ring-0 text-gray-700 font-medium">
+              <SelectTrigger
+                id="level-desktop"
+                class="border-none shadow-none h-8 min-w-[120px] max-w-[200px] focus:ring-0 text-gray-700 font-medium"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -279,9 +290,11 @@ const handleRowClick = () => {
                 <div class="flex flex-col gap-4">
                   <!-- Role Mobile -->
                   <div class="flex flex-col gap-1.5">
-                    <label for="level-mobile" class="text-sm font-medium text-gray-700 ml-1 cursor-pointer">{{
-                      t('level')
-                    }}</label>
+                    <label
+                      for="level-mobile"
+                      class="text-sm font-medium text-gray-700 ml-1 cursor-pointer"
+                      >{{ t('level') }}</label
+                    >
                     <Select v-model="levelFilter" name="level-mobile">
                       <SelectTrigger id="level-mobile" class="h-10 w-full border-[#E0E6F0]">
                         <SelectValue />
@@ -317,10 +330,17 @@ const handleRowClick = () => {
       </template>
       <template v-else>
         <div class="mt-5 w-full px-6">
-          <DataTable :data="tableData" :columns="columns" :pagination="tablePagination" :loading="isLoading"
-            @update:pagination="handlePaginationUpdate" :sorting="sorting"
-            @update:sorting="(val) => (sorting = val as any)" v-model:row-selection="rowSelection"
-            @row-click="handleRowClick" />
+          <DataTable
+            :data="tableData"
+            :columns="columns"
+            :pagination="tablePagination"
+            :loading="isLoading"
+            @update:pagination="handlePaginationUpdate"
+            :sorting="sorting"
+            @update:sorting="(val) => (sorting = val as any)"
+            v-model:row-selection="rowSelection"
+            @row-click="handleRowClick"
+          />
         </div>
       </template>
     </Can>
