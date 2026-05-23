@@ -16,6 +16,7 @@ export const clearToken = () => {
   localStorage.removeItem('token')
   localStorage.removeItem('tokenExpire')
   localStorage.removeItem('refreshToken')
+  localStorage.removeItem('user_level')
 }
 
 export const saveToken = ({

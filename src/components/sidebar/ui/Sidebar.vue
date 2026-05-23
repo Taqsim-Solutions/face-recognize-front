@@ -58,9 +58,27 @@ const onAccountImgError = (e: Event) => {
   ;(e.target as HTMLImageElement).src = '/avatar.png'
 }
 
+const routeLevelPermissions: Record<string, number[]> = {
+  home: [1, 2, 3, 4, 5],
+  'students-list': [1, 2, 3, 4, 5],
+  'attendances-list': [1, 2, 3, 4, 5],
+  'known-faces': [1, 2, 3, 4, 5],
+  'unknown-faces': [1, 2, 3, 4, 5],
+  'teachers-list': [2, 3, 4, 5],
+  'schools-list': [3, 4, 5],
+  'governments-list': [4, 5],
+  'users-list': [5]
+}
+
 // Filter links based on the permission defined in the route meta
 const filteredLinks = computed(() => {
-  return links.filter(() => {
+  const storedLevel = localStorage.getItem('user_level')
+  const userLevel = storedLevel ? Number(storedLevel) : 1
+  return links.filter((link) => {
+    const allowedLevels = routeLevelPermissions[link.location]
+    if (allowedLevels !== undefined) {
+      return allowedLevels.includes(userLevel)
+    }
     return true
   })
 })
@@ -74,6 +92,7 @@ const handleLangChange = (v: 'uz' | 'uzc' | 'ru') => {
 const handleLogout = () => {
   clearLoginToken()
   localStorage.removeItem('user_permissions')
+  localStorage.removeItem('user_level')
   router.push({ name: 'login' })
 }
 
