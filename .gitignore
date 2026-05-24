@@ -23,5 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 .qodo
-vite.config.ts
 *.yml

@@ -22,7 +22,6 @@ export const createColumns = (callbacks: {
       const student = row.original
       const lastName = student.lastName || ''
       const firstName = student.firstName || ''
-      const fatherName = student.fatherName || ''
 
       const initials = ((lastName[0] || '') + (firstName[0] || '')).toUpperCase() || 'S'
 

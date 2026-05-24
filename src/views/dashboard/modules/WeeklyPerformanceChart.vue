@@ -244,7 +244,9 @@ const hoveredIndex = ref<number | null>(null)
                 }"
               >
                 <!-- Inner glow overlay at the top representing mockup highlighting -->
-                <div class="absolute inset-0 rounded-[18px] bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                <div
+                  class="absolute inset-0 rounded-[18px] bg-gradient-to-b from-white/20 to-transparent pointer-events-none"
+                />
               </div>
 
               <!-- Premium Floating Tooltip positioned exactly in the center of the chart canvas for high visibility -->
@@ -258,11 +260,15 @@ const hoveredIndex = ref<number | null>(null)
                   {{ formatDateString(day.date) }}
                 </span>
                 <div class="flex justify-between items-center">
-                  <span class="text-[#596881] font-medium">{{ t('dashboard.attended', 'Kelganlar') }}:</span>
+                  <span class="text-[#596881] font-medium"
+                    >{{ t('dashboard.attended', 'Kelganlar') }}:</span
+                  >
                   <span class="font-bold text-gray-900 text-sm">{{ day.attendedCount }}</span>
                 </div>
                 <div class="flex justify-between items-center mt-0.5">
-                  <span class="text-[#8a92a6] font-medium">{{ t('dashboard.absent', 'Kelmaganlar') }}:</span>
+                  <span class="text-[#8a92a6] font-medium"
+                    >{{ t('dashboard.absent', 'Kelmaganlar') }}:</span
+                  >
                   <span class="font-bold text-[#8a92a6] text-sm">{{ day.notAttendedCount }}</span>
                 </div>
               </div>
@@ -273,7 +279,7 @@ const hoveredIndex = ref<number | null>(null)
           <div
             class="w-full absolute bottom-0 h-6 flex items-center justify-between text-xs font-bold text-gray-500 pl-2 pr-2 select-none pointer-events-none"
           >
-            <div v-for="(day, index) in activeDataset" :key="index" class="flex-1 text-center">
+            <div v-for="(_day, index) in activeDataset" :key="index" class="flex-1 text-center">
               {{ getDayLabel(index) }}
             </div>
           </div>

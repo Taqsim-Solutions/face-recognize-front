@@ -7,7 +7,6 @@ import Can from '@/components/can.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchEmployeesParams } from '../types'
 import { fetchEmployees } from '../api'
-import { Button } from '@/components/ui/button'
 import { SearchIcon } from 'lucide-vue-next'
 
 // Export the flattened data type for use in DataTable

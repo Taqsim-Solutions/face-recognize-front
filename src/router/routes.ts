@@ -11,19 +11,9 @@ export const routes = [
         component: () => import('@/views/auth/login')
       },
       {
-        path: 'registration',
-        name: 'registration',
-        component: () => import('@/views/auth/registration')
-      },
-      {
         path: 'password-recovery',
         name: 'password-recovery',
         component: () => import('@/views/auth/password-recovery')
-      },
-      {
-        path: 'auth-otp-confirmation/:id',
-        name: 'auth-otp-confirmation',
-        component: () => import('@/views/auth/auth-otp-confirmation')
       }
     ]
   },
