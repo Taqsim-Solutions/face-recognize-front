@@ -17,7 +17,7 @@ env:
   # REACT_APP_BASE_URL bo'sh — nginx /api ni backendga proxy qiladi
   # (double /api/api/ muammosini hal qiladi)
   # Har bir branch uchun FAQAT domen, /api YO'Q!
-  REACT_APP_BASE_URL: >-
+  VITE_BASE_URL: >-
     ${{ github.ref_name == '34' && 'https://face34.taqsim.uz'
      || github.ref_name == 'itacademy' && 'https://faceita.taqsim.uz'
      || github.ref_name == 'redesign' && 'https://face.taqsim.uz'
@@ -50,7 +50,7 @@ jobs:
           tags: taqsim/face_front:${{ env.IMAGE_TAG }}
           no-cache: true
           build-args: |
-            REACT_APP_BASE_URL=${{ env.REACT_APP_BASE_URL }}
+            VITE_BASE_URL=${{ env.VITE_BASE_URL }}
 
   deploy:
     runs-on: ubuntu-latest
