@@ -4,23 +4,23 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import { Button } from '@/components/ui/button'
-import PhoneForm from '../modules/PhoneForm.vue'
+import EmailForm from '../modules/EmailForm.vue'
 import RecoveryForm from '../modules/RecoveryForm.vue'
 
 const { t } = useI18n()
 const router = useRouter()
 
 const showRecoveryForm = ref(false)
-const phoneNumber = ref('')
+const email = ref('')
 
-const handleOtpRequested = (phone: string) => {
-  phoneNumber.value = phone
+const handleOtpRequested = (reqEmail: string) => {
+  email.value = reqEmail
   showRecoveryForm.value = true
 }
 
 const handleBack = () => {
   showRecoveryForm.value = false
-  phoneNumber.value = ''
+  email.value = ''
 }
 </script>
 
@@ -67,18 +67,18 @@ const handleBack = () => {
         </div>
 
         <div class="mt-6">
-          <PhoneForm v-if="!showRecoveryForm" @otp-requested="handleOtpRequested" />
+          <EmailForm v-if="!showRecoveryForm" @otp-requested="handleOtpRequested" />
           <RecoveryForm
             v-else
-            :phone-number="phoneNumber"
+            :email="email"
             @back="handleBack"
           />
         </div>
 
         <p class="mt-4 text-secondary-foreground text-sm flex justify-center gap-x-1">
-          {{ t('Did you remember your password?') }}
+          {{ t('auth.Did you remember your password?') }}
           <RouterLink :to="{ name: 'login' }" class="text-[#12B76A]">
-            {{ t('Back to login') }}
+            {{ t('auth.Back to login') }}
           </RouterLink>
         </p>
       </div>

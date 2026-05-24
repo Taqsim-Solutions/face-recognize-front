@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/pin-input'
 
 const props = defineProps<{
-  phoneNumber: string
+  email: string
 }>()
 
 const { t } = useI18n()
@@ -75,7 +75,7 @@ const startResendTimer = () => {
 const requestOtp = async () => {
   try {
     loading.value = true
-    await axios.post(`/api/authentication/recovery/${props.phoneNumber}`)
+    await axios.post(`/api/authentication/recovery/${props.email}`)
     startResendTimer()
     return true
   } catch (err) {
@@ -118,7 +118,7 @@ const onSubmit = form.handleSubmit(async (values) => {
 
     const payload = {
       otp: Number(values.pin.join('')),
-      email: props.phoneNumber,
+      email: props.email,
       newPassword: values.password
     }
 
@@ -240,7 +240,7 @@ onMounted(() => {
       type="submit"
       size="default"
       :loading="loading"
-      class="bg-[#12B76A] hover:bg-[#12B76A] text-base hover:opacity-90 transition-all w-full mt-8 h-10 rounded-lg border border-[#12B76A]"
+      class="bg-[#FF7A2E] hover:bg-[#FF7A2E] text-base hover:opacity-90 transition-all w-full mt-8 h-10 rounded-lg"
     >
       {{ t('auth.update-password') }}
     </Button>
