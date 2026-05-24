@@ -87,13 +87,14 @@ const { handleSubmit, resetForm, meta } = useForm({
 // Create employee Mutation
 type ErrorResponse = {
   data: {
-    error: {
+    error?: {
       code?: string
       errors?: string[]
       message?: string
     }
-    isSuccess: boolean
-    status: number
+    message?: string
+    isSuccess?: boolean
+    status?: number
   }
 }
 
@@ -107,13 +108,12 @@ const { isPending, mutate } = useMutation({
   },
   onError: (error: AxiosError) => {
     const errorRes = error.response as ErrorResponse
-    if (errorRes?.data?.error?.errors?.[0]) {
-      toast.error(t(errorRes.data.error.errors[0]))
-    } else if (errorRes?.data?.error?.message) {
-      toast.error(t(errorRes.data.error.message))
-    } else {
-      toast.error(t('error-occurred', 'Error occurred'))
-    }
+    const msg =
+      errorRes?.data?.message ||
+      errorRes?.data?.error?.message ||
+      errorRes?.data?.error?.errors?.[0] ||
+      'error-occurred'
+    toast.error(t(msg, msg))
   }
 })
 

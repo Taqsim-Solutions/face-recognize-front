@@ -30,6 +30,20 @@ export const deleteGovernment = async (id: string | number) => {
   return await api.delete(`${url}/${id}`)
 }
 
+export const updateGovernmentPassword = async ({
+  id,
+  newPassword
+}: {
+  id: number | string
+  newPassword: string
+}) => {
+  return await api.put(`/api/users/password/${id}`, null, {
+    params: {
+      newPassword
+    }
+  })
+}
+
 export const fetchRegions = async () => {
   return await api.get<{ code: number; message: string; result: RegionModel[] }>('/api/regions')
 }

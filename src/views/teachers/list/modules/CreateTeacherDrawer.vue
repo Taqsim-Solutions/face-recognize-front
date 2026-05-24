@@ -659,12 +659,12 @@ const handleCancel = () => {
                     <path d="m16 16-4-4-4 4" />
                   </svg>
                 </div>
-                <div class="text-xs text-gray-600 font-semibold mb-1 text-center">
+                <div class="text-sm text-gray-600 font-semibold mb-1 text-center">
                   {{
                     t('camera.drag-drop-text', 'Rasmni yuklash uchun bu yerga sudrab olib keling')
                   }}
                 </div>
-                <div class="text-[10px] text-gray-400 mb-4 text-center">
+                <div class="text-[12px] text-gray-400 mb-4 text-center">
                   {{
                     t('camera.drag-drop-subtext', 'JPG yoki PNG formatida, maksimal hajmi 10 MB')
                   }}
@@ -673,14 +673,14 @@ const handleCancel = () => {
                   <button
                     type="button"
                     @click="triggerFileInput"
-                    class="h-9 px-4 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-xs transition-all cursor-pointer bg-white"
+                    class="h-9 px-4 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-sm transition-all cursor-pointer bg-white"
                   >
                     {{ t('camera.select-file', 'Fayl tanlash') }}
                   </button>
                   <button
                     type="button"
                     @click="openCamera"
-                    class="h-9 px-4 rounded-lg bg-[#ff792d] hover:bg-[#e05e1a] text-white font-semibold text-xs transition-all flex items-center gap-1.5 shadow-none border-none cursor-pointer"
+                    class="h-9 px-4 rounded-lg bg-[#ff792d] hover:bg-[#e05e1a] text-white font-semibold text-sm transition-all flex items-center gap-1.5 shadow-none border-none cursor-pointer"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

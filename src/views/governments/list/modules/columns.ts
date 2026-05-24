@@ -72,6 +72,18 @@ export const createColumns = (_regions: any[]): ColumnDef<any>[] => [
     }
   },
   {
+    accessorKey: 'login',
+    header: ({ column }) => {
+      return h(DataTableColumnHeader, { column, title: i18n.global.t('login'), notSortable: true })
+    },
+    cell: ({ row }) =>
+      h(
+        'div',
+        { class: 'font-medium' },
+        row.getValue('login') || h('span', { class: 'text-gray-400' }, i18n.global.t('no-data'))
+      )
+  },
+  {
     id: 'region_city',
     header: ({ column }) => {
       return h(DataTableColumnHeader, {
@@ -90,7 +102,9 @@ export const createColumns = (_regions: any[]): ColumnDef<any>[] => [
       }
 
       if (level === 4) {
-        return h('div', { class: 'font-medium text-slate-800 text-left leading-normal' }, [h('span', region.name)])
+        return h('div', { class: 'font-medium text-slate-800 text-left leading-normal' }, [
+          h('span', region.name)
+        ])
       }
 
       if (level === 3) {
@@ -109,18 +123,6 @@ export const createColumns = (_regions: any[]): ColumnDef<any>[] => [
 
       return h('span', { class: 'text-gray-400 font-medium' }, '-')
     }
-  },
-  {
-    accessorKey: 'login',
-    header: ({ column }) => {
-      return h(DataTableColumnHeader, { column, title: i18n.global.t('login'), notSortable: true })
-    },
-    cell: ({ row }) =>
-      h(
-        'div',
-        { class: 'font-medium' },
-        row.getValue('login') || h('span', { class: 'text-gray-400' }, i18n.global.t('no-data'))
-      )
   },
   {
     id: 'actions',

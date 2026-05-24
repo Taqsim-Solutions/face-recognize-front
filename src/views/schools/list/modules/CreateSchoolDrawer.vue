@@ -7,7 +7,7 @@ import { useForm } from 'vee-validate'
 import * as z from 'zod'
 import { toast } from 'vue-sonner'
 import { AxiosError } from 'axios'
-import { Plus } from 'lucide-vue-next'
+import { Plus, Eye, EyeOff } from 'lucide-vue-next'
 
 import {
   Sheet,
@@ -28,10 +28,18 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { createSchool, updateSchoolDirector, fetchRegions, fetchDirectors } from '../api'
+import { createEmployee } from '@/views/users/create/api'
 
 const { t } = useI18n()
 const queryClient = useQueryClient()
 const isOpen = ref(false)
+const isNewUserOpen = ref(false)
+const newUserLogin = ref('')
+const newUserPassword = ref('')
+const newUserFirstName = ref('')
+const newUserLastName = ref('')
+const newUserEmail = ref('')
+const isNewUserPasswordVisible = ref(false)
 
 // Fetch regions list
 const { data: regionsRes } = useQuery({
@@ -151,6 +159,43 @@ const onSubmit = handleSubmit((formValues) => {
 const handleCancel = () => {
   isOpen.value = false
   resetForm()
+}
+
+// Create new director user inline
+const createDirectorMutation = useMutation({
+  mutationFn: createEmployee,
+  onSuccess: (res: any) => {
+    const newUser = res?.data?.result || res?.data
+    toast.success(t('success.employee-added', "Direktor muvaffaqiyatli qo'shildi"))
+    queryClient.invalidateQueries({ queryKey: ['directors'] })
+    // Auto-select the newly created user as director
+    if (newUser?.id) {
+      setFieldValue('directorId', newUser.id)
+    }
+    isNewUserOpen.value = false
+    newUserLogin.value = ''
+    newUserPassword.value = ''
+    newUserFirstName.value = ''
+    newUserLastName.value = ''
+    newUserEmail.value = ''
+  },
+  onError: (error: any) => {
+    const msg =
+      error?.response?.data?.message || error?.response?.data?.error?.message || 'error-occurred'
+    toast.error(t(msg, msg))
+  }
+})
+
+const submitNewDirector = () => {
+  if (!newUserLogin.value || !newUserPassword.value || !newUserFirstName.value) return
+  createDirectorMutation.mutate({
+    login: newUserLogin.value,
+    password: newUserPassword.value,
+    firstName: newUserFirstName.value,
+    lastName: newUserLastName.value,
+    email: newUserEmail.value,
+    level: 2
+  } as any)
 }
 </script>
 
@@ -338,6 +383,16 @@ const handleCancel = () => {
               <FormMessage />
             </FormItem>
           </FormField>
+
+          <!-- Quick create director button -->
+          <button
+            type="button"
+            @click="isNewUserOpen = true"
+            class="flex items-center gap-1.5 h-8 text-sm text-black border border-gray-300 rounded-lg px-3 hover:bg-gray-50 transition-all w-fit cursor-pointer bg-white shadow-sm"
+          >
+            <Plus class="w-3.5 h-3.5 shrink-0" />
+            {{ t('add-new') }}
+          </button>
         </div>
 
         <!-- Footer Actions -->
@@ -360,6 +415,153 @@ const handleCancel = () => {
           </Button>
         </div>
       </form>
+    </SheetContent>
+  </Sheet>
+
+  <!-- Nested Sheet: Quick create director -->
+  <Sheet v-model:open="isNewUserOpen">
+    <SheetContent
+      side="right"
+      class="w-full sm:max-w-[440px] flex flex-col p-0 bg-white [&>button]:hidden z-[130]"
+    >
+      <SheetHeader
+        class="flex flex-row items-center justify-between bg-white p-3 px-6 border-b border-gray-200 space-y-0"
+      >
+        <SheetTitle class="text-[17px] font-semibold text-[#1b1b1b]">
+          {{ t('new-employee-add', "Yangi direktor qo'shish") }}
+        </SheetTitle>
+        <SheetClose
+          @click="isNewUserOpen = false"
+          class="rounded-full border border-gray-200 w-8 h-8 flex items-center justify-center hover:text-gray-600 hover:bg-gray-50 transition-all cursor-pointer bg-white"
+        >
+          <svg
+            class="ml-0.5"
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 12 12"
+          >
+            <path
+              d="M9 3L3 9M3 3L9 9"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </SheetClose>
+      </SheetHeader>
+
+      <div class="flex-1 overflow-y-auto px-6 space-y-4">
+        <!-- First Name -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold text-gray-700">{{ t('firstName') }} *</label>
+          <input
+            v-model="newUserFirstName"
+            type="text"
+            :placeholder="t('firstName_placeholder', 'Ismni kiriting')"
+            class="w-full h-11 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#ff792d] bg-white"
+          />
+        </div>
+
+        <!-- Last Name -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold text-gray-700">{{ t('lastName') }}</label>
+          <input
+            v-model="newUserLastName"
+            type="text"
+            :placeholder="t('lastName_placeholder', 'Familiyani kiriting')"
+            class="w-full h-11 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#ff792d] bg-white"
+          />
+        </div>
+
+        <!-- Email -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold text-gray-700">{{ t('email') }}</label>
+          <input
+            v-model="newUserEmail"
+            type="email"
+            :placeholder="t('email_placeholder', 'Email kiriting')"
+            class="w-full h-11 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#ff792d] bg-white"
+          />
+        </div>
+
+        <!-- Login -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold text-gray-700">{{ t('login') }}</label>
+          <input
+            v-model="newUserLogin"
+            type="text"
+            :placeholder="t('login_placeholder', 'Login kiriting')"
+            class="w-full h-11 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#ff792d] bg-white"
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold text-gray-700">{{ t('password') }}</label>
+          <div class="relative">
+            <input
+              v-model="newUserPassword"
+              :type="isNewUserPasswordVisible ? 'text' : 'password'"
+              :placeholder="t('password_placeholder', 'Parol kiriting')"
+              class="w-full h-11 rounded-lg border border-gray-300 px-3 pr-10 text-sm outline-none focus:border-[#ff792d] bg-white"
+            />
+            <button
+              type="button"
+              @click="isNewUserPasswordVisible = !isNewUserPasswordVisible"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer bg-transparent border-none p-0"
+            >
+              <Eye v-if="!isNewUserPasswordVisible" class="w-4 h-4" />
+              <EyeOff v-else class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 px-6 border-t border-gray-100 flex items-center justify-end gap-3 bg-white">
+        <Button
+          type="button"
+          variant="outline"
+          @click="isNewUserOpen = false"
+          class="h-10 px-5 rounded-lg border-gray-200 text-gray-700 hover:bg-gray-50 font-medium transition-all"
+        >
+          {{ t('cancel') }}
+        </Button>
+        <Button
+          type="button"
+          :disabled="
+            !newUserLogin ||
+            !newUserPassword ||
+            !newUserFirstName ||
+            createDirectorMutation.isPending.value
+          "
+          @click="submitNewDirector"
+          class="h-10 px-5 rounded-lg bg-[#ff792d] hover:bg-[#e05e1a] text-white font-medium transition-all shadow-none border-none disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <svg
+            v-if="createDirectorMutation.isPending.value"
+            class="w-4 h-4 animate-spin mr-1"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+          {{ t('save_add', 'Saqlash') }}
+        </Button>
+      </div>
     </SheetContent>
   </Sheet>
 </template>

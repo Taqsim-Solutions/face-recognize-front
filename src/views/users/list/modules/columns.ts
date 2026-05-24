@@ -73,15 +73,6 @@ export const createColumns = (): ColumnDef<FlattenedData>[] => [
     }
   },
   {
-    accessorKey: 'schoolName',
-    header: ({ column }) => {
-      return h(DataTableColumnHeader, { column, title: i18n.global.t('school'), notSortable: true })
-    },
-    cell: ({ row }) => {
-      return h('span', {}, row.getValue('schoolName') || '-')
-    }
-  },
-  {
     accessorKey: 'login',
     header: ({ column }) => {
       return h(DataTableColumnHeader, { column, title: i18n.global.t('login'), notSortable: true })

@@ -9,12 +9,12 @@ import type {
 const url = '/api/teachers'
 
 export const fetchTeachers = async (params: FetchTeachersParams) => {
-  const { page, size, search, regionId, cityId, schoolId, classId, orderBy, order } = params
+  const { page, size, SearchText, regionId, cityId, schoolId, classId, orderBy, order } = params
   const mappedParams: Record<string, any> = {}
 
   if (page !== undefined) mappedParams.PageIndex = page
   if (size !== undefined) mappedParams.PageSize = size
-  if (search !== undefined && search !== '') mappedParams.Search = search
+  if (SearchText !== undefined && SearchText !== '') mappedParams.SearchText = SearchText
   if (regionId) mappedParams.RegionId = regionId
   if (cityId) mappedParams.CityId = cityId
   if (schoolId) mappedParams.SchoolId = schoolId

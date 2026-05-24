@@ -28,8 +28,6 @@ import {
   PlusIcon,
   SearchIcon,
   RefreshCw,
-  Trash2Icon,
-  Edit3Icon,
   Loader2Icon,
   AlertCircle,
   CameraIcon,
@@ -144,23 +142,41 @@ const cameras = computed<any[]>(() => {
 const createMutation = useMutation({
   mutationFn: createCamera,
   onSuccess: () => {
+    toast.success(t('success.camera-added', "Kamera muvaffaqiyatli qo'shildi"))
     queryClient.invalidateQueries({ queryKey: ['cameras-list'] })
     closeDrawer()
+  },
+  onError: (error: any) => {
+    const errorRes = error.response
+    const msg = errorRes?.data?.message || errorRes?.data?.error?.message || 'error-occurred'
+    toast.error(t(msg, msg))
   }
 })
 
 const updateMutation = useMutation({
   mutationFn: ({ id, payload }: { id: number; payload: any }) => updateCamera(id, payload),
   onSuccess: () => {
+    toast.success(t('success.camera-updated', 'Kamera muvaffaqiyatli tahrirlandi'))
     queryClient.invalidateQueries({ queryKey: ['cameras-list'] })
     closeDrawer()
+  },
+  onError: (error: any) => {
+    const errorRes = error.response
+    const msg = errorRes?.data?.message || errorRes?.data?.error?.message || 'error-occurred'
+    toast.error(t(msg, msg))
   }
 })
 
 const deleteMutation = useMutation({
   mutationFn: deleteCamera,
   onSuccess: () => {
+    toast.success(t('success.camera-deleted', "Kamera muvaffaqiyatli o'chirildi"))
     queryClient.invalidateQueries({ queryKey: ['cameras-list'] })
+  },
+  onError: (error: any) => {
+    const errorRes = error.response
+    const msg = errorRes?.data?.message || errorRes?.data?.error?.message || 'error-occurred'
+    toast.error(t(msg, msg))
   }
 })
 
@@ -314,15 +330,15 @@ const getPageNumbers = () => {
 
 // Fallback logic for regions, cities and schools matching exact screenshot values
 const getRegionName = (cam: any) => {
-  return cam.school?.region?.name || cam.regionName || 'Toshkent v.'
+  return cam.school?.region?.name || cam.regionName
 }
 
 const getCityName = (cam: any) => {
-  return cam.school?.city?.name || cam.cityName || 'Yunusobod'
+  return cam.school?.city?.name || cam.cityName
 }
 
 const getSchoolName = (cam: any) => {
-  return cam.school?.name || cam.schoolName || "16-umumiy o'rta ta'lim maktabi"
+  return cam.school?.name || cam.schoolName
 }
 
 // Precise Heartbeat formatting separating date and time values
@@ -373,7 +389,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
           class="h-10 px-4 rounded-xl bg-[#ff792d] hover:bg-[#e06520] text-white font-bold text-sm flex items-center gap-2 shadow-none transition-all cursor-pointer border-none"
         >
           <PlusIcon class="w-4 h-4 text-white stroke-[3px]" />
-          <span>{{ t('kamera-qushish', "Kamera qo'shish") }}</span>
+          <span>{{ t('new-camera-add') }}</span>
         </Button>
       </div>
     </header>
@@ -388,7 +404,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="t('search-camera', 'Nomi yoki seriya raqami bo\'yicha')"
+          :placeholder="t('search-camera')"
           class="border-none outline-none bg-transparent text-sm text-gray-600 placeholder-gray-400 w-full font-medium"
         />
       </div>
@@ -398,10 +414,10 @@ const getHeartbeatTimeOnly = (cam: any) => {
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium"
         >
-          <SelectValue placeholder="Viloyatni tanlang" />
+          <SelectValue :placeholder="t('select-region')" />
         </SelectTrigger>
         <SelectContent class="bg-white">
-          <SelectItem value="all">{{ t('barcha-viloyatlar', 'Barcha viloyatlar') }}</SelectItem>
+          <SelectItem value="all">{{ t('barcha-viloyatlar') }}</SelectItem>
           <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
             {{ region.name }}
           </SelectItem>
@@ -413,10 +429,10 @@ const getHeartbeatTimeOnly = (cam: any) => {
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
         >
-          <SelectValue placeholder="Tumanni tanlang" />
+          <SelectValue :placeholder="t('select-city')" />
         </SelectTrigger>
         <SelectContent class="bg-white">
-          <SelectItem value="all">{{ t('barcha-tumanlar', 'Barcha tumanlar') }}</SelectItem>
+          <SelectItem value="all">{{ t('barcha-tumanlar') }}</SelectItem>
           <SelectItem v-for="city in listCities" :key="city.id" :value="String(city.id)">
             {{ city.name }}
           </SelectItem>
@@ -435,32 +451,27 @@ const getHeartbeatTimeOnly = (cam: any) => {
               <TableHead
                 class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative border-l-0"
               >
-                {{ t('kameralar', 'Kameralar') }}
+                {{ t('cameras') }}
               </TableHead>
               <TableHead
                 class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative"
               >
-                {{ t('ohirgi-ishlagan-vaqti', 'Ohirgi ishlagan vaqti') }}
+                {{ t('last-heartbeat') }}
               </TableHead>
               <TableHead
                 class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative"
               >
-                {{ t('viloyat', 'Viloyat') }}
+                {{ t('region_city') }}
               </TableHead>
               <TableHead
                 class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative"
               >
-                {{ t('tuman', 'Tuman') }}
-              </TableHead>
-              <TableHead
-                class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative"
-              >
-                {{ t('maktab', 'Maktab') }}
+                {{ t('school') }}
               </TableHead>
               <TableHead
                 class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative border-r-0 text-center w-32"
               >
-                {{ t('harakat', 'Harakat') }}
+                {{ t('actions') }}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -479,9 +490,6 @@ const getHeartbeatTimeOnly = (cam: any) => {
                   ><div class="h-4 bg-gray-100 rounded w-20"></div
                 ></TableCell>
                 <TableCell class="border p-2 font-medium pl-3"
-                  ><div class="h-4 bg-gray-100 rounded w-20"></div
-                ></TableCell>
-                <TableCell class="border p-2 font-medium pl-3"
                   ><div class="h-4 bg-gray-100 rounded w-48"></div
                 ></TableCell>
                 <TableCell class="border p-2 font-medium pl-3 border-r-0 text-center"
@@ -493,21 +501,21 @@ const getHeartbeatTimeOnly = (cam: any) => {
             <!-- Error -->
             <template v-else-if="isError">
               <TableRow>
-                <TableCell colspan="6" class="h-64 text-center border-none bg-white">
+                <TableCell colspan="5" class="h-64 text-center border-none bg-white">
                   <div class="flex flex-col items-center justify-center py-10">
                     <AlertCircle class="w-12 h-12 text-red-500 mb-2" />
                     <h3 class="text-lg font-bold text-gray-800">
-                      {{ t('xatolik', 'Xatolik yuz berdi') }}
+                      {{ t('xatolik') }}
                     </h3>
                     <p class="text-sm text-gray-500 mt-1 mb-4">
-                      Kameralar ro‘yxatini yuklashda muammo yuz berdi.
+                      {{ t('error.cameras-load-failed') }}
                     </p>
                     <Button
                       @click="() => refetch()"
                       size="sm"
                       class="bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-none"
                     >
-                      {{ t('qayta-urinish', 'Qayta urinish') }}
+                      {{ t('qayta-urinish') }}
                     </Button>
                   </div>
                 </TableCell>
@@ -517,7 +525,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
             <!-- Empty Data -->
             <template v-else-if="filteredCameras.length === 0">
               <TableRow>
-                <TableCell colspan="6" class="h-64 text-center border-none bg-white">
+                <TableCell colspan="5" class="h-64 text-center border-none bg-white">
                   <div class="flex flex-col items-center justify-center py-10">
                     <div
                       class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-3"
@@ -525,10 +533,10 @@ const getHeartbeatTimeOnly = (cam: any) => {
                       <CameraIcon class="w-8 h-8 text-gray-300" />
                     </div>
                     <h3 class="text-base font-bold text-gray-700">
-                      {{ t('kameralar-topilmadi', 'Kameralar topilmadi') }}
+                      {{ t('kameralar-topilmadi') }}
                     </h3>
                     <p class="text-sm text-gray-400 mt-1">
-                      Ushbu ro'yxatga hech qanday kamera biriktirilmagan.
+                      {{ t('info.no-cameras-assigned') }}
                     </p>
                   </div>
                 </TableCell>
@@ -555,26 +563,17 @@ const getHeartbeatTimeOnly = (cam: any) => {
                   class="border p-2 font-medium pl-3"
                   :class="{ 'border-b-0': idx === paginatedCameras.length - 1 }"
                 >
-                  <span class="text-slate-800 font-semibold">{{ getHeartbeatDate(cam) }}</span>
-                  <span class="text-slate-400 ml-2 font-normal">{{
-                    getHeartbeatTimeOnly(cam)
-                  }}</span>
+                  <span class="font-semibold">{{ getHeartbeatDate(cam) }}</span>
+                  <span class="ml-2 font-normal">{{ getHeartbeatTimeOnly(cam) }}</span>
                 </TableCell>
 
-                <!-- Region -->
+                <!-- Region / City -->
                 <TableCell
                   class="border p-2 font-medium pl-3"
                   :class="{ 'border-b-0': idx === paginatedCameras.length - 1 }"
                 >
-                  {{ getRegionName(cam) }}
-                </TableCell>
-
-                <!-- City -->
-                <TableCell
-                  class="border p-2 font-medium pl-3"
-                  :class="{ 'border-b-0': idx === paginatedCameras.length - 1 }"
-                >
-                  {{ getCityName(cam) }}
+                  <span>{{ getRegionName(cam) }}</span>
+                  <span v-if="getCityName(cam)" class="text-gray-400"> / {{ getCityName(cam) }}</span>
                 </TableCell>
 
                 <!-- School -->
@@ -597,7 +596,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
                       @click="openEditDrawer(cam)"
                       type="button"
                       class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E8F5E9] hover:bg-[#C8E6C9] text-[#2E7D32] transition-colors border-none shadow-none cursor-pointer p-0"
-                      title="Edit"
+                      :title="t('edit', 'Tahrirlash')"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -634,7 +633,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
                       @click="handleDeleteCamera(cam.id)"
                       type="button"
                       class="w-8 h-8 rounded-full flex items-center justify-center bg-[#FFEBEE] hover:bg-[#FFCDD2] text-[#C62828] transition-colors border-none shadow-none cursor-pointer p-0"
-                      title="Delete"
+                      :title="t('delete', 'O\'chirish')"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -659,7 +658,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
                       type="button"
                       class="w-8 h-8 rounded-full flex items-center justify-center bg-[#f0f9ff] text-[#0284c7] hover:bg-[#e0f2fe] disabled:opacity-50 transition-colors border-none shadow-none cursor-pointer p-0"
                       :disabled="syncingCameraId !== null"
-                      title="Sinxronizatsiya qilish"
+                      :title="t('resync', 'Sinxronizatsiya qilish')"
                     >
                       <RefreshCw
                         class="w-3.5 h-3.5 stroke-[2.5]"
@@ -796,61 +795,61 @@ const getHeartbeatTimeOnly = (cam: any) => {
 
         <form @submit.prevent="saveCameraForm" class="flex flex-col flex-1 overflow-hidden">
           <!-- Scrollable Fields Container -->
-          <div class="flex-1 overflow-y-auto px-6 space-y-4 pb-10 mt-4">
+          <div class="flex-1 overflow-y-auto px-6 space-y-4 pb-10">
             <!-- Camera Name -->
             <div class="space-y-1.5">
-              <Label class="text-sm font-semibold text-gray-700">Kamera nomi *</Label>
+              <Label class="text-sm font-semibold text-gray-700">{{ t('camera-name') }} *</Label>
               <Input
                 v-model="formName"
-                placeholder="Kamera 01"
+                :placeholder="t('camera-name-placeholder')"
                 class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white"
               />
             </div>
 
             <!-- Serial Number -->
             <div class="space-y-1.5">
-              <Label class="text-sm font-semibold text-gray-700">Seriya raqami *</Label>
+              <Label class="text-sm font-semibold text-gray-700">{{ t('serial-number') }} *</Label>
               <Input
                 v-model="formSerialNumber"
-                placeholder="SN1234567890"
+                :placeholder="t('serial-number-placeholder')"
                 class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white"
               />
             </div>
 
             <!-- IP Address -->
             <div class="space-y-1.5">
-              <Label class="text-sm font-semibold text-gray-700">IP Manzil</Label>
+              <Label class="text-sm font-semibold text-gray-700">{{ t('ip-address') }}</Label>
               <Input
                 v-model="formIpAddress"
-                placeholder="192.168.1.100"
+                :placeholder="t('ip-address-placeholder')"
                 class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white"
               />
             </div>
 
             <!-- Username -->
             <div class="space-y-1.5">
-              <Label class="text-sm font-semibold text-gray-700">Login (Username)</Label>
+              <Label class="text-sm font-semibold text-gray-700">{{ t('username') }}</Label>
               <Input
                 v-model="formUsername"
-                placeholder="admin"
+                :placeholder="t('username-placeholder')"
                 class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white"
               />
             </div>
 
             <!-- Password -->
             <div class="space-y-1.5">
-              <Label class="text-sm font-semibold text-gray-700">Parol (Password)</Label>
+              <Label class="text-sm font-semibold text-gray-700">{{ t('password') }}</Label>
               <Input
                 v-model="formPassword"
                 type="password"
-                placeholder="••••••••"
+                :placeholder="t('password-placeholder')"
                 class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white"
               />
             </div>
 
             <!-- Type -->
             <div class="space-y-1.5">
-              <Label class="text-sm font-semibold text-gray-700">Kamera turi (Type)</Label>
+              <Label class="text-sm font-semibold text-gray-700">{{ t('camera-type') }}</Label>
               <Input
                 v-model.number="formType"
                 type="number"
@@ -859,19 +858,17 @@ const getHeartbeatTimeOnly = (cam: any) => {
               />
             </div>
 
-            <div class="border-t border-dashed border-gray-200 my-4"></div>
-
             <!-- Cascading school select - Region -->
             <div class="space-y-1.5">
-              <Label class="text-sm font-semibold text-gray-700">Viloyat *</Label>
+              <Label class="text-sm font-semibold text-gray-700">{{ t('region') }} *</Label>
               <Select v-model="formRegionId">
                 <SelectTrigger
                   class="h-11 rounded-lg border border-gray-300 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white text-left font-medium"
                 >
-                  <SelectValue placeholder="Viloyatni tanlang" />
+                  <SelectValue :placeholder="t('select-region')" />
                 </SelectTrigger>
                 <SelectContent class="bg-white z-[130]">
-                  <SelectItem value="all">Viloyatni tanlang</SelectItem>
+                  <SelectItem value="all">{{ t('select-region') }}</SelectItem>
                   <SelectItem v-for="r in regions" :key="r.id" :value="String(r.id)">
                     {{ r.name }}
                   </SelectItem>
@@ -881,15 +878,15 @@ const getHeartbeatTimeOnly = (cam: any) => {
 
             <!-- Cascading school select - City -->
             <div class="space-y-1.5">
-              <Label class="text-sm font-semibold text-gray-700">Tuman *</Label>
+              <Label class="text-sm font-semibold text-gray-700">{{ t('city') }} *</Label>
               <Select v-model="formCityId" :disabled="formRegionId === 'all'">
                 <SelectTrigger
                   class="h-11 rounded-lg border border-gray-300 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white text-left font-medium disabled:opacity-60"
                 >
-                  <SelectValue placeholder="Tumanni tanlang" />
+                  <SelectValue :placeholder="t('select-city')" />
                 </SelectTrigger>
                 <SelectContent class="bg-white z-[130]">
-                  <SelectItem value="all">Tumanni tanlang</SelectItem>
+                  <SelectItem value="all">{{ t('select-city') }}</SelectItem>
                   <SelectItem v-for="c in formCities" :key="c.id" :value="String(c.id)">
                     {{ c.name }}
                   </SelectItem>
@@ -899,7 +896,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
 
             <!-- Cascading school select - School -->
             <div class="space-y-1.5">
-              <Label class="text-sm font-semibold text-gray-700">Maktab *</Label>
+              <Label class="text-sm font-semibold text-gray-700">{{ t('school') }} *</Label>
               <Select
                 v-model="formSchoolId"
                 :disabled="formCityId === 'all' || isFormSchoolsLoading"
@@ -908,11 +905,11 @@ const getHeartbeatTimeOnly = (cam: any) => {
                   class="h-11 rounded-lg border border-gray-300 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white text-left font-medium disabled:opacity-60"
                 >
                   <SelectValue
-                    :placeholder="isFormSchoolsLoading ? 'Yuklanmoqda...' : 'Maktabni tanlang'"
+                    :placeholder="isFormSchoolsLoading ? t('loading') : t('select-school')"
                   />
                 </SelectTrigger>
                 <SelectContent class="bg-white z-[130]">
-                  <SelectItem value="all">Maktabni tanlang</SelectItem>
+                  <SelectItem value="all">{{ t('select-school') }}</SelectItem>
                   <SelectItem v-for="s in formSchools" :key="s.id" :value="String(s.id)">
                     {{ s.name }}
                   </SelectItem>
@@ -948,7 +945,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
                 v-if="createMutation.isPending.value || updateMutation.isPending.value"
                 class="w-4 h-4 animate-spin mr-1 text-white"
               />
-              <span>{{ t('saqlash', 'Saqlash') }}</span>
+              <span>{{ t('saqlash') }}</span>
             </Button>
           </div>
         </form>

@@ -37,7 +37,7 @@ export type TeacherModel = {
 export type FetchTeachersParams = {
   size: number
   page: number
-  search?: string
+  SearchText?: string
   regionId?: number | null
   cityId?: number | null
   schoolId?: number | null

@@ -17,7 +17,7 @@ export const createColumns = (directors: any[] = []): ColumnDef<any>[] => [
     cell: ({ row }) =>
       h(
         'div',
-        { class: 'font-medium w-[200px] break-words whitespace-normal' },
+        { class: 'font-medium break-words whitespace-normal' },
         row.getValue('name') || h('span', { class: 'text-gray-400' }, i18n.global.t('no-data'))
       )
   },
