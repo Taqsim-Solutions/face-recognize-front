@@ -108,3 +108,25 @@ export const fetchAbsents = async (params: {
   mappedParams.PageSize = 4 // Limit page size to 4 rows as shown in mockup
   return await api.get<AbsentsResponse>('/api/dashboard/absents', { params: mappedParams })
 }
+
+export const fetchLateStudents = async (params: {
+  dateFrom?: string
+  dateTo?: string
+  schoolId?: number
+  cityId?: number
+  regionId?: number
+  classId?: number
+  pageIndex?: number
+  pageSize?: number
+}) => {
+  const p: Record<string, any> = {}
+  if (params.dateFrom) p.DateFrom = params.dateFrom
+  if (params.dateTo) p.DateTo = params.dateTo
+  if (params.schoolId) p.SchoolId = params.schoolId
+  if (params.cityId) p.CityId = params.cityId
+  if (params.regionId) p.RegionId = params.regionId
+  if (params.classId) p.ClassId = params.classId
+  p.PageIndex = params.pageIndex || 1
+  p.PageSize = params.pageSize || 20
+  return await api.get('/api/dashboard/late-students', { params: p })
+}

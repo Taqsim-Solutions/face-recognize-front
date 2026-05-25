@@ -1,19 +1,25 @@
 <script setup lang="ts">
 import UserContextBadges from '@/components/UserContextBadges.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import VueApexCharts from 'vue3-apexcharts'
-import { Users2Icon, UserIcon, SchoolIcon, CameraIcon, RefreshCwIcon } from 'lucide-vue-next'
+import { Users2Icon, UserIcon, SchoolIcon, CameraIcon, RefreshCwIcon, ClockIcon } from 'lucide-vue-next'
 import {
   fetchSchoolsNumber, fetchWeeklyPerformance,
-  fetchMonthlyOverview, fetchSchoolDetails, fetchAbsents
+  fetchMonthlyOverview, fetchSchoolDetails, fetchAbsents,
+  fetchLateStudents
 } from '../api'
 import { fetchTodayStats } from '../api/todayStats'
 
 const { t, locale } = useI18n()
 const { } = useCurrentUser()
+
+// Late students date range
+const lateFrom = ref(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+const lateTo = ref(new Date().toISOString().split('T')[0])
+const latePageSize = ref(10)
 
 // ── Queries ──────────────────────────────────────────────────────
 const { data: todayRaw, refetch: refetchToday } = useQuery({
@@ -47,9 +53,15 @@ const { data: absentsRaw, refetch: refetchAbsents } = useQuery({
   select: (r: any) => r?.data?.result?.data || []
 })
 
+const { data: lateStudentsRaw, refetch: refetchLate } = useQuery({
+  queryKey: ['late-students-dash', lateFrom, lateTo],
+  queryFn: () => fetchLateStudents({ dateFrom: lateFrom.value, dateTo: lateTo.value, pageSize: latePageSize.value }),
+  select: (r: any) => r?.data?.result?.data || []
+})
+
 const refetchAll = () => {
   refetchToday(); refetchSN(); refetchPerf();
-  refetchOverview(); refetchDetails(); refetchAbsents()
+  refetchOverview(); refetchDetails(); refetchAbsents(); refetchLate()
 }
 
 // ── Computed ─────────────────────────────────────────────────────
@@ -267,6 +279,78 @@ const todayLabel = computed(() => {
                     :class="parseFloat(row.attendedPercentage) >= 80 ? 'bg-green-100 text-green-700' : parseFloat(row.attendedPercentage) >= 50 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'">
                     {{ row.attendedPercentage }}%
                   </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Kech qolgan o'quvchilar -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-50 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <ClockIcon class="w-4 h-4 text-amber-500" />
+            <h3 class="text-sm font-semibold text-gray-700">Kech qolgan o'quvchilar</h3>
+          </div>
+          <!-- Date range filter -->
+          <div class="flex items-center gap-2 text-sm">
+            <input
+              type="date"
+              v-model="lateFrom"
+              class="h-8 px-2 rounded-lg border border-gray-200 text-gray-600 text-xs focus:outline-none focus:border-[#ff792d]"
+            />
+            <span class="text-gray-400">—</span>
+            <input
+              type="date"
+              v-model="lateTo"
+              class="h-8 px-2 rounded-lg border border-gray-200 text-gray-600 text-xs focus:outline-none focus:border-[#ff792d]"
+            />
+          </div>
+        </div>
+
+        <div v-if="!lateStudentsRaw?.length" class="h-20 flex items-center justify-center text-gray-400 text-sm">
+          {{ t('no-data', 'Kech qolganlar topilmadi') }}
+        </div>
+        <div v-else class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">O'quvchi</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Sinf</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Maktab</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Kech qolish soni</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">So'nggi kelish vaqtlari</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <tr v-for="st in lateStudentsRaw" :key="st.studentId" class="hover:bg-gray-50 transition">
+                <td class="px-5 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">
+                      {{ (st.firstName?.[0] || '') + (st.lastName?.[0] || '') }}
+                    </div>
+                    <span class="font-medium text-gray-800">{{ st.lastName }} {{ st.firstName }}</span>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-gray-600">{{ st.className }}</td>
+                <td class="px-4 py-3 text-gray-500 text-xs max-w-[160px] truncate">{{ st.schoolName }}</td>
+                <td class="px-4 py-3 text-right">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                    {{ st.lateCount }} marta
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex flex-wrap gap-1">
+                    <span
+                      v-for="entry in st.lateEntries?.slice(0, 3)"
+                      :key="entry.date"
+                      class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5"
+                    >
+                      {{ new Date(entry.comingTime).toLocaleTimeString('uz', { hour: '2-digit', minute: '2-digit' }) }}
+                      <span class="text-red-400">+{{ entry.lateMinutes }}min</span>
+                    </span>
+                  </div>
                 </td>
               </tr>
             </tbody>
