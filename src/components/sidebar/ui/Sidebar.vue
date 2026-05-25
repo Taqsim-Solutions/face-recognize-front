@@ -27,7 +27,6 @@ import {
   Loader2Icon,
   CheckIcon,
   UserRoundIcon,
-  SettingsIcon,
   LanguagesIcon,
   LogOutIcon
 } from 'lucide-vue-next'

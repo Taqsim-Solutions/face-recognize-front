@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import UserContextBadges from '@/components/UserContextBadges.vue'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import VueApexCharts from 'vue3-apexcharts'
-import {
-  Users2Icon, UserIcon, SchoolIcon, CameraIcon,
-  CheckCircleIcon, XCircleIcon, RefreshCwIcon
-} from 'lucide-vue-next'
+import { Users2Icon, UserIcon, SchoolIcon, CameraIcon, RefreshCwIcon } from 'lucide-vue-next'
 import {
   fetchSchoolsNumber, fetchWeeklyPerformance,
   fetchMonthlyOverview, fetchSchoolDetails, fetchAbsents
@@ -77,7 +74,7 @@ const pct = (v: number, t: number) => t > 0 ? Math.round(v * 100 / t) : 0
 
 // Bar chart — schools
 const schoolBarOptions = computed(() => ({
-  chart: { type: 'bar', toolbar: { show: false }, fontFamily: 'inherit' },
+  chart: { type: 'bar' as const, toolbar: { show: false }, fontFamily: 'inherit' },
   plotOptions: { bar: { borderRadius: 6, columnWidth: '55%' } },
   dataLabels: { enabled: false },
   colors: ['#ff792d'],
@@ -98,7 +95,7 @@ const camOffline = computed(() => s.value.offlineCameras || 0)
 const camError = computed(() => s.value.errorCameras || 0)
 
 const cameraDonutOptions = computed(() => ({
-  chart: { type: 'donut', fontFamily: 'inherit' },
+  chart: { type: 'donut' as const, fontFamily: 'inherit' },
   labels: ['Online', 'Offline', 'Xato'],
   colors: ['#22c55e', '#ef4444', '#f59e0b'],
   plotOptions: { pie: { donut: { size: '65%', labels: { show: true, total: { show: true, label: "Jami", formatter: () => String(camTotal.value) } } } } },
@@ -119,14 +116,14 @@ const dayNames = computed(() => {
 })
 
 const weeklyLineOptions = computed(() => ({
-  chart: { type: 'line', toolbar: { show: false }, fontFamily: 'inherit' },
-  stroke: { curve: 'smooth', width: 3 },
+  chart: { type: 'line' as const, toolbar: { show: false }, fontFamily: 'inherit' },
+  stroke: { curve: 'smooth' as const, width: 3 },
   colors: ['#ff792d', '#ef4444'],
   xaxis: { categories: dayNames.value, labels: { style: { fontSize: '11px', colors: '#9ca3af' } } },
   yaxis: { labels: { style: { fontSize: '11px', colors: '#9ca3af' } } },
   grid: { borderColor: '#f0f0f0', strokeDashArray: 4 },
   markers: { size: 5 },
-  legend: { position: 'bottom', fontSize: '12px' },
+  legend: { position: 'bottom' as const, fontSize: '12px' },
   tooltip: { shared: true, intersect: false }
 }))
 const weeklyLineSeries = computed(() => {
