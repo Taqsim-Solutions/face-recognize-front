@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
@@ -34,6 +34,8 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { createEmployee } from '../../create/api'
+import { fetchRegions } from '@/views/schools/list/api'
+import api from '@/api'
 
 const { t } = useI18n()
 const queryClient = useQueryClient()
@@ -41,7 +43,65 @@ const isOpen = ref(false)
 const isPasswordVisible = ref(false)
 const isConfirmPasswordVisible = ref(false)
 
-// Zod Schema matching unified creation fields
+// Selected level reactive ref (separate from form for cascade logic)
+const selectedLevel = ref<number | undefined>(undefined)
+const selectedRegionId = ref<number | undefined>(undefined)
+const selectedCityId = ref<number | undefined>(undefined)
+const selectedSchoolId = ref<number | undefined>(undefined)
+
+// Fetch regions
+const { data: regionsRes } = useQuery({
+  queryKey: ['regions'],
+  queryFn: fetchRegions,
+  staleTime: Infinity
+})
+const regions = computed(() => {
+  const res = regionsRes.value as any
+  return res?.data?.result || res?.result || []
+})
+
+// Cities based on selected region
+const availableCities = computed(() => {
+  if (!selectedRegionId.value) return []
+  const reg = regions.value.find((r: any) => r.id === selectedRegionId.value)
+  return reg?.cities || []
+})
+
+// Schools based on selected city
+const { data: schoolsRes, isPending: isSchoolsLoading } = useQuery({
+  queryKey: ['schools-by-city-user', selectedCityId],
+  queryFn: () => api.get('/api/schools', { params: { CityId: selectedCityId.value, PageSize: 999 } }),
+  enabled: computed(() => !!selectedCityId.value)
+})
+const schools = computed(() => {
+  const res = schoolsRes.value as any
+  return res?.data?.result?.data || res?.data?.data || []
+})
+
+// Reset cascades when region changes
+watch(selectedRegionId, () => {
+  selectedCityId.value = undefined
+  selectedSchoolId.value = undefined
+})
+watch(selectedCityId, () => {
+  selectedSchoolId.value = undefined
+})
+watch(selectedLevel, () => {
+  selectedRegionId.value = undefined
+  selectedCityId.value = undefined
+  selectedSchoolId.value = undefined
+})
+
+// Which extra fields to show per level
+// Level 4 = Viloyat hokimi → region
+// Level 3 = Tuman hokimi → region + city
+// Level 2 = Direktor → region + city + school
+// Level 1 = Teacher → region + city + school
+const needsRegion = computed(() => selectedLevel.value && [1, 2, 3, 4].includes(selectedLevel.value))
+const needsCity   = computed(() => selectedLevel.value && [1, 2, 3].includes(selectedLevel.value))
+const needsSchool = computed(() => selectedLevel.value && [1, 2].includes(selectedLevel.value))
+
+// Dynamic schema
 const formSchema = toTypedSchema(
   z.object({
     lastName: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }),
@@ -55,15 +115,9 @@ const formSchema = toTypedSchema(
     password: z
       .string({ required_error: 'validation.required-field' })
       .min(8, { message: 'validation.password-min' })
-      .refine((value) => /[A-Z]/.test(value), {
-        message: 'validation.password-must-contain-one-uppercase'
-      })
-      .refine((value) => /[a-z]/.test(value), {
-        message: 'validation.password-must-contain-one-lowercase'
-      })
-      .refine((value) => /\d/.test(value), {
-        message: 'validation.password-must-contain-number'
-      }),
+      .refine((value) => /[A-Z]/.test(value), { message: 'validation.password-must-contain-one-uppercase' })
+      .refine((value) => /[a-z]/.test(value), { message: 'validation.password-must-contain-one-lowercase' })
+      .refine((value) => /\d/.test(value), { message: 'validation.password-must-contain-number' }),
     confirmPassword: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' })
   }).refine((data) => data.password === data.confirmPassword, {
     message: 'validation.passwords-must-match',
@@ -84,14 +138,18 @@ const { handleSubmit, resetForm, meta } = useForm({
   }
 })
 
-// Create employee Mutation
+// Extra field validation
+const extraFieldsValid = computed(() => {
+  if (!selectedLevel.value) return false
+  if (needsRegion.value && !selectedRegionId.value) return false
+  if (needsCity.value && !selectedCityId.value) return false
+  if (needsSchool.value && !selectedSchoolId.value) return false
+  return true
+})
+
 type ErrorResponse = {
   data: {
-    error?: {
-      code?: string
-      errors?: string[]
-      message?: string
-    }
+    error?: { code?: string; errors?: string[]; message?: string }
     message?: string
     isSuccess?: boolean
     status?: number
@@ -104,7 +162,7 @@ const { isPending, mutate } = useMutation({
     toast.success(t('success.employee-added', 'User created successfully'))
     isOpen.value = false
     queryClient.invalidateQueries({ queryKey: ['employees'] })
-    resetForm()
+    doReset()
   },
   onError: (error: AxiosError) => {
     const errorRes = error.response as ErrorResponse
@@ -118,7 +176,7 @@ const { isPending, mutate } = useMutation({
 })
 
 const onSubmit = handleSubmit((formValues) => {
-  const payload = {
+  const payload: any = {
     firstName: formValues.firstName,
     lastName: formValues.lastName,
     login: formValues.login,
@@ -126,13 +184,23 @@ const onSubmit = handleSubmit((formValues) => {
     password: formValues.password,
     level: formValues.level
   }
-
-  mutate(payload as any)
+  if (selectedRegionId.value) payload.regionId = selectedRegionId.value
+  if (selectedCityId.value) payload.cityId = selectedCityId.value
+  if (selectedSchoolId.value) payload.schoolId = selectedSchoolId.value
+  mutate(payload)
 })
+
+const doReset = () => {
+  resetForm()
+  selectedLevel.value = undefined
+  selectedRegionId.value = undefined
+  selectedCityId.value = undefined
+  selectedSchoolId.value = undefined
+}
 
 const handleCancel = () => {
   isOpen.value = false
-  resetForm()
+  doReset()
 }
 
 const roles = computed(() => [
@@ -171,7 +239,6 @@ const roles = computed(() => [
       </SheetHeader>
 
       <form @submit="onSubmit" class="flex flex-col flex-1 overflow-hidden">
-        <!-- Scrollable fields container -->
         <div class="flex-1 overflow-y-auto px-6 space-y-3 pb-10">
 
           <!-- Ism -->
@@ -198,7 +265,7 @@ const roles = computed(() => [
             </FormItem>
           </FormField>
 
-          <!-- Elektron pochta -->
+          <!-- Email -->
           <FormField v-slot="{ componentField }" name="email">
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('email') }}</FormLabel>
@@ -227,8 +294,10 @@ const roles = computed(() => [
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('role') }}</FormLabel>
               <FormControl>
-                <Select :model-value="componentField.modelValue ? String(componentField.modelValue) : undefined"
-                  @update:model-value="(val) => componentField['onUpdate:modelValue']?.(Number(val))" name="level">
+                <Select
+                  :model-value="componentField.modelValue ? String(componentField.modelValue) : undefined"
+                  @update:model-value="(val) => { componentField['onUpdate:modelValue']?.(Number(val)); selectedLevel = Number(val) }"
+                  name="level">
                   <SelectTrigger class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:border-primary">
                     <SelectValue :placeholder="t('role_placeholder')" />
                   </SelectTrigger>
@@ -242,6 +311,62 @@ const roles = computed(() => [
               <FormMessage />
             </FormItem>
           </FormField>
+
+          <!-- Viloyat (Level 1,2,3,4) -->
+          <div v-if="needsRegion" class="space-y-1.5">
+            <label class="text-sm font-semibold text-gray-700">{{ t('region-label') }}</label>
+            <Select
+              :model-value="selectedRegionId ? String(selectedRegionId) : undefined"
+              @update:model-value="(val) => selectedRegionId = Number(val)">
+              <SelectTrigger class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:border-primary bg-white">
+                <SelectValue :placeholder="t('select-region')" />
+              </SelectTrigger>
+              <SelectContent class="bg-white">
+                <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
+                  {{ region.name }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p v-if="needsRegion && !selectedRegionId" class="text-xs text-red-500">{{ t('validation.required-field') }}</p>
+          </div>
+
+          <!-- Tuman (Level 1,2,3) -->
+          <div v-if="needsCity" class="space-y-1.5">
+            <label class="text-sm font-semibold text-gray-700">{{ t('city-label') }}</label>
+            <Select
+              :model-value="selectedCityId ? String(selectedCityId) : undefined"
+              @update:model-value="(val) => selectedCityId = Number(val)"
+              :disabled="!selectedRegionId">
+              <SelectTrigger class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:border-primary bg-white">
+                <SelectValue :placeholder="selectedRegionId ? t('select-city') : t('select-region-first')" />
+              </SelectTrigger>
+              <SelectContent class="bg-white">
+                <SelectItem v-for="city in availableCities" :key="city.id" :value="String(city.id)">
+                  {{ city.name }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p v-if="needsCity && !selectedCityId" class="text-xs text-red-500">{{ t('validation.required-field') }}</p>
+          </div>
+
+          <!-- Maktab (Level 1,2) -->
+          <div v-if="needsSchool" class="space-y-1.5">
+            <label class="text-sm font-semibold text-gray-700">{{ t('school') }}</label>
+            <Select
+              :model-value="selectedSchoolId ? String(selectedSchoolId) : undefined"
+              @update:model-value="(val) => selectedSchoolId = Number(val)"
+              :disabled="!selectedCityId">
+              <SelectTrigger class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:border-primary bg-white">
+                <SelectValue :placeholder="!selectedRegionId ? t('select-region-first') : !selectedCityId ? t('select-city-first') : isSchoolsLoading ? t('loading') : t('select-school')" />
+              </SelectTrigger>
+              <SelectContent class="bg-white">
+                <SelectItem v-for="school in schools" :key="school.id" :value="String(school.id)">
+                  {{ school.name }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p v-if="needsSchool && !selectedSchoolId" class="text-xs text-red-500">{{ t('validation.required-field') }}</p>
+          </div>
 
           <!-- Parol -->
           <FormField v-slot="{ componentField }" name="password">
@@ -286,13 +411,13 @@ const roles = computed(() => [
           </FormField>
         </div>
 
-        <!-- Footer Actions (Cancel and Save & Add) -->
+        <!-- Footer -->
         <div class="p-4 px-6 border-t border-gray-100 flex items-center justify-end gap-3 bg-white">
           <Button type="button" variant="outline" @click="handleCancel"
             class="h-10 px-5 rounded-lg border-gray-200 text-gray-700 hover:bg-gray-50 font-medium transition-all">
             {{ t('cancel') }}
           </Button>
-          <Button type="submit" :loading="isPending" :disabled="!meta.valid || isPending"
+          <Button type="submit" :loading="isPending" :disabled="!meta.valid || !extraFieldsValid || isPending"
             class="h-10 px-5 rounded-lg bg-[#ff792d] hover:bg-[#e05e1a] text-white font-medium transition-all shadow-none border-none disabled:opacity-60 disabled:cursor-not-allowed">
             {{ t('save_add') }}
           </Button>
@@ -303,7 +428,6 @@ const roles = computed(() => [
 </template>
 
 <style scoped>
-/* Hide the default Radix close button inside SheetContent */
 :deep(.absolute.right-4.top-4),
 :deep(button[class*="absolute"][class*="right-4"]),
 :deep(button[class*="opacity-70"]) {
