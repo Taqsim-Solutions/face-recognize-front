@@ -283,7 +283,9 @@ export default {
     'last-heartbeat': "So'nggi ishlagan vaqti",
     'error-occurred': 'Xatolik yuz berdi',
     language: 'Til',
-    'log-out': 'Chiqish'
+    'log-out': 'Chiqish',
+    'my-account': 'Mening hisobim',
+    organization: 'Tashkilot'
   },
   uzc: {
     auth: {
@@ -564,7 +566,9 @@ export default {
     'last-heartbeat': 'Сўнгги ишлаган вақти',
     'error-occurred': 'Хатолик юз берди',
     language: 'Тил',
-    'log-out': 'Чиқиш'
+    'log-out': 'Чиқиш',
+    'my-account': 'Менинг ҳисобим',
+    organization: 'Ташкилот'
   },
   ru: {
     auth: {
@@ -1133,6 +1137,8 @@ export default {
     'last-heartbeat': 'Last active time',
     language: 'Language',
     'log-out': 'Log Out',
+    'my-account': 'My Account',
+    organization: 'Organization',
     'error-occurred': 'An error occurred'
   },
   fa: {
@@ -1411,6 +1417,8 @@ export default {
     'last-heartbeat': 'آخرین زمان فعال',
     language: 'زبان',
     'log-out': 'خروج',
+    'my-account': 'حساب من',
+    organization: 'سازمان',
     'error-occurred': 'خطایی رخ داد'
   },
   ps: {
@@ -1689,6 +1697,8 @@ export default {
     'last-heartbeat': 'وروستی فعال وخت',
     language: 'ژبه',
     'log-out': 'وتل',
+    'my-account': 'زما حساب',
+    organization: 'ادارې',
     'error-occurred': 'یوه تیروتنه رامنځته شوه'
   },
   ur: {
@@ -1967,6 +1977,8 @@ export default {
     'last-heartbeat': 'آخری فعال وقت',
     language: 'زبان',
     'log-out': 'لاگ آؤٹ',
+    'my-account': 'میرا اکاؤنٹ',
+    organization: 'تنظیم',
     'error-occurred': 'ایک خرابی پیش آئی'
   }
 }
