@@ -69,5 +69,5 @@ jobs:
           script: |
             cd ~/traefik
             docker rm --force /face-front
-            docker pull taqsim/face_front:latest
+            docker pull taqsim/face_front:redesign
             docker compose up -d face-front
