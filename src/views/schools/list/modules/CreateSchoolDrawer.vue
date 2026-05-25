@@ -36,10 +36,12 @@ const isOpen = ref(false)
 const isNewUserOpen = ref(false)
 const newUserLogin = ref('')
 const newUserPassword = ref('')
+const newUserConfirmPassword = ref('')
 const newUserFirstName = ref('')
 const newUserLastName = ref('')
 const newUserEmail = ref('')
 const isNewUserPasswordVisible = ref(false)
+const isNewUserConfirmPasswordVisible = ref(false)
 
 const newUserPasswordError = computed(() => {
   const p = newUserPassword.value
@@ -51,9 +53,16 @@ const newUserPasswordError = computed(() => {
   return ''
 })
 
+const newUserConfirmPasswordError = computed(() => {
+  if (!newUserConfirmPassword.value) return ''
+  if (newUserPassword.value !== newUserConfirmPassword.value) return t('validation.passwords-must-match', "Parollar mos kelmayapti")
+  return ''
+})
+
 const isNewUserPasswordValid = computed(() => {
   const p = newUserPassword.value
   return p.length >= 8 && /[A-Z]/.test(p) && /[a-z]/.test(p) && /\d/.test(p)
+    && newUserPassword.value === newUserConfirmPassword.value
 })
 
 // Fetch regions list
@@ -190,6 +199,7 @@ const createDirectorMutation = useMutation({
     isNewUserOpen.value = false
     newUserLogin.value = ''
     newUserPassword.value = ''
+    newUserConfirmPassword.value = ''
     newUserFirstName.value = ''
     newUserLastName.value = ''
     newUserEmail.value = ''
@@ -535,6 +545,29 @@ const submitNewDirector = () => {
           <p v-if="newUserPassword && newUserPasswordError" class="text-xs text-red-500 mt-1">{{ newUserPasswordError }}</p>
           <p v-else-if="!newUserPassword" class="text-xs text-gray-400 mt-1">Kamida 8 ta belgi, 1 ta bosh harf, 1 ta kichik harf, 1 ta raqam</p>
         </div>
+
+        <!-- Confirm Password -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-semibold text-gray-700">{{ t('confirm_password', 'Parolni takrorlang') }}</label>
+          <div class="relative">
+            <input
+              v-model="newUserConfirmPassword"
+              :type="isNewUserConfirmPasswordVisible ? 'text' : 'password'"
+              :placeholder="t('confirm_password_placeholder', 'Parolni qayta kiriting')"
+              class="w-full h-11 rounded-lg border border-gray-300 px-3 pr-10 text-sm outline-none focus:border-[#ff792d] bg-white"
+              :class="{ 'border-red-400': newUserConfirmPassword && newUserConfirmPasswordError }"
+            />
+            <button
+              type="button"
+              @click="isNewUserConfirmPasswordVisible = !isNewUserConfirmPasswordVisible"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer bg-transparent border-none p-0"
+            >
+              <Eye v-if="!isNewUserConfirmPasswordVisible" class="w-4 h-4" />
+              <EyeOff v-else class="w-4 h-4" />
+            </button>
+          </div>
+          <p v-if="newUserConfirmPassword && newUserConfirmPasswordError" class="text-xs text-red-500 mt-1">{{ newUserConfirmPasswordError }}</p>
+        </div>
       </div>
 
       <div class="p-4 px-6 border-t border-gray-100 flex items-center justify-end gap-3 bg-white">
@@ -552,6 +585,8 @@ const submitNewDirector = () => {
             !newUserLogin ||
             !newUserPassword ||
             !isNewUserPasswordValid ||
+            !newUserConfirmPassword ||
+            !!newUserConfirmPasswordError ||
             !newUserFirstName ||
             createDirectorMutation.isPending.value
           "
