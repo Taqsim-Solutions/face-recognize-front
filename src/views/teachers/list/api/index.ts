@@ -115,3 +115,18 @@ export const uploadExcelFile = async (file: File) => {
     }
   })
 }
+
+
+export const exportTeachersExcel = async (params: Record<string, any> = {}) => {
+  const mappedParams: Record<string, any> = {}
+  if (params.search) mappedParams.Search = params.search
+  if (params.regionId) mappedParams.RegionId = params.regionId
+  if (params.cityId) mappedParams.CityId = params.cityId
+  if (params.schoolId) mappedParams.SchoolId = params.schoolId
+  if (params.classId) mappedParams.ClassId = params.classId
+  const response = await api.get('/api/teachers/export-excel', {
+    params: mappedParams,
+    responseType: 'blob'
+  })
+  return response.data
+}

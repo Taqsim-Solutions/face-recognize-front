@@ -14,6 +14,7 @@ import {
   fetchClassesBySchool,
   downloadExcelExample,
   uploadExcelFile,
+  exportStudentsExcel,
   deleteStudentPhoto,
   postStudentPhoto
 } from '../api'
@@ -361,6 +362,32 @@ const triggerExcelUpload = () => {
   excelFileInputRef.value?.click()
 }
 
+const handleExportExcel = async () => {
+  try {
+    toast.loading(t('loading', 'Yuklanmoqda...'), { id: 'excel-export' })
+    const exportParams = {
+      search: params.value.search,
+      regionId: params.value.regionId,
+      cityId: params.value.cityId,
+      schoolId: params.value.schoolId,
+      classId: params.value.classId
+    }
+    const fileData = await exportStudentsExcel(exportParams)
+    const blob = new Blob([fileData], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', "o'quvchilar.xlsx")
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    toast.success(t('success.excel-uploaded', "Ro'yxat muvaffaqiyatli yuklab olindi"), { id: 'excel-export' })
+  } catch (error: any) {
+    toast.error(t('error_occurred'), { id: 'excel-export' })
+  }
+}
+
 const handleExcelFileSelect = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
@@ -454,6 +481,13 @@ const handleExcelFileSelect = async (event: Event) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" class="w-56 bg-white rounded-xl shadow-lg border border-gray-100 p-1.5 z-[100]">
+            <DropdownMenuItem
+              @click="handleExportExcel"
+              class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 cursor-pointer"
+            >
+              <Download class="w-4 h-4 text-green-600" />
+              <span>{{ t('export-excel', "Ro'yxatni yuklab olish") }}</span>
+            </DropdownMenuItem>
             <DropdownMenuItem
               @click="handleDownloadExample"
               class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50 cursor-pointer"

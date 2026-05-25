@@ -108,6 +108,20 @@ export const downloadExcelExample = async () => {
   return response.data
 }
 
+export const exportStudentsExcel = async (params: Partial<FetchStudentsParams>) => {
+  const mappedParams: Record<string, any> = {}
+  if (params.search) mappedParams.Search = params.search
+  if (params.regionId) mappedParams.RegionId = params.regionId
+  if (params.cityId) mappedParams.CityId = params.cityId
+  if (params.schoolId) mappedParams.SchoolId = params.schoolId
+  if (params.classId) mappedParams.ClassId = params.classId
+  const response = await api.get('/api/students/export-excel', {
+    params: mappedParams,
+    responseType: 'blob'
+  })
+  return response.data
+}
+
 export const uploadExcelFile = async (file: File) => {
   const formData = new FormData()
   formData.append('file', file)
