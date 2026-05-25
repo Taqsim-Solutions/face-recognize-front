@@ -84,7 +84,7 @@ const filteredLinks = computed(() => {
   })
 })
 
-const handleLangChange = (v: 'uz' | 'uzc' | 'ru') => {
+const handleLangChange = (v: 'uz' | 'uzc' | 'ru' | 'en' | 'ps' | 'ur') => {
   locale.value = v
   localStorage.setItem('language', v)
   queryClient.invalidateQueries()
@@ -320,6 +320,18 @@ onMounted(() => {
                     <DropdownMenuItem @click="handleLangChange('ru')">
                       <span>Русский</span>
                       <CheckIcon v-show="locale === 'ru'" :size="16" />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="handleLangChange('en')">
+                      <span>English</span>
+                      <CheckIcon v-show="locale === 'en'" :size="16" />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="handleLangChange('ps')">
+                      <span>پښتو</span>
+                      <CheckIcon v-show="locale === 'ps'" :size="16" />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="handleLangChange('ur')">
+                      <span>اردو</span>
+                      <CheckIcon v-show="locale === 'ur'" :size="16" />
                     </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
