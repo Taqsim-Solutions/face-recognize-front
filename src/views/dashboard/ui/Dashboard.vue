@@ -1,332 +1,301 @@
 <script setup lang="ts">
 import UserContextBadges from '@/components/UserContextBadges.vue'
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
-import { type DateValue } from '@internationalized/date'
-import { ChevronDown } from 'lucide-vue-next'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { RangeCalendar } from '@/components/ui/range-calendar'
-import { Button } from '@/components/ui/button'
 import { useCurrentUser } from '@/composables/useCurrentUser'
-
+import VueApexCharts from 'vue3-apexcharts'
 import {
-  DashboardStats,
-  WeeklyPerformanceChart,
-  MonthlyOverviewChart,
-  SchoolDetailsTable,
-  OverallStatisticsChart,
-  AbsentStudentsTable
-} from '../modules'
-import { fetchRegions } from '../api'
+  Users2Icon, UserIcon, SchoolIcon, CameraIcon,
+  CheckCircleIcon, XCircleIcon, RefreshCwIcon
+} from 'lucide-vue-next'
+import {
+  fetchSchoolsNumber, fetchWeeklyPerformance,
+  fetchMonthlyOverview, fetchSchoolDetails, fetchAbsents
+} from '../api'
+import { fetchTodayStats } from '../api/todayStats'
 
 const { t, locale } = useI18n()
-const { hideRegionFilter, hideCityFilter } = useCurrentUser()
+const { } = useCurrentUser()
 
-// Filter states
-const regionFilter = ref<string>('all')
-const cityFilter = ref<string>('all')
-
-const dateFrom = ref<string>('')
-const dateTo = ref<string>('')
-const selectedDateRange = ref<any>(undefined)
-const isCalendarOpen = ref(false)
-
-// Cascading filters resets
-watch(regionFilter, () => {
-  cityFilter.value = 'all'
+// ── Queries ──────────────────────────────────────────────────────
+const { data: todayRaw, refetch: refetchToday } = useQuery({
+  queryKey: ['today-stats'],
+  queryFn: () => fetchTodayStats({}),
+  select: (r: any) => r?.data?.result
+})
+const { data: schoolsNumberRaw, refetch: refetchSN } = useQuery({
+  queryKey: ['schools-number-dash'],
+  queryFn: () => fetchSchoolsNumber({ fromDate: new Date().toISOString(), toDate: new Date().toISOString() }),
+  select: (r: any) => r?.data?.result
+})
+const { data: performanceRaw, refetch: refetchPerf } = useQuery({
+  queryKey: ['weekly-perf-dash'],
+  queryFn: () => fetchWeeklyPerformance({}),
+  select: (r: any) => r?.data?.result
+})
+const { data: overviewRaw, refetch: refetchOverview } = useQuery({
+  queryKey: ['monthly-overview-dash'],
+  queryFn: () => fetchMonthlyOverview({}),
+  select: (r: any) => r?.data?.result
+})
+const { data: schoolDetailsRaw, refetch: refetchDetails } = useQuery({
+  queryKey: ['school-details-dash'],
+  queryFn: () => fetchSchoolDetails({ PageIndex: 1 }),
+  select: (r: any) => r?.data?.result?.data || []
+})
+const { data: absentsRaw, refetch: refetchAbsents } = useQuery({
+  queryKey: ['absents-today-dash'],
+  queryFn: () => fetchAbsents({ DateFrom: new Date().toISOString(), DateTo: new Date().toISOString() }),
+  select: (r: any) => r?.data?.result?.data || []
 })
 
-// Fetch regions list for cascade filter
-const { data: regionsRes } = useQuery({
-  queryKey: ['regions-dashboard-filter'],
-  queryFn: fetchRegions,
-  staleTime: Infinity
-})
-
-const regions = computed(
-  () => (regionsRes.value as any)?.data?.result || (regionsRes.value as any)?.result || []
-)
-
-const citiesForFilter = computed(() => {
-  if (regionFilter.value === 'all') return []
-  const selectedRegion = regions.value.find((r: any) => String(r.id) === regionFilter.value)
-  return selectedRegion?.cities || []
-})
-
-// Date Formatting helpers for Uzbek, Russian and English
-const formatDateValue = (dateVal: DateValue) => {
-  const year = dateVal.year
-  const monthIdx = dateVal.month - 1
-  const day = dateVal.day
-  const currentLang = locale.value
-
-  let monthName = ''
-  if (currentLang === 'ru') {
-    const ruMonths = [
-      'Январь',
-      'Февраль',
-      'Март',
-      'Апрель',
-      'Май',
-      'Июнь',
-      'Июль',
-      'Август',
-      'Сентябрь',
-      'Октябрь',
-      'Ноябрь',
-      'Декабрь'
-    ]
-    monthName = ruMonths[monthIdx]
-  } else if (currentLang === 'uzc') {
-    const uzcMonths = [
-      'Январь',
-      'Февраль',
-      'Март',
-      'Апрель',
-      'Май',
-      'Июнь',
-      'Июль',
-      'Август',
-      'Сентябрь',
-      'Октябрь',
-      'Ноябрь',
-      'Декабрь'
-    ]
-    monthName = uzcMonths[monthIdx]
-  } else if (currentLang === 'uz') {
-    const uzMonths = [
-      'Yanvar',
-      'Fevral',
-      'Mart',
-      'Aprel',
-      'May',
-      'Iyun',
-      'Iyul',
-      'Avgust',
-      'Sentabr',
-      'Oktabr',
-      'Noyabr',
-      'Dekabr'
-    ]
-    monthName = uzMonths[monthIdx]
-  } else {
-    const enMonths = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ]
-    monthName = enMonths[monthIdx]
-  }
-
-  return `${day} ${monthName}, ${year}`
+const refetchAll = () => {
+  refetchToday(); refetchSN(); refetchPerf();
+  refetchOverview(); refetchDetails(); refetchAbsents()
 }
 
-const dateRangeLabel = computed(() => {
-  if (
-    !selectedDateRange.value ||
-    (!selectedDateRange.value.start && !selectedDateRange.value.end)
-  ) {
-    return t('pick-date', 'Sana')
-  }
-  const start = selectedDateRange.value.start
-  const end = selectedDateRange.value.end
+// ── Computed ─────────────────────────────────────────────────────
+const s = computed(() => todayRaw.value || {})
+const sn = computed(() => schoolsNumberRaw.value || {})
 
-  if (start && end) {
-    return `${formatDateValue(start)} - ${formatDateValue(end)}`
-  } else if (start) {
-    return `${formatDateValue(start)} - ...`
-  }
-  return t('pick-date', 'Sana')
-})
+const topCards = computed(() => [
+  { label: t('students', "O'quvchilar"), icon: Users2Icon, value: s.value.totalStudents ?? 0, color: 'text-blue-500', bg: 'bg-blue-50' },
+  { label: t('teachers', "O'qituvchilar"), icon: UserIcon, value: s.value.totalTeachers ?? 0, color: 'text-green-500', bg: 'bg-green-50' },
+  { label: t('schools', 'Maktablar'), icon: SchoolIcon, value: s.value.totalSchools ?? sn.value.allSchoolsNumber ?? 0, sub: `${sn.value.connectedSchoolsNumber ?? 0} ulangan`, color: 'text-orange-500', bg: 'bg-orange-50' },
+  { label: t('cameras', 'Kameralar'), icon: CameraIcon, value: s.value.totalCameras ?? 0, sub: `${s.value.onlineCameras ?? 0} online`, color: 'text-purple-500', bg: 'bg-purple-50' }
+])
 
-const calendarLocale = computed(() => {
-  const currentLang = locale.value
-  if (currentLang === 'ru') return 'ru-RU'
-  if (currentLang === 'uzc') return 'uz-Cyrl-UZ'
-  return 'uz-UZ'
-})
+const attendanceCards = computed(() => [
+  { label: "Kelgan o'quvchilar", value: s.value.presentStudents ?? 0, total: s.value.totalStudents || 1, color: '#22c55e', bg: 'bg-green-50 border-green-100' },
+  { label: "Kelmagan o'quvchilar", value: s.value.absentStudents ?? 0, total: s.value.totalStudents || 1, color: '#ef4444', bg: 'bg-red-50 border-red-100' },
+  { label: "Kelgan o'qituvchilar", value: s.value.presentTeachers ?? 0, total: s.value.totalTeachers || 1, color: '#3b82f6', bg: 'bg-blue-50 border-blue-100' },
+  { label: "Kelmagan o'qituvchilar", value: s.value.absentTeachers ?? 0, total: s.value.totalTeachers || 1, color: '#f59e0b', bg: 'bg-orange-50 border-orange-100' }
+])
 
-// Confirm range selection and format for API parameters
-const handleRangeConfirm = (val: any) => {
-  selectedDateRange.value = val
-  if (val && val.start) {
-    const startObj = val.start
-    dateFrom.value = `${startObj.year}-${String(startObj.month).padStart(2, '0')}-${String(startObj.day).padStart(2, '0')}T00:00:00Z`
-  } else {
-    dateFrom.value = ''
-  }
-  if (val && val.end) {
-    const endObj = val.end
-    dateTo.value = `${endObj.year}-${String(endObj.month).padStart(2, '0')}-${String(endObj.day).padStart(2, '0')}T23:59:59Z`
-  } else {
-    dateTo.value = ''
-  }
-  if (val && val.start && val.end) {
-    isCalendarOpen.value = false
-  }
-}
+const pct = (v: number, t: number) => t > 0 ? Math.round(v * 100 / t) : 0
 
-const handleClearRange = () => {
-  selectedDateRange.value = undefined
-  dateFrom.value = ''
-  dateTo.value = ''
-  isCalendarOpen.value = false
-}
-
-// Compute the parameters to pass down as props
-const filterParams = computed(() => ({
-  regionId: regionFilter.value === 'all' ? undefined : Number(regionFilter.value),
-  cityId: cityFilter.value === 'all' ? undefined : Number(cityFilter.value),
-  fromDate: dateFrom.value || undefined,
-  toDate: dateTo.value || undefined
+// Bar chart — schools
+const schoolBarOptions = computed(() => ({
+  chart: { type: 'bar', toolbar: { show: false }, fontFamily: 'inherit' },
+  plotOptions: { bar: { borderRadius: 6, columnWidth: '55%' } },
+  dataLabels: { enabled: false },
+  colors: ['#ff792d'],
+  xaxis: { categories: (overviewRaw.value?.overview || []).map((s: any) => s.name?.length > 12 ? s.name.slice(0, 12) + '…' : s.name), labels: { style: { fontSize: '11px', colors: '#9ca3af' } } },
+  yaxis: { max: 100, labels: { formatter: (v: number) => v + '%', style: { fontSize: '11px', colors: '#9ca3af' } } },
+  grid: { borderColor: '#f0f0f0', strokeDashArray: 4 },
+  tooltip: { y: { formatter: (v: number) => v + '%' } }
 }))
+const schoolBarSeries = computed(() => [{
+  name: t('attended', 'Kelgan'),
+  data: (overviewRaw.value?.overview || []).map((s: any) => parseFloat(s.percentage) || 0)
+}])
+
+// Camera donut
+const camTotal = computed(() => s.value.totalCameras || 0)
+const camOnline = computed(() => s.value.onlineCameras ?? camTotal.value)
+const camOffline = computed(() => s.value.offlineCameras || 0)
+const camError = computed(() => s.value.errorCameras || 0)
+
+const cameraDonutOptions = computed(() => ({
+  chart: { type: 'donut', fontFamily: 'inherit' },
+  labels: ['Online', 'Offline', 'Xato'],
+  colors: ['#22c55e', '#ef4444', '#f59e0b'],
+  plotOptions: { pie: { donut: { size: '65%', labels: { show: true, total: { show: true, label: "Jami", formatter: () => String(camTotal.value) } } } } },
+  dataLabels: { enabled: false },
+  legend: { show: false },
+  stroke: { width: 0 }
+}))
+const cameraDonutSeries = computed(() => [camOnline.value || 0, camOffline.value || 0, camError.value || 0])
+
+// Line chart — weekly
+const dayNames = computed(() => {
+  const m: Record<string, string[]> = {
+    uz: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'],
+    ru: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+    en: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+  }
+  return m[locale.value] || m.uz
+})
+
+const weeklyLineOptions = computed(() => ({
+  chart: { type: 'line', toolbar: { show: false }, fontFamily: 'inherit' },
+  stroke: { curve: 'smooth', width: 3 },
+  colors: ['#ff792d', '#ef4444'],
+  xaxis: { categories: dayNames.value, labels: { style: { fontSize: '11px', colors: '#9ca3af' } } },
+  yaxis: { labels: { style: { fontSize: '11px', colors: '#9ca3af' } } },
+  grid: { borderColor: '#f0f0f0', strokeDashArray: 4 },
+  markers: { size: 5 },
+  legend: { position: 'bottom', fontSize: '12px' },
+  tooltip: { shared: true, intersect: false }
+}))
+const weeklyLineSeries = computed(() => {
+  const days = performanceRaw.value?.thisWeekPerformance || []
+  return [
+    { name: t('attended', 'Kelgan'), data: days.map((d: any) => d.attendedCount || 0) },
+    { name: t('not-attended', 'Kelmagan'), data: days.map((d: any) => d.notAttendedCount || 0) }
+  ]
+})
+
+// Today label
+const todayLabel = computed(() => {
+  const now = new Date()
+  const months: Record<string, string[]> = {
+    uz: ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'],
+    ru: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+    en: ['January','February','March','April','May','June','July','August','September','October','November','December']
+  }
+  const m = months[locale.value] || months.uz
+  return `${now.getDate()} ${m[now.getMonth()]}, ${now.getFullYear()}`
+})
 </script>
 
 <template>
-  <div class="flex flex-col w-full px-0 py-4 pt-2 bg-white min-h-[calc(100vh-60px)]">
-    <!-- Header Title -->
-    <header class="flex justify-between items-center px-6 pb-4 border-b border-gray-200">
+  <div class="min-h-screen bg-[#f8fafc] pb-8">
+    <!-- Header -->
+    <header class="flex justify-between items-start px-6 py-4 border-b bg-white">
       <div>
-      <h1 class="text-[22px] font-bold text-gray-900 tracking-tight">
-        {{ t('dashboard.statistics', 'Statistika') }}
-      </h1>
+        <h1 class="text-[20px] font-bold text-[#1b1b1b]">{{ t('dashboard.statistics', 'Statistika') }}</h1>
         <UserContextBadges />
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-gray-500 bg-gray-100 rounded-lg px-3 py-1.5 font-medium">📅 {{ todayLabel }}</span>
+        <button @click="refetchAll()" class="flex items-center gap-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 cursor-pointer transition">
+          <RefreshCwIcon class="w-4 h-4" />
+          Yangilash
+        </button>
       </div>
     </header>
 
-    <!-- Filters Row in Parent View -->
-    <div class="flex flex-wrap items-center gap-3 py-6 bg-white px-6">
-      <!-- Region Filter -->
-      <Select v-if="!hideRegionFilter" v-model="regionFilter" name="regionId">
-        <SelectTrigger
-          class="h-10 w-full sm:w-[220px] border border-gray-200 rounded-xl focus:ring-0 text-gray-700 bg-white text-left font-medium transition-all hover:bg-gray-50/50 cursor-pointer"
-        >
-          <SelectValue :placeholder="t('select-region', 'Viloyatni tanlang')" />
-        </SelectTrigger>
-        <SelectContent class="bg-white">
-          <SelectItem value="all">{{ t('select-region', 'Viloyatni tanlang') }}</SelectItem>
-          <SelectItem v-for="region in regions" :key="region.id" :value="String(region.id)">
-            {{ region.name }}
-          </SelectItem>
-        </SelectContent>
-      </Select>
+    <div class="px-6 pt-5 space-y-5">
 
-      <!-- City Filter (Appears if Region selected) -->
-      <Select v-if="!hideCityFilter" v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all' && !hideRegionFilter">
-        <SelectTrigger
-          class="h-10 w-full sm:w-[220px] border border-gray-200 rounded-xl focus:ring-0 text-gray-700 bg-white text-left font-medium transition-all hover:bg-gray-50/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          <SelectValue :placeholder="t('select-city', 'Tumanni tanlang')" />
-        </SelectTrigger>
-        <SelectContent class="bg-white">
-          <SelectItem value="all">{{ t('select-city', 'Tumanni tanlang') }}</SelectItem>
-          <SelectItem v-for="city in citiesForFilter" :key="city.id" :value="String(city.id)">
-            {{ city.name }}
-          </SelectItem>
-        </SelectContent>
-      </Select>
-
-      <!-- Date Range Filter -->
-      <div class="relative">
-        <Popover v-model:open="isCalendarOpen">
-          <PopoverTrigger as-child>
-            <Button
-              variant="outline"
-              class="h-10 px-4 rounded-xl border border-gray-200 bg-white text-gray-700 font-medium hover:bg-gray-50 flex items-center justify-between text-sm select-none cursor-pointer shadow-none min-w-[160px]"
-            >
-              <span class="mr-2 text-sm">
-                {{ dateRangeLabel }}
-              </span>
-              <ChevronDown class="w-4 h-4 text-gray-400 shrink-0" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent class="w-auto p-0 z-[110]" align="start">
-            <RangeCalendar
-              :model-value="selectedDateRange"
-              :locale="calendarLocale"
-              initial-focus
-              :week-starts-on="1"
-              :weekday-format="'short'"
-              @update:model-value="handleRangeConfirm"
-            />
-            <div v-if="selectedDateRange" class="p-3 pt-0 flex justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                class="text-xs font-normal"
-                @click="handleClearRange"
-              >
-                {{ t('cancel', 'Bekor qilish') }}
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+      <!-- Top 4 cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div v-for="card in topCards" :key="card.label" class="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-4 shadow-sm hover:shadow transition">
+          <div :class="[card.bg, 'p-3 rounded-xl shrink-0']">
+            <component :is="card.icon" :class="[card.color, 'w-6 h-6']" />
+          </div>
+          <div class="min-w-0">
+            <p class="text-2xl font-bold text-gray-900">{{ card.value.toLocaleString() }}</p>
+            <p class="text-xs text-gray-500 truncate">{{ card.label }}</p>
+            <p v-if="card.sub" class="text-xs font-medium" :class="card.color">{{ card.sub }}</p>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="px-6">
-      <!-- Statistics Cards Submodule Component -->
-      <DashboardStats
-        :regionId="filterParams.regionId"
-        :cityId="filterParams.cityId"
-        :fromDate="filterParams.fromDate"
-        :toDate="filterParams.toDate"
-      />
-    </div>
+      <!-- Today attendance 4 cards -->
+      <div>
+        <h2 class="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">{{ t('davomad', 'Bugungi davomad') }}</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div v-for="card in attendanceCards" :key="card.label" :class="['bg-white rounded-2xl border p-4 shadow-sm', card.bg]">
+            <p class="text-xs text-gray-500 font-medium mb-2 leading-tight">{{ card.label }}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ card.value.toLocaleString() }}</p>
+            <div class="mt-3">
+              <div class="flex justify-between text-xs text-gray-400 mb-1">
+                <span>{{ pct(card.value, card.total) }}%</span>
+                <span>/ {{ card.total.toLocaleString() }}</span>
+              </div>
+              <div class="h-1.5 bg-white/60 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500" :style="{ width: pct(card.value, card.total) + '%', background: card.color }" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <!-- Charts Modules Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 px-6 pb-6">
-      <WeeklyPerformanceChart
-        :regionId="filterParams.regionId"
-        :cityId="filterParams.cityId"
-      />
-      <MonthlyOverviewChart
-        :regionId="filterParams.regionId"
-        :cityId="filterParams.cityId"
-      />
-    </div>
+      <!-- Charts row -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- School bar -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <h3 class="text-sm font-semibold text-gray-700 mb-4">Maktablar bo'yicha davomad (%)</h3>
+          <div v-if="!overviewRaw?.overview?.length" class="h-48 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data') }}</div>
+          <VueApexCharts v-else type="bar" height="220" :options="schoolBarOptions" :series="schoolBarSeries" />
+        </div>
+        <!-- Camera donut -->
+        <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ t('cameras', 'Kamera holati') }}</h3>
+          <div v-if="camTotal === 0" class="h-48 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data') }}</div>
+          <div v-else>
+            <VueApexCharts type="donut" height="160" :options="cameraDonutOptions" :series="cameraDonutSeries" />
+            <div class="space-y-2 mt-3">
+              <div class="flex justify-between text-sm">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>Online</span>
+                <span class="font-semibold">{{ camOnline }} ({{ pct(camOnline, camTotal) }}%)</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>Offline</span>
+                <span class="font-semibold">{{ camOffline }} ({{ pct(camOffline, camTotal) }}%)</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>Xato</span>
+                <span class="font-semibold">{{ camError }} ({{ pct(camError, camTotal) }}%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <!-- New 50% 50% Grid for Student Overall Stats and Absents list, located before schools table -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 px-6 pb-6">
-      <OverallStatisticsChart
-        :regionId="filterParams.regionId"
-        :cityId="filterParams.cityId"
-        :fromDate="filterParams.fromDate"
-        :toDate="filterParams.toDate"
-      />
-      <AbsentStudentsTable
-        :regionId="filterParams.regionId"
-        :cityId="filterParams.cityId"
-        :fromDate="filterParams.fromDate"
-        :toDate="filterParams.toDate"
-      />
-    </div>
+      <!-- Weekly line chart -->
+      <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+        <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ t('dashboard.weekly-stats', 'Haftalik davomad') }}</h3>
+        <div v-if="!weeklyLineSeries[0]?.data?.length" class="h-48 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data') }}</div>
+        <VueApexCharts v-else type="line" height="200" :options="weeklyLineOptions" :series="weeklyLineSeries" />
+      </div>
 
-    <!-- School Details Table Module -->
-    <div class="px-6 pb-6">
-      <SchoolDetailsTable
-        :regionId="filterParams.regionId"
-        :cityId="filterParams.cityId"
-        :fromDate="filterParams.fromDate"
-        :toDate="filterParams.toDate"
-      />
+      <!-- School details table -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-50">
+          <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.school-details.school-table-title', 'Maktablar batafsil') }}</h3>
+        </div>
+        <div v-if="!schoolDetailsRaw?.length" class="h-16 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data') }}</div>
+        <div v-else class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{{ t('school') }}</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{{ t('dashboard.overall.students') }}</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{{ t('attended', 'Kelgan') }}</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{{ t('not-attended', 'Kelmagan') }}</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">%</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <tr v-for="row in schoolDetailsRaw" :key="row.schoolId" class="hover:bg-gray-50 transition">
+                <td class="px-5 py-3 font-medium text-gray-800 max-w-[200px] truncate">{{ row.schoolName }}</td>
+                <td class="px-4 py-3 text-right text-gray-600">{{ row.allStudentsCount }}</td>
+                <td class="px-4 py-3 text-right text-green-600 font-medium">{{ row.attendedStudentsCount }}</td>
+                <td class="px-4 py-3 text-right text-red-500 font-medium">{{ row.notAttendedStudentsCount }}</td>
+                <td class="px-4 py-3 text-right">
+                  <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold"
+                    :class="parseFloat(row.attendedPercentage) >= 80 ? 'bg-green-100 text-green-700' : parseFloat(row.attendedPercentage) >= 50 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'">
+                    {{ row.attendedPercentage }}%
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Absent students today -->
+      <div v-if="absentsRaw?.length > 0" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-50">
+          <h3 class="text-sm font-semibold text-gray-700">Bugun kelmagan o'quvchilar</h3>
+        </div>
+        <div class="divide-y divide-gray-50">
+          <div v-for="st in absentsRaw" :key="st.id" class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-600 shrink-0">
+              {{ (st.firstName?.[0] || '') + (st.lastName?.[0] || '') }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-800 truncate">{{ st.lastName }} {{ st.firstName }}</p>
+              <p class="text-xs text-gray-400 truncate">{{ st.schoolName }} • {{ st.className }}</p>
+            </div>
+            <span class="text-xs text-red-500 font-medium">Kelmagan</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
