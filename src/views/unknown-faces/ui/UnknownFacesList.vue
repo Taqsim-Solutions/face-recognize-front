@@ -45,74 +45,16 @@ const formatDateValue = (dateVal: DateValue) => {
   const year = dateVal.year
   const monthIdx = dateVal.month - 1
   const day = dateVal.day
-  const currentLang = locale.value
-
-  let monthName = ''
-  if (currentLang === 'ru') {
-    const ruMonths = [
-      'Январь',
-      'Февраль',
-      'Март',
-      'Апрель',
-      'Май',
-      'Июнь',
-      'Июль',
-      'Август',
-      'Сентябрь',
-      'Октябрь',
-      'Ноябрь',
-      'Декабрь'
-    ]
-    monthName = ruMonths[monthIdx]
-  } else if (currentLang === 'uzc') {
-    const uzcMonths = [
-      'Январь',
-      'Февраль',
-      'Март',
-      'Апрель',
-      'Май',
-      'Июнь',
-      'Июль',
-      'Август',
-      'Сентябрь',
-      'Октябрь',
-      'Ноябрь',
-      'Декабрь'
-    ]
-    monthName = uzcMonths[monthIdx]
-  } else if (currentLang === 'uz') {
-    const uzMonths = [
-      'Yanvar',
-      'Fevral',
-      'Mart',
-      'Aprel',
-      'May',
-      'Iyun',
-      'Iyul',
-      'Avgust',
-      'Sentabr',
-      'Oktabr',
-      'Noyabr',
-      'Dekabr'
-    ]
-    monthName = uzMonths[monthIdx]
-  } else {
-    const enMonths = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ]
-    monthName = enMonths[monthIdx]
+  const allMonths: Record<string, string[]> = {
+    ru:  ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+    uzc: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+    uz:  ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'],
+    en:  ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    fa:  ['جنوری','فبروری','مارچ','اپریل','می','جون','جولای','اگست','سپتمبر','اکتوبر','نوامبر','دسمبر'],
+    ps:  ['جنوري','فبروري','مارچ','اپریل','می','جون','جولای','اگست','سپتمبر','اکتوبر','نومبر','دسمبر'],
+    ur:  ['جنوری','فروری','مارچ','اپریل','مئی','جون','جولائی','اگست','ستمبر','اکتوبر','نومبر','دسمبر']
   }
+  const monthName = (allMonths[locale.value] || allMonths['en'])[monthIdx]
 
   return `${day} ${monthName}, ${year}`
 }
@@ -358,72 +300,16 @@ const formatCardDate = (dateStr: string) => {
   const date = new Date(dateStr)
   const currentLang = locale.value
 
-  let monthName = ''
-  if (currentLang === 'ru') {
-    const ruMonths = [
-      'Январь',
-      'Февраль',
-      'Март',
-      'Апрель',
-      'Май',
-      'Июнь',
-      'Июль',
-      'Август',
-      'Сентябрь',
-      'Октябрь',
-      'Ноябрь',
-      'Декабрь'
-    ]
-    monthName = ruMonths[date.getMonth()]
-  } else if (currentLang === 'uzc') {
-    const uzcMonths = [
-      'Январь',
-      'Февраль',
-      'Март',
-      'Апрель',
-      'Май',
-      'Июнь',
-      'Июль',
-      'Август',
-      'Сентябрь',
-      'Октябрь',
-      'Ноябрь',
-      'Декабрь'
-    ]
-    monthName = uzcMonths[date.getMonth()]
-  } else if (currentLang === 'uz') {
-    const uzMonths = [
-      'Yanvar',
-      'Fevral',
-      'Mart',
-      'Aprel',
-      'May',
-      'Iyun',
-      'Iyul',
-      'Avgust',
-      'Sentabr',
-      'Oktabr',
-      'Noyabr',
-      'Dekabr'
-    ]
-    monthName = uzMonths[date.getMonth()]
-  } else {
-    const enMonths = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ]
-    monthName = enMonths[date.getMonth()]
+  const allMonths: Record<string, string[]> = {
+    ru:  ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+    uzc: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+    uz:  ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'],
+    en:  ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    fa:  ['جنوری','فبروری','مارچ','اپریل','می','جون','جولای','اگست','سپتمبر','اکتوبر','نوامبر','دسمبر'],
+    ps:  ['جنوري','فبروري','مارچ','اپریل','می','جون','جولای','اگست','سپتمبر','اکتوبر','نومبر','دسمبر'],
+    ur:  ['جنوری','فروری','مارچ','اپریل','مئی','جون','جولائی','اگست','ستمبر','اکتوبر','نومبر','دسمبر']
   }
+  const monthName = (allMonths[currentLang] || allMonths['en'])[date.getMonth()]
 
   const day = date.getDate()
   const year = date.getFullYear()
@@ -637,11 +523,14 @@ const handleImgError = (e: Event) => {
       <div>
         <span>
           {{
-            locale === 'ru'
-              ? `Страница ${pagination.currentPage} из ${pagination.totalPages}`
-              : locale === 'uzc'
-                ? `Саҳифа ${pagination.currentPage} of ${pagination.totalPages}`
-                : `Sahifa ${pagination.currentPage} of ${pagination.totalPages}`
+            locale === 'ru'  ? `Страница ${pagination.currentPage} из ${pagination.totalPages}` :
+            locale === 'uzc' ? `Саҳифа ${pagination.currentPage} / ${pagination.totalPages}` :
+            locale === 'uz'  ? `Sahifa ${pagination.currentPage} / ${pagination.totalPages}` :
+            locale === 'en'  ? `Page ${pagination.currentPage} of ${pagination.totalPages}` :
+            locale === 'fa'  ? `صفحه ${pagination.currentPage} از ${pagination.totalPages}` :
+            locale === 'ps'  ? `پاڼه ${pagination.currentPage} / ${pagination.totalPages}` :
+            locale === 'ur'  ? `صفحہ ${pagination.currentPage} / ${pagination.totalPages}` :
+                               `Sahifa ${pagination.currentPage} / ${pagination.totalPages}`
           }}
         </span>
       </div>

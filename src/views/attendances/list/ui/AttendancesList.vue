@@ -554,7 +554,7 @@ const getPageNumbers = () => {
                       {{ t('no-data', 'Ma’lumotlar topilmadi') }}
                     </h3>
                     <p class="text-sm text-gray-400 mt-1">
-                      Ushun sana bo‘yicha hech qanday davomad ma’lumoti mavjud emas.
+                      {{ t('no-attendance-data', `Ushun sana bo'yicha hech qanday davomad ma'lumoti mavjud emas.`) }}
                     </p>
                   </div>
                 </TableCell>
