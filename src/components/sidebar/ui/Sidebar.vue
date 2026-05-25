@@ -286,19 +286,7 @@ onMounted(() => {
                 >
                   <DropdownMenuItem>
                     <UserRoundIcon class="mr-2" :size="16" />
-                    <span>{{ t('my-account') }}</span>
-                  </DropdownMenuItem>
-                </RouterLink>
-              </Can>
-              <Can i="organizations.modifier">
-                <RouterLink
-                  class="contents"
-                  :to="{ name: 'organization-settings' }"
-                  @click="collapseSidebarOnMobile()"
-                >
-                  <DropdownMenuItem>
-                    <SettingsIcon class="mr-2" :size="16" />
-                    <span>{{ t('organization') }}</span>
+                    <span>{{ t('profile', 'Profilim') }}</span>
                   </DropdownMenuItem>
                 </RouterLink>
               </Can>

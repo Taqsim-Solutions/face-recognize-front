@@ -1,125 +1,135 @@
 <script setup lang="ts">
-import { computed, watch, ref } from 'vue'
+import { computed } from 'vue'
 import { useGetAccountInfo } from '../queries/useGetAccountInfo'
 import { useI18n } from 'vue-i18n'
-import { prettifyPhoneNumber } from '@/lib/utils'
-import { useQuery } from '@tanstack/vue-query'
-import { getAccountImg } from '../api'
-import { MaskAvatar } from '@/components/ui/avatar'
+import {
+  UserIcon, MailIcon, KeyIcon, ShieldIcon,
+  MapPinIcon, SchoolIcon, BookOpenIcon, BuildingIcon
+} from 'lucide-vue-next'
 
 const { t } = useI18n()
-
-const { data, isLoading, error } = useGetAccountInfo()
-const accountImgId = computed(() => data.value?.images.find((i: any) => i.type === 'avatar')?.id || '')
-const isAccountImgEnabled = computed(() => !!accountImgId.value)
-
-const { data: accountImg } = useQuery({
-  queryKey: ['account-img', accountImgId],
-  queryFn: () => getAccountImg(accountImgId.value),
-  enabled: isAccountImgEnabled
-})
-
-const accountImageSrc = ref<string>()
-watch(accountImg, (blob) => {
-  if (blob && blob.data) {
-    // If server returned blob, create preview URL
-    accountImageSrc.value = URL.createObjectURL(blob.data)
-    return
-  }
-})
+const { data, isLoading } = useGetAccountInfo()
 
 const fullName = computed(() => {
   if (!data.value) return ''
-  return `${data.value.firstName || ''} ${data.value.lastName || ''}`.trim()
+  return `${data.value.lastName || ''} ${data.value.firstName || ''}`.trim()
 })
 
-// Keep accountImageSrc in sync: prefer server image -> uploaded
-watch(
-  () => accountImg.value,
-  () => {
-    if (accountImg.value && accountImg.value.data) {
-      accountImageSrc.value = URL.createObjectURL(accountImg.value.data)
-    }
+const initials = computed(() => {
+  const f = data.value?.firstName?.[0] || ''
+  const l = data.value?.lastName?.[0] || ''
+  return (l + f).toUpperCase()
+})
+
+const roleName = computed(() => {
+  const level = data.value?.level
+  const map: Record<number, string> = {
+    1: t('roles.teacher', "O'qituvchi"),
+    2: t('roles.director', 'Direktor'),
+    3: t('roles.district', 'Tuman hokimi'),
+    4: t('roles.region', 'Viloyat hokimi'),
+    5: t('roles.admin', 'Admin')
   }
-)
+  return map[level] || '-'
+})
+
+const roleColor = computed(() => {
+  const level = data.value?.level
+  const colors: Record<number, string> = {
+    1: 'bg-blue-100 text-blue-700',
+    2: 'bg-green-100 text-green-700',
+    3: 'bg-purple-100 text-purple-700',
+    4: 'bg-orange-100 text-orange-700',
+    5: 'bg-red-100 text-red-700'
+  }
+  return colors[level] || 'bg-gray-100 text-gray-700'
+})
 </script>
 
 <template>
-  <div class="p-6 max-w-4xl">
-    <!-- Loading Skeleton -->
-    <div v-if="isLoading" class="space-y-6">
-      <div class="h-32 w-full rounded-2xl bg-muted animate-pulse" />
-      <div class="flex items-center gap-6">
-        <div class="w-24 h-24 rounded-full bg-muted animate-pulse" />
-        <div class="space-y-3 w-1/2">
-          <div class="h-5 rounded bg-muted animate-pulse" />
-          <div class="h-4 w-1/2 rounded bg-muted animate-pulse" />
+  <div class="p-6 max-w-2xl">
+    <!-- Loading -->
+    <div v-if="isLoading" class="space-y-4">
+      <div class="h-32 rounded-2xl bg-gray-100 animate-pulse" />
+      <div class="h-16 rounded-xl bg-gray-100 animate-pulse" />
+      <div class="h-16 rounded-xl bg-gray-100 animate-pulse" />
+    </div>
+
+    <div v-else-if="data">
+      <!-- Header card -->
+      <div class="bg-gradient-to-br from-[#ff792d] to-[#e05e1a] rounded-2xl p-6 mb-6 text-white">
+        <div class="flex items-center gap-4">
+          <!-- Avatar -->
+          <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold shrink-0">
+            {{ initials || '?' }}
+          </div>
+          <div>
+            <h2 class="text-xl font-bold">{{ fullName || '-' }}</h2>
+            <p class="text-orange-100 text-sm mt-0.5">{{ data.email }}</p>
+            <span :class="['text-xs font-semibold px-2 py-0.5 rounded-full mt-1.5 inline-block', roleColor]">
+              {{ roleName }}
+            </span>
+          </div>
         </div>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div class="h-20 rounded-xl bg-muted animate-pulse" />
-        <div class="h-20 rounded-xl bg-muted animate-pulse" />
-      </div>
-    </div>
 
-    <!-- Error state -->
-    <div v-else-if="error" class="p-4 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive">
-      {{ error }}
-    </div>
+      <!-- Info cards -->
+      <div class="space-y-3">
 
-    <!-- Profile Content -->
-    <div v-else-if="data" class="space-y-10">
-
-      <div class="flex items-end gap-6 px-4">
-        <!-- Avatar with custom upload -->
-        <div class="relative w-32 h-32 group">
-          <div class="relative w-full h-full rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
-            <template v-if="accountImageSrc">
-              <img
-                :src="accountImageSrc"
-                alt="avatar"
-                class="w-full h-full rounded-full object-cover"
-              />
-            </template>
-            <template v-else>
-              <MaskAvatar :name="fullName" class="w-full h-full" />
-            </template>
+        <!-- Personal info -->
+        <div class="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50">
+          <div class="flex items-center gap-3 px-4 py-3">
+            <UserIcon class="w-4 h-4 text-gray-400 shrink-0" />
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('lastName') }}</span>
+            <span class="text-sm font-medium text-gray-800">{{ data.lastName || '-' }}</span>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3">
+            <UserIcon class="w-4 h-4 text-gray-400 shrink-0" />
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('firstName') }}</span>
+            <span class="text-sm font-medium text-gray-800">{{ data.firstName || '-' }}</span>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3">
+            <MailIcon class="w-4 h-4 text-gray-400 shrink-0" />
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('email') }}</span>
+            <span class="text-sm font-medium text-gray-800">{{ data.email || '-' }}</span>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3">
+            <KeyIcon class="w-4 h-4 text-gray-400 shrink-0" />
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('login') }}</span>
+            <span class="text-sm font-medium text-gray-800">{{ data.login || '-' }}</span>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3">
+            <ShieldIcon class="w-4 h-4 text-gray-400 shrink-0" />
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('role') }}</span>
+            <span :class="['text-xs font-semibold px-2 py-0.5 rounded-full', roleColor]">{{ roleName }}</span>
           </div>
         </div>
 
-        <!-- Name + Role -->
-        <div class="pb-2">
-          <p class="text-3xl font-bold leading-tight tracking-tight">
-            {{ data.firstName }} {{ data.lastName }}
-          </p>
-          <span class="inline-block mt-2 text-xs px-3 py-1 rounded-full bg-muted text-foreground/70">
-            {{ data.roles?.[0] || t('role') }}
-          </span>
+        <!-- Location info -->
+        <div v-if="data.region || data.city || data.schoolName" class="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50">
+          <div v-if="data.region" class="flex items-center gap-3 px-4 py-3">
+            <MapPinIcon class="w-4 h-4 text-gray-400 shrink-0" />
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('region') }}</span>
+            <span class="text-sm font-medium text-gray-800">{{ data.region?.name || '-' }}</span>
+          </div>
+          <div v-if="data.city" class="flex items-center gap-3 px-4 py-3">
+            <BuildingIcon class="w-4 h-4 text-gray-400 shrink-0" />
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('city-label') }}</span>
+            <span class="text-sm font-medium text-gray-800">{{ data.city?.name || '-' }}</span>
+          </div>
+          <div v-if="data.schoolName" class="flex items-center gap-3 px-4 py-3">
+            <SchoolIcon class="w-4 h-4 text-gray-400 shrink-0" />
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('school') }}</span>
+            <span class="text-sm font-medium text-gray-800">{{ data.schoolName }}</span>
+          </div>
+          <div v-if="data.classId" class="flex items-center gap-3 px-4 py-3">
+            <BookOpenIcon class="w-4 h-4 text-gray-400 shrink-0" />
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('sinf') }}</span>
+            <span class="text-sm font-medium text-gray-800">{{ t('sinf') }} {{ data.classId }}</span>
+          </div>
         </div>
-      </div>
 
-      <!-- Info Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
-        <div class="rounded-xl border bg-card p-5 shadow-sm transition duration-200">
-          <p class="text-xs text-muted-foreground uppercase tracking-wide">{{ t('phone-number') }}</p>
-          <p class="mt-2 text-lg font-medium">{{ prettifyPhoneNumber(data.phoneNumber) }}</p>
-        </div>
-
-        <div class="rounded-xl border bg-card p-5 shadow-sm transition duration-200">
-          <p class="text-xs text-muted-foreground uppercase tracking-wide">Email</p>
-          <p class="mt-2 text-lg font-medium">{{ data.email }}</p>
-        </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.animate-fadeIn {
-  animation: fadeIn 0.45s ease-out;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>
