@@ -32,9 +32,11 @@ import {
   DropdownMenuItem
 } from '@/components/ui/dropdown-menu'
 import { SearchIcon, Plus, ChevronDown, Download, Upload } from 'lucide-vue-next'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const { t, te } = useI18n()
 const queryClient = useQueryClient()
+const { hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
 
 const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
@@ -485,7 +487,7 @@ const handleExcelFileSelect = async (event: Event) => {
       </div>
 
       <!-- Region Filter Select -->
-      <Select v-model="regionFilter" name="regionId">
+      <Select v-if="!hideRegionFilter" v-model="regionFilter" name="regionId">
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium"
         >
@@ -500,7 +502,7 @@ const handleExcelFileSelect = async (event: Event) => {
       </Select>
 
       <!-- City Filter Select -->
-      <Select v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all'">
+      <Select v-if="!hideCityFilter" v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all' && !hideRegionFilter">
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
         >
@@ -516,9 +518,10 @@ const handleExcelFileSelect = async (event: Event) => {
 
       <!-- School Filter Select -->
       <Select
+        v-if="!hideSchoolFilter"
         v-model="schoolFilter"
         name="schoolId"
-        :disabled="cityFilter === 'all' || isSchoolsLoading"
+        :disabled="cityFilter === 'all' && !hideCityFilter || isSchoolsLoading"
       >
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"

@@ -35,9 +35,10 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon
 } from 'lucide-vue-next'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const { t, locale } = useI18n()
-
+const { hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
 // Filters
 const selectedDate = ref(new Date().toISOString().split('T')[0])
 const regionFilter = ref<string>('all')
@@ -385,7 +386,7 @@ const getPageNumbers = () => {
       </Popover>
 
       <!-- Region Select -->
-      <Select v-model="regionFilter" name="regionId">
+      <Select v-if="!hideRegionFilter" v-model="regionFilter" name="regionId">
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium"
         >
@@ -400,7 +401,7 @@ const getPageNumbers = () => {
       </Select>
 
       <!-- City Select -->
-      <Select v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all'">
+      <Select v-if="!hideCityFilter" v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all' && !hideRegionFilter">
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
         >
@@ -416,9 +417,10 @@ const getPageNumbers = () => {
 
       <!-- School Select -->
       <Select
+        v-if="!hideSchoolFilter"
         v-model="schoolFilter"
         name="schoolId"
-        :disabled="cityFilter === 'all' || isSchoolsLoading"
+        :disabled="cityFilter === 'all' && !hideCityFilter || isSchoolsLoading"
       >
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"

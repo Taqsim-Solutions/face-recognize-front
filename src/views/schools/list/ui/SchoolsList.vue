@@ -15,8 +15,10 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { SearchIcon } from 'lucide-vue-next'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const { t } = useI18n()
+const { hideRegionFilter, hideCityFilter } = useCurrentUser()
 
 const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
@@ -197,7 +199,7 @@ const handleRowClick = () => {
       </div>
 
       <!-- Region Filter Select -->
-      <Select v-model="regionFilter" name="regionId">
+      <Select v-if="!hideRegionFilter" v-model="regionFilter" name="regionId">
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium"
         >
@@ -212,7 +214,7 @@ const handleRowClick = () => {
       </Select>
 
       <!-- City Filter Select -->
-      <Select v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all'">
+      <Select v-if="!hideCityFilter" v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all' && !hideRegionFilter">
         <SelectTrigger
           class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
         >
