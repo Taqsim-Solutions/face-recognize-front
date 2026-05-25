@@ -293,7 +293,7 @@ const handleExportExcel = async () => {
   try {
     toast.loading(t('loading', 'Yuklanmoqda...'), { id: 'excel-export' })
     const exportParams = {
-      search: params.value.search,
+      SearchText: params.value.SearchText,
       regionId: params.value.regionId,
       cityId: params.value.cityId,
       schoolId: params.value.schoolId,

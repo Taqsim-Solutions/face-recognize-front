@@ -34,12 +34,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SearchIcon, Plus, ChevronDown, Download, Upload } from 'lucide-vue-next'
 import { useCurrentUser } from '@/composables/useCurrentUser'
-import api from '@/api'
 import UserContextBadges from '@/components/UserContextBadges.vue'
 
 const { t, te } = useI18n()
 const queryClient = useQueryClient()
-const { isAdmin, isTeacher, hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
+const { hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
 
 const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
