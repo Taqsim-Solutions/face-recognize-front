@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ChevronDownIcon, SearchIcon, BookOpenIcon, ShieldIcon, UsersIcon, CameraIcon, BarChartIcon, AlertCircleIcon } from 'lucide-vue-next'
 import UserContextBadges from '@/components/UserContextBadges.vue'
 
-const { t } = useI18n()
+const { locale: i18nLocale } = useI18n()
 const searchQuery = ref('')
 const openItems = ref<Set<number>>(new Set())
 
@@ -141,6 +141,8 @@ const faqCategories = [
 ]
 
 const locale = ref(localStorage.getItem('language') || 'uz')
+// sync with i18n locale changes
+watch(i18nLocale, (v) => { locale.value = v })
 const getLang = (obj: any): string => {
   return obj?.[locale.value] || obj?.['uz'] || ''
 }
