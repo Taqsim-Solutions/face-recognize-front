@@ -138,12 +138,12 @@ const { handleSubmit, resetForm, meta } = useForm({
   }
 })
 
-// Extra field validation
+// Extra field validation - school is optional
 const extraFieldsValid = computed(() => {
   if (!selectedLevel.value) return false
   if (needsRegion.value && !selectedRegionId.value) return false
   if (needsCity.value && !selectedCityId.value) return false
-  if (needsSchool.value && !selectedSchoolId.value) return false
+  // school is optional
   return true
 })
 
@@ -349,9 +349,12 @@ const roles = computed(() => [
             <p v-if="needsCity && !selectedCityId" class="text-xs text-red-500">{{ t('validation.required-field') }}</p>
           </div>
 
-          <!-- Maktab (Level 1,2) -->
+          <!-- Maktab (Level 1,2) - ixtiyoriy -->
           <div v-if="needsSchool" class="space-y-1.5">
-            <label class="text-sm font-semibold text-gray-700">{{ t('school') }}</label>
+            <label class="text-sm font-semibold text-gray-700">
+              {{ t('school') }}
+              <span class="text-gray-400 font-normal text-xs ml-1">({{ t('optional', 'ixtiyoriy') }})</span>
+            </label>
             <Select
               :model-value="selectedSchoolId ? String(selectedSchoolId) : undefined"
               @update:model-value="(val) => selectedSchoolId = Number(val)"
@@ -365,7 +368,6 @@ const roles = computed(() => [
                 </SelectItem>
               </SelectContent>
             </Select>
-            <p v-if="needsSchool && !selectedSchoolId" class="text-xs text-red-500">{{ t('validation.required-field') }}</p>
           </div>
 
           <!-- Parol -->
