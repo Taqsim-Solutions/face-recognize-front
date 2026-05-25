@@ -528,7 +528,7 @@ const handleExcelFileSelect = async (event: Event) => {
           />
         </SelectTrigger>
         <SelectContent class="bg-white">
-          <SelectItem value="all">{{ t('all-schools', 'Maktab') }}</SelectItem>
+          <SelectItem value="all">{{ t('school') }}</SelectItem>
           <SelectItem v-for="sch in schools" :key="sch.id" :value="String(sch.id)">
             {{ sch.name }}
           </SelectItem>
