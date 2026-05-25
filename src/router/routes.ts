@@ -84,11 +84,11 @@ export const routes = [
         meta: { permission: '' }
       },
       {
-        path: '/known-faces',
-        name: 'known-faces',
-        component: () => import('@/views/known-faces'),
+        path: '/help',
+        name: 'help',
+        component: () => import('@/views/help'),
         meta: { permission: '' }
-      }
+      },
     ]
   }
 ]

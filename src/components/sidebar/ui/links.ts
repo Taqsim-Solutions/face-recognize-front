@@ -470,6 +470,40 @@ const SettingsIcon = (props: any) =>
     ]
   )
 
+const HelpIcon = (props: any) =>
+  h(
+    'svg',
+    {
+      xmlns: 'http://www.w3.org/2000/svg',
+      width: '20',
+      height: '20',
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      ...props
+    },
+    [
+      h('circle', {
+        cx: '12', cy: '12', r: '10',
+        stroke: 'currentColor',
+        'stroke-width': '1.5'
+      }),
+      h('path', {
+        d: 'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }),
+      h('path', {
+        d: 'M12 17h.01',
+        stroke: 'currentColor',
+        'stroke-width': '2',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      })
+    ]
+  )
+
 export const links: LinkProp[] = [
   {
     name: 'dashboard.statistics',
@@ -507,14 +541,14 @@ export const links: LinkProp[] = [
     icon: DavomadIcon
   },
   {
-    name: 'known-faces',
-    location: 'known-faces',
-    icon: KnownFacesIcon
-  },
-  {
     name: 'unknown-faces',
     location: 'unknown-faces',
     icon: UnknownFacesIcon
+  },
+  {
+    name: 'help',
+    location: 'help',
+    icon: HelpIcon
   },
   {
     name: 'sozlamalar',

@@ -11,6 +11,13 @@ import { RangeCalendar } from '@/components/ui/range-calendar'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import {
   ChevronDown,
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -19,9 +26,40 @@ import {
   Maximize2Icon
 } from 'lucide-vue-next'
 import { type DateValue, parseDate } from '@internationalized/date'
+import { useCurrentUser } from '@/composables/useCurrentUser'
+import { fetchRegions } from '@/views/schools/list/api'
+import api from '@/api'
 
 const { t, locale } = useI18n()
 const queryClient = useQueryClient()
+const { hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
+
+// Cascade filters
+const regionFilter = ref<string>('all')
+const cityFilter = ref<string>('all')
+const schoolFilter = ref<string>('all')
+
+const { data: regionsRes } = useQuery({
+  queryKey: ['regions-unknown'],
+  queryFn: fetchRegions,
+  staleTime: Infinity
+})
+const regions = computed(() => {
+  const res = regionsRes.value as any
+  return res?.data?.result || res?.result || []
+})
+const availableCities = computed(() => {
+  if (regionFilter.value === 'all') return []
+  const reg = regions.value.find((r: any) => String(r.id) === regionFilter.value)
+  return reg?.cities || []
+})
+const { data: schoolsRes } = useQuery({
+  queryKey: ['schools-unknown', cityFilter],
+  queryFn: () => api.get('/api/schools', { params: { CityId: Number(cityFilter.value), PageSize: 999 } }),
+  enabled: computed(() => cityFilter.value !== 'all'),
+  select: (r: any) => r?.data?.result?.data || []
+})
+const schools = computed(() => schoolsRes.value || [])
 
 const todayDate = new Date()
 const currentYear = todayDate.getFullYear()
@@ -378,8 +416,8 @@ const handleImgError = (e: Event) => {
         </div>
       </header>
 
-      <!-- Date Filter -->
-      <div class="mt-4 flex items-center">
+      <!-- Date Filter + Location Filters -->
+      <div class="mt-4 flex flex-wrap items-center gap-2">
         <Popover v-model:open="isCalendarOpen">
           <PopoverTrigger as-child>
             <Button
@@ -413,6 +451,39 @@ const handleImgError = (e: Event) => {
             </div>
           </PopoverContent>
         </Popover>
+
+        <!-- Region filter -->
+        <Select v-if="!hideRegionFilter" v-model="regionFilter">
+          <SelectTrigger class="h-9 w-[180px] border border-[#E0E6F0] rounded-lg bg-white text-sm text-gray-700 font-medium">
+            <SelectValue :placeholder="t('all-regions', 'Viloyatni tanlang')" />
+          </SelectTrigger>
+          <SelectContent class="bg-white">
+            <SelectItem value="all">{{ t('all-regions') }}</SelectItem>
+            <SelectItem v-for="r in regions" :key="r.id" :value="String(r.id)">{{ r.name }}</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <!-- City filter -->
+        <Select v-if="!hideCityFilter" v-model="cityFilter" :disabled="regionFilter === 'all' && !hideRegionFilter">
+          <SelectTrigger class="h-9 w-[180px] border border-[#E0E6F0] rounded-lg bg-white text-sm text-gray-700 font-medium disabled:opacity-50">
+            <SelectValue :placeholder="t('all-cities', 'Tumanni tanlang')" />
+          </SelectTrigger>
+          <SelectContent class="bg-white">
+            <SelectItem value="all">{{ t('all-cities') }}</SelectItem>
+            <SelectItem v-for="c in availableCities" :key="c.id" :value="String(c.id)">{{ c.name }}</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <!-- School filter -->
+        <Select v-if="!hideSchoolFilter" v-model="schoolFilter" :disabled="cityFilter === 'all' && !hideCityFilter">
+          <SelectTrigger class="h-9 w-[180px] border border-[#E0E6F0] rounded-lg bg-white text-sm text-gray-700 font-medium disabled:opacity-50">
+            <SelectValue :placeholder="t('school', 'Maktab')" />
+          </SelectTrigger>
+          <SelectContent class="bg-white">
+            <SelectItem value="all">{{ t('school') }}</SelectItem>
+            <SelectItem v-for="s in schools" :key="s.id" :value="String(s.id)">{{ s.name }}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <!-- Main Content Grid -->
