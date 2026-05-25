@@ -40,7 +40,7 @@ const { isPending: isDeletePending, mutate: performDelete } = useMutation({
     return deleteGovernment(props.employee.id)
   },
   onSuccess: () => {
-    toast.success(t('government_deleted', 'Hokim muvaffaqiyatli o\'chirildi'))
+    toast.success(t('government_deleted', 'Muvaffaqiyatli o\'chirildi'))
     isDeleteDialogOpen.value = false
     queryClient.invalidateQueries({ queryKey: ['governments'] })
   },

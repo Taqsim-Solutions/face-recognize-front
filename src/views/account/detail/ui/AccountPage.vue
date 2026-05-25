@@ -26,8 +26,8 @@ const roleName = computed(() => {
   const map: Record<number, string> = {
     1: t('roles.teacher', "O'qituvchi"),
     2: t('roles.director', 'Direktor'),
-    3: t('roles.district', 'Tuman hokimi'),
-    4: t('roles.region', 'Viloyat hokimi'),
+    3: t('roles.district', 'Tuman'),
+    4: t('roles.region', 'Viloyat'),
     5: t('roles.admin', 'Admin')
   }
   return map[level] || '-'

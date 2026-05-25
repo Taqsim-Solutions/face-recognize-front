@@ -153,7 +153,7 @@ watch(() => values.regionId, (_, oldReg) => {
 const { isPending, mutate } = useMutation({
   mutationFn: updateGovernment,
   onSuccess: () => {
-    toast.success(t('success.government-updated', 'Hokim muvaffaqiyatli tahrirlandi'))
+    toast.success(t('success.government-updated', 'Muvaffaqiyatli tahrirlandi'))
     isOpen.value = false
     queryClient.invalidateQueries({ queryKey: ['governments'] })
   },
@@ -228,7 +228,7 @@ const handleCancel = () => {
                   :class="values.level === 4 ? 'border-[#ff792d] bg-[#ff792d] text-white' : 'border-gray-300 bg-white'">
                   <span v-if="values.level === 4" class="w-2 h-2 rounded-full bg-white"></span>
                 </span>
-                <span>{{ t('roles.region', 'Viloyat hokimi') }}</span>
+                <span>{{ t('roles.region', 'Viloyat') }}</span>
               </label>
 
               <label @click="setFieldValue('level', 3)"
@@ -237,7 +237,7 @@ const handleCancel = () => {
                   :class="values.level === 3 ? 'border-[#ff792d] bg-[#ff792d] text-white' : 'border-gray-300 bg-white'">
                   <span v-if="values.level === 3" class="w-2 h-2 rounded-full bg-white"></span>
                 </span>
-                <span>{{ t('roles.district', 'Tuman hokimi') }}</span>
+                <span>{{ t('roles.district', 'Tuman') }}</span>
               </label>
             </div>
           </div>

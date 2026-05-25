@@ -168,7 +168,7 @@ const handleRowClick = () => {
                 : 'text-slate-500 hover:text-slate-950'
             ]"
           >
-            {{ t('roles.region', 'Viloyat hokimi') }}
+            {{ t('roles.region', 'Viloyat') }}
           </button>
           <button
             type="button"
@@ -180,7 +180,7 @@ const handleRowClick = () => {
                 : 'text-slate-500 hover:text-slate-950'
             ]"
           >
-            {{ t('roles.district', 'Tuman hokimi') }}
+            {{ t('roles.district', 'Tuman') }}
           </button>
         </div>
       </div>

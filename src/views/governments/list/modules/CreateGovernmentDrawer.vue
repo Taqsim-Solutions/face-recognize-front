@@ -201,7 +201,7 @@ const handleCancel = () => {
         type="button"
       >
         <Plus class="w-4 h-4 stroke-[2.5]" />
-        {{ t('new-government-add', "Hokim qo'shish") }}
+        {{ t('new-government-add', "Viloyat/Tuman qo'shish") }}
       </Button>
     </SheetTrigger>
 
@@ -259,7 +259,7 @@ const handleCancel = () => {
                 >
                   <span v-if="values.level === 4" class="w-2 h-2 rounded-full bg-white"></span>
                 </span>
-                <span>{{ t('roles.region', 'Viloyat hokimi') }}</span>
+                <span>{{ t('roles.region', 'Viloyat') }}</span>
               </label>
 
               <label
@@ -276,7 +276,7 @@ const handleCancel = () => {
                 >
                   <span v-if="values.level === 3" class="w-2 h-2 rounded-full bg-white"></span>
                 </span>
-                <span>{{ t('roles.district', 'Tuman hokimi') }}</span>
+                <span>{{ t('roles.district', 'Tuman') }}</span>
               </label>
             </div>
           </div>
