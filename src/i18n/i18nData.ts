@@ -285,7 +285,22 @@ export default {
     language: 'Til',
     'log-out': 'Chiqish',
     'my-account': 'Mening hisobim',
-    organization: 'Tashkilot'
+    organization: 'Tashkilot',
+    'select-region-first': 'Avval viloyatni tanlang',
+    'select-city-first': 'Avval tumanni tanlang',
+    camera: {
+      'upload-photo-label': 'Fotosuratni yuklang',
+      'upload-photo': 'Fotosuratni yuklang',
+      'drag-drop-text': 'Rasmni yuklash uchun bu yerga sudrab olib keling',
+      'drag-drop-subtext': 'JPG yoki PNG formatida, maksimal hajmi 10 MB',
+      'select-file': 'Fayl tanlash',
+      'open-camera': 'Kamerani ochish',
+      'capture-title': 'Kameradan rasmga olish',
+      'capture-photo-title': 'Rasmga olish',
+      'take-photo': 'Rasmga olish',
+      capture: 'Rasmga olish',
+      loading: 'Kamera yuklanmoqda...'
+    }
   },
   uzc: {
     auth: {
@@ -568,7 +583,22 @@ export default {
     language: 'Тил',
     'log-out': 'Чиқиш',
     'my-account': 'Менинг ҳисобим',
-    organization: 'Ташкилот'
+    organization: 'Ташкилот',
+    'select-region-first': 'Аввал вилоятни танланг',
+    'select-city-first': 'Аввал туманни танланг',
+    camera: {
+      'upload-photo-label': 'Фотосуратни юкланг',
+      'upload-photo': 'Фотосуратни юкланг',
+      'drag-drop-text': 'Расмни юклаш учун бу ерга судраб олиб келинг',
+      'drag-drop-subtext': 'JPG ёки PNG форматида, максимал ҳажми 10 MB',
+      'select-file': 'Файл танлаш',
+      'open-camera': 'Камерани очиш',
+      'capture-title': 'Камерадан расмга олиш',
+      'capture-photo-title': 'Расмга олиш',
+      'take-photo': 'Расмга олиш',
+      capture: 'Расмга олиш',
+      loading: 'Камера юкланмоқда...'
+    }
   },
   ru: {
     auth: {
@@ -859,7 +889,26 @@ export default {
     'qayta-urinish': 'Повторить попытку',
     saqlash: 'Сохранить',
     'last-heartbeat': 'Последнее время работы',
-    'error-occurred': 'Произошла ошибка'
+    'error-occurred': 'Произошла ошибка',
+    language: 'Язык',
+    'log-out': 'Выйти',
+    'my-account': 'Мой аккаунт',
+    organization: 'Организация',
+    'select-region-first': 'Сначала выберите регион',
+    'select-city-first': 'Сначала выберите район',
+    camera: {
+      'upload-photo-label': 'Загрузить фото',
+      'upload-photo': 'Загрузить фото',
+      'drag-drop-text': 'Перетащите изображение сюда для загрузки',
+      'drag-drop-subtext': 'Формат JPG или PNG, максимальный размер 10 МБ',
+      'select-file': 'Выбрать файл',
+      'open-camera': 'Открыть камеру',
+      'capture-title': 'Сделать фото с камеры',
+      'capture-photo-title': 'Сделать фото',
+      'take-photo': 'Сделать фото',
+      capture: 'Сделать фото',
+      loading: 'Камера загружается...'
+    }
   },
   en: {
     auth: {
@@ -1139,6 +1188,21 @@ export default {
     'log-out': 'Log Out',
     'my-account': 'My Account',
     organization: 'Organization',
+    'select-region-first': 'Select region first',
+    'select-city-first': 'Select district first',
+    camera: {
+      'upload-photo-label': 'Upload Photo',
+      'upload-photo': 'Upload Photo',
+      'drag-drop-text': 'Drag and drop an image here to upload',
+      'drag-drop-subtext': 'JPG or PNG format, maximum size 10 MB',
+      'select-file': 'Select File',
+      'open-camera': 'Open Camera',
+      'capture-title': 'Take Photo from Camera',
+      'capture-photo-title': 'Take Photo',
+      'take-photo': 'Take Photo',
+      capture: 'Take Photo',
+      loading: 'Camera loading...'
+    },
     'error-occurred': 'An error occurred'
   },
   fa: {
@@ -1419,6 +1483,21 @@ export default {
     'log-out': 'خروج',
     'my-account': 'حساب من',
     organization: 'سازمان',
+    'select-region-first': 'ابتدا ولایت را انتخاب کنید',
+    'select-city-first': 'ابتدا ولسوالی را انتخاب کنید',
+    camera: {
+      'upload-photo-label': 'بارگذاری عکس',
+      'upload-photo': 'بارگذاری عکس',
+      'drag-drop-text': 'تصویر را به اینجا بکشید و رها کنید',
+      'drag-drop-subtext': 'فرمت JPG یا PNG، حداکثر ۱۰ مگابایت',
+      'select-file': 'انتخاب فایل',
+      'open-camera': 'باز کردن دوربین',
+      'capture-title': 'گرفتن عکس از دوربین',
+      'capture-photo-title': 'گرفتن عکس',
+      'take-photo': 'گرفتن عکس',
+      capture: 'گرفتن عکس',
+      loading: 'دوربین در حال بارگذاری...'
+    },
     'error-occurred': 'خطایی رخ داد'
   },
   ps: {
@@ -1699,6 +1778,21 @@ export default {
     'log-out': 'وتل',
     'my-account': 'زما حساب',
     organization: 'ادارې',
+    'select-region-first': 'لومړی ولایت وټاکئ',
+    'select-city-first': 'لومړی ولسوالي وټاکئ',
+    camera: {
+      'upload-photo-label': 'انځور پورته کړئ',
+      'upload-photo': 'انځور پورته کړئ',
+      'drag-drop-text': 'د پورته کولو لپاره انځور دلته راکش کړئ',
+      'drag-drop-subtext': 'JPG یا PNG بڼه، لږ تر لږه ۱۰ MB',
+      'select-file': 'فایل وټاکئ',
+      'open-camera': 'کامره پرانیزئ',
+      'capture-title': 'د کامرې له لارې انځور واخلئ',
+      'capture-photo-title': 'انځور واخلئ',
+      'take-photo': 'انځور واخلئ',
+      capture: 'انځور واخلئ',
+      loading: 'کامره بارېږي...'
+    },
     'error-occurred': 'یوه تیروتنه رامنځته شوه'
   },
   ur: {
@@ -1979,6 +2073,21 @@ export default {
     'log-out': 'لاگ آؤٹ',
     'my-account': 'میرا اکاؤنٹ',
     organization: 'تنظیم',
+    'select-region-first': 'پہلے صوبہ منتخب کریں',
+    'select-city-first': 'پہلے ضلع منتخب کریں',
+    camera: {
+      'upload-photo-label': 'تصویر اپ لوڈ کریں',
+      'upload-photo': 'تصویر اپ لوڈ کریں',
+      'drag-drop-text': 'تصویر یہاں گھسیٹیں اور چھوڑیں',
+      'drag-drop-subtext': 'JPG یا PNG فارمیٹ، زیادہ سے زیادہ 10 MB',
+      'select-file': 'فائل منتخب کریں',
+      'open-camera': 'کیمرہ کھولیں',
+      'capture-title': 'کیمرے سے تصویر لیں',
+      'capture-photo-title': 'تصویر لیں',
+      'take-photo': 'تصویر لیں',
+      capture: 'تصویر لیں',
+      loading: 'کیمرہ لوڈ ہو رہا ہے...'
+    },
     'error-occurred': 'ایک خرابی پیش آئی'
   }
 }
