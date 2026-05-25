@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
@@ -200,9 +201,12 @@ const filterParams = computed(() => ({
   <div class="flex flex-col w-full px-0 py-4 pt-2 bg-white min-h-[calc(100vh-60px)]">
     <!-- Header Title -->
     <header class="flex justify-between items-center px-6 pb-4 border-b border-gray-200">
+      <div>
       <h1 class="text-[22px] font-bold text-gray-900 tracking-tight">
         {{ t('dashboard.statistics', 'Statistika') }}
       </h1>
+        <UserContextBadges />
+      </div>
     </header>
 
     <!-- Filters Row in Parent View -->

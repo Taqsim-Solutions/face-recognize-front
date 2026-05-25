@@ -35,6 +35,7 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon
 } from 'lucide-vue-next'
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const { t, locale } = useI18n()
@@ -341,9 +342,12 @@ const getPageNumbers = () => {
     <header
       class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
     >
+      <div>
       <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
         {{ t('davomad', 'Davomad') }}
       </h1>
+        <UserContextBadges />
+      </div>
 
       <Button
         @click="() => refetch()"

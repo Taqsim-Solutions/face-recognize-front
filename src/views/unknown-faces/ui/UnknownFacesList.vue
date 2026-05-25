@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
@@ -369,9 +370,12 @@ const handleImgError = (e: Event) => {
     <div>
       <!-- Header -->
       <header class="flex justify-between items-center border-b pb-3 pt-1">
-        <h2 class="scroll-m-20 lg:text-xl text-2xl font-semibold tracking-tight text-[#111625]">
-          {{ t('unknown-faces') }}
-        </h2>
+        <div>
+          <h2 class="scroll-m-20 lg:text-xl text-2xl font-semibold tracking-tight text-[#111625]">
+            {{ t('unknown-faces') }}
+          </h2>
+          <UserContextBadges />
+        </div>
       </header>
 
       <!-- Date Filter -->

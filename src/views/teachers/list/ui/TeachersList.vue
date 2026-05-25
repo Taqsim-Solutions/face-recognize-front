@@ -30,6 +30,7 @@ import {
   DropdownMenuItem
 } from '@/components/ui/dropdown-menu'
 import { SearchIcon, Plus, ChevronDown, Download, Upload } from 'lucide-vue-next'
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const { t, te } = useI18n()
@@ -363,9 +364,12 @@ const handleExcelFileSelect = async (event: Event) => {
     <header
       class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
     >
+      <div>
       <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
         {{ t('teachers', "O'qituvchilar") }}
       </h1>
+        <UserContextBadges />
+      </div>
 
       <div class="flex items-center gap-2.5">
         <!-- Excel Dropdown Menu -->

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import { ref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { useI18n } from 'vue-i18n'
@@ -473,9 +474,12 @@ const getImageUrl = (imageName: string) => {
     <div>
       <!-- Header -->
       <header class="flex justify-between items-center border-b pb-3 pt-1">
-        <h2 class="scroll-m-20 lg:text-xl text-2xl font-semibold tracking-tight text-[#111625]">
+        <div>
+          <h2 class="scroll-m-20 lg:text-xl text-2xl font-semibold tracking-tight text-[#111625]">
           {{ t('known-faces') }}
         </h2>
+          <UserContextBadges />
+        </div>
       </header>
 
       <!-- Date Filter -->

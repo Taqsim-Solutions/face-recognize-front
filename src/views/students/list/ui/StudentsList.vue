@@ -35,22 +35,11 @@ import {
 import { SearchIcon, Plus, ChevronDown, Download, Upload } from 'lucide-vue-next'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import api from '@/api'
+import UserContextBadges from '@/components/UserContextBadges.vue'
 
 const { t, te } = useI18n()
 const queryClient = useQueryClient()
-const { user, isAdmin, isTeacher, hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
-
-// Fetch class name for teacher
-const { data: classData } = useQuery({
-  queryKey: ['class-info', computed(() => user.value?.classId)],
-  queryFn: () => api.get(`/api/classes/${user.value?.classId}`),
-  enabled: computed(() => !!user.value?.classId),
-  select: (res: any) => res?.data?.result
-})
-const userClass = computed(() => {
-  if (classData.value) return `${classData.value.degree}-${classData.value.symbol}`
-  return ''
-})
+const { isAdmin, isTeacher, hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
 
 const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
@@ -437,21 +426,7 @@ const handleExcelFileSelect = async (event: Event) => {
         <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
           {{ t('students', "O'quvchilar") }}
         </h1>
-        <!-- User context info for non-admin roles -->
-        <div v-if="user && !isAdmin" class="flex flex-wrap items-center gap-1.5 mt-1">
-          <span v-if="user.region?.name" class="text-xs text-gray-500 bg-gray-100 rounded-md px-2 py-0.5">
-            {{ user.region.name }}
-          </span>
-          <span v-if="user.city?.name" class="text-xs text-gray-500 bg-gray-100 rounded-md px-2 py-0.5">
-            {{ user.city.name }}
-          </span>
-          <span v-if="user.schoolName" class="text-xs text-gray-500 bg-gray-100 rounded-md px-2 py-0.5">
-            {{ user.schoolName }}
-          </span>
-          <span v-if="isTeacher && user.classId" class="text-xs text-white bg-[#ff792d] rounded-md px-2 py-0.5">
-            {{ t('sinf') }} {{ userClass }}
-          </span>
-        </div>
+        <UserContextBadges />
       </div>
 
       <div class="flex items-center gap-2.5">

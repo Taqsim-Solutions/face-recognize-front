@@ -15,6 +15,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { SearchIcon } from 'lucide-vue-next'
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const { t } = useI18n()
@@ -174,9 +175,12 @@ const handleRowClick = () => {
     <header
       class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
     >
+      <div>
       <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
         {{ t('schools', 'Maktablar') }}
       </h1>
+        <UserContextBadges />
+      </div>
 
       <Can i="employees.add">
         <CreateSchoolDrawer />

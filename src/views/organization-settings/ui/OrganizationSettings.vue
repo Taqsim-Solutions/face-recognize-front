@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
@@ -384,9 +385,12 @@ const getHeartbeatTimeOnly = (cam: any) => {
     <header
       class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
     >
+      <div>
       <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight flex items-center gap-2">
         <span>{{ t('sozlamalar', 'Sozlamalar') }}</span>
       </h1>
+        <UserContextBadges />
+      </div>
 
       <div class="flex items-center gap-2">
         <Button

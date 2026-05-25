@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
@@ -215,9 +216,12 @@ const handleRowClick = () => {
     <header
       class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
     >
+      <div>
       <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
         {{ t('users', 'Foydalanuvchilar') }}
       </h1>
+        <UserContextBadges />
+      </div>
 
       <Can i="employees.add">
         <CreateUserDrawer />

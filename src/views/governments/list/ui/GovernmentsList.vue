@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
@@ -183,6 +184,7 @@ const handleRowClick = () => {
           </button>
         </div>
       </div>
+      <UserContextBadges />
 
       <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
         <!-- Add Government Button -->
