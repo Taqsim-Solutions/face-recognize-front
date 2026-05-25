@@ -15,6 +15,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { RangeCalendar } from '@/components/ui/range-calendar'
 import { Button } from '@/components/ui/button'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 import {
   DashboardStats,
@@ -27,6 +28,7 @@ import {
 import { fetchRegions } from '../api'
 
 const { t, locale } = useI18n()
+const { hideRegionFilter, hideCityFilter } = useCurrentUser()
 
 // Filter states
 const regionFilter = ref<string>('all')
@@ -212,7 +214,7 @@ const filterParams = computed(() => ({
     <!-- Filters Row in Parent View -->
     <div class="flex flex-wrap items-center gap-3 py-6 bg-white px-6">
       <!-- Region Filter -->
-      <Select v-model="regionFilter" name="regionId">
+      <Select v-if="!hideRegionFilter" v-model="regionFilter" name="regionId">
         <SelectTrigger
           class="h-10 w-full sm:w-[220px] border border-gray-200 rounded-xl focus:ring-0 text-gray-700 bg-white text-left font-medium transition-all hover:bg-gray-50/50 cursor-pointer"
         >
@@ -227,7 +229,7 @@ const filterParams = computed(() => ({
       </Select>
 
       <!-- City Filter (Appears if Region selected) -->
-      <Select v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all'">
+      <Select v-if="!hideCityFilter" v-model="cityFilter" name="cityId" :disabled="regionFilter === 'all' && !hideRegionFilter">
         <SelectTrigger
           class="h-10 w-full sm:w-[220px] border border-gray-200 rounded-xl focus:ring-0 text-gray-700 bg-white text-left font-medium transition-all hover:bg-gray-50/50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >

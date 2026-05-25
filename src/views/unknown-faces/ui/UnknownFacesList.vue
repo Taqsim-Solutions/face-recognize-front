@@ -136,10 +136,17 @@ const params = computed<FetchUnknownFacesParams>(() => {
 const {
   data: responseData,
   isLoading,
-  isError
+  isError,
+  error: queryError
 } = useQuery({
   queryKey: ['unknown-faces', params],
   queryFn: () => fetchUnknownFaces(params.value)
+})
+
+// 403 = no permission → show empty state, not error
+const isPermissionError = computed(() => {
+  const err = queryError.value as any
+  return isError.value && (err?.response?.status === 403 || err?.status === 403)
 })
 
 // Fallback Mock Data as specified by user results
@@ -493,17 +500,17 @@ const handleImgError = (e: Event) => {
           <Loader2Icon class="animate-spin text-primary w-8 h-8" />
         </div>
 
-        <!-- Error State -->
+        <!-- Error State (not 403) -->
         <div
-          v-else-if="isError"
+          v-else-if="isError && !isPermissionError"
           class="flex flex-col justify-center items-center h-64 text-red-500"
         >
           <p class="font-semibold">{{ t('error_occurred') }}</p>
         </div>
 
-        <!-- No Data State -->
+        <!-- No Data State (also covers 403) -->
         <div
-          v-else-if="faces.length === 0"
+          v-else-if="faces.length === 0 || isPermissionError"
           class="flex justify-center items-center h-64 text-[#8796AF]"
         >
           <p class="text-lg font-medium">{{ t('no-data') }}</p>
