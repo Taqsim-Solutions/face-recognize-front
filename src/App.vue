@@ -5,7 +5,7 @@ import { computed, watch } from 'vue'
 
 const { locale } = useI18n()
 
-const isRTL = computed(() => ['ps', 'ur'].includes(locale.value))
+const isRTL = computed(() => ['ps', 'ur', 'fa'].includes(locale.value))
 
 watch(isRTL, (rtl) => {
   document.documentElement.dir = rtl ? 'rtl' : 'ltr'
