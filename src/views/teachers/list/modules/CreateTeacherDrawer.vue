@@ -79,7 +79,16 @@ const formSchema = toTypedSchema(
       .min(3, { message: 'validation.required-field' }),
     password: z
       .string({ required_error: 'validation.required-field' })
-      .min(8, { message: 'validation.password-min' }),
+      .min(8, { message: 'validation.password-min' })
+      .refine((value) => /[A-Z]/.test(value), {
+        message: 'validation.password-must-contain-one-uppercase'
+      })
+      .refine((value) => /[a-z]/.test(value), {
+        message: 'validation.password-must-contain-one-lowercase'
+      })
+      .refine((value) => /\d/.test(value), {
+        message: 'validation.password-must-contain-number'
+      }),
     regionId: z.number({ required_error: 'validation.required-field' }),
     cityId: z.number({ required_error: 'validation.required-field' }),
     schoolId: z.number({ required_error: 'validation.required-field' }),

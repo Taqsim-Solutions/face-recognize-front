@@ -41,6 +41,21 @@ const newUserLastName = ref('')
 const newUserEmail = ref('')
 const isNewUserPasswordVisible = ref(false)
 
+const newUserPasswordError = computed(() => {
+  const p = newUserPassword.value
+  if (!p) return ''
+  if (p.length < 8) return "Parol kamida 8 ta belgidan iborat bo'lishi kerak"
+  if (!/[A-Z]/.test(p)) return "Parol kamida bitta bosh harfdan iborat bo'lishi kerak"
+  if (!/[a-z]/.test(p)) return "Parol kamida bitta kichik harfdan iborat bo'lishi kerak"
+  if (!/\d/.test(p)) return "Parolda raqam bo'lishi kerak"
+  return ''
+})
+
+const isNewUserPasswordValid = computed(() => {
+  const p = newUserPassword.value
+  return p.length >= 8 && /[A-Z]/.test(p) && /[a-z]/.test(p) && /\d/.test(p)
+})
+
 // Fetch regions list
 const { data: regionsRes } = useQuery({
   queryKey: ['regions'],
@@ -506,6 +521,7 @@ const submitNewDirector = () => {
               :type="isNewUserPasswordVisible ? 'text' : 'password'"
               :placeholder="t('password_placeholder', 'Parol kiriting')"
               class="w-full h-11 rounded-lg border border-gray-300 px-3 pr-10 text-sm outline-none focus:border-[#ff792d] bg-white"
+              :class="{ 'border-red-400': newUserPassword && newUserPasswordError }"
             />
             <button
               type="button"
@@ -516,6 +532,8 @@ const submitNewDirector = () => {
               <EyeOff v-else class="w-4 h-4" />
             </button>
           </div>
+          <p v-if="newUserPassword && newUserPasswordError" class="text-xs text-red-500 mt-1">{{ newUserPasswordError }}</p>
+          <p v-else-if="!newUserPassword" class="text-xs text-gray-400 mt-1">Kamida 8 ta belgi, 1 ta bosh harf, 1 ta kichik harf, 1 ta raqam</p>
         </div>
       </div>
 
@@ -533,6 +551,7 @@ const submitNewDirector = () => {
           :disabled="
             !newUserLogin ||
             !newUserPassword ||
+            !isNewUserPasswordValid ||
             !newUserFirstName ||
             createDirectorMutation.isPending.value
           "

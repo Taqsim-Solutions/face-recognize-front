@@ -227,11 +227,16 @@ const openEditDrawer = (camera: any) => {
   formPassword.value = camera.password || ''
   formType.value = camera.type || 1
 
+  // Support both nested school object and flat regionId/cityId fields
   if (camera.school) {
     const schoolObj = camera.school
     formRegionId.value = schoolObj.region?.id ? String(schoolObj.region.id) : 'all'
     formCityId.value = schoolObj.city?.id ? String(schoolObj.city.id) : 'all'
     formSchoolId.value = String(schoolObj.id)
+  } else if (camera.regionId) {
+    formRegionId.value = String(camera.regionId)
+    formCityId.value = camera.cityId ? String(camera.cityId) : 'all'
+    formSchoolId.value = camera.schoolId ? String(camera.schoolId) : 'all'
   } else {
     formRegionId.value = 'all'
     formCityId.value = 'all'
