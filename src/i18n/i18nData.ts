@@ -66,7 +66,9 @@ export default {
       'mfo-should-be-valid': "MFO uzunligi 5 bo'lgan son bo'lishi kerak",
       'advance-percent-min': "Avans foizi kamida 10% bo'lishi kerak",
       'advance-percent-max': "Avans foizi maksimal 80% bo'lishi kerak",
-      'fte-should-be-valid': "Ish yuklamasi 0.1-3 oraliqda bo'lishi kerak"
+      'fte-should-be-valid': "Ish yuklamasi 0.1-3 oraliqda bo'lishi kerak",
+      'image-size-limit-10mb': 'Rasm hajmi 10MB dan oshmasligi kerak',
+      'only-images-allowed': 'Faqat rasm fayllari qabul qilinadi'
     },
     users: 'Foydalanuvchilar',
     'new-employee-add': "Foydalanuvchi qo'shish",
@@ -305,11 +307,7 @@ export default {
     'loading.uploading-excel': 'Excel yuklanmoqda...',
     'success.example-downloaded': 'Namuna muvaffaqiyatli yuklab olindi',
     'success.excel-uploaded': 'Excel muvaffaqiyatli yuklandi',
-    validation: {
-      ...{},
-      'image-size-limit-10mb': 'Rasm hajmi 10MB dan oshmasligi kerak',
-      'only-images-allowed': 'Faqat rasm fayllari qabul qilinadi'
-    },
+
     months: ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'],
     camera: {
       'upload-photo-label': 'Fotosuratni yuklang',
@@ -388,7 +386,9 @@ export default {
       'mfo-should-be-valid': 'МФО узунлиги 5 бўлган сон бўлиши керак',
       'advance-percent-min': 'Аванс фоизи камида 10% бўлиши керак',
       'advance-percent-max': 'Аванс фоизи максимал 80% бўлиши керак',
-      'fte-should-be-valid': "Ish yuklamasi 0.1-3 oraliqda bo'lishi kerak"
+      'fte-should-be-valid': 'Иш юкламаси 0.1-3 оралиғида бўлиши керак',
+      'image-size-limit-10mb': 'Расм ҳажми 10MB дан ошмаслиги керак',
+      'only-images-allowed': 'Фақат расм файллари қабул қилинади'
     },
     users: 'Фойдаланувчилар',
     'new-employee-add': 'Фойдаланувчи қўшиш',
@@ -626,11 +626,7 @@ export default {
     'loading.uploading-excel': 'Excel юкланмоқда...',
     'success.example-downloaded': 'Намуна муваффақиятли юклаб олинди',
     'success.excel-uploaded': 'Excel муваффақиятли юкланди',
-    validation: {
-      ...{},
-      'image-size-limit-10mb': 'Расм ҳажми 10MB дан ошмаслиги керак',
-      'only-images-allowed': 'Фақат расм файллари қабул қилинади'
-    },
+
     months: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
     camera: {
       'upload-photo-label': 'Фотосуратни юкланг',
@@ -722,7 +718,9 @@ export default {
       'identifiers-cannot-contain-duplicate-values':
         'Идентификаторы не могут содержать дублирующихся значений.',
       'mfo-should-be-valid': 'MFO должно быть числом длиной 5',
-      'fte-should-be-valid': 'Рабочая нагрузка должна находиться в диапазоне 0,1-3'
+      'fte-should-be-valid': 'Рабочая нагрузка должна находиться в диапазоне 0,1-3',
+      'image-size-limit-10mb': 'Размер изображения не должен превышать 10МБ',
+      'only-images-allowed': 'Принимаются только файлы изображений'
     },
     users: 'Пользователи',
     'new-employee-add': 'Добавить пользователя',
@@ -959,11 +957,7 @@ export default {
     'loading.uploading-excel': 'Excel загружается...',
     'success.example-downloaded': 'Образец успешно загружен',
     'success.excel-uploaded': 'Excel успешно загружен',
-    validation: {
-      ...{},
-      'image-size-limit-10mb': 'Размер изображения не должен превышать 10МБ',
-      'only-images-allowed': 'Принимаются только файлы изображений'
-    },
+
     months: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
     camera: {
       'upload-photo-label': 'Загрузить фото',
@@ -1041,7 +1035,9 @@ export default {
       'mfo-should-be-valid': 'MFO must be a 5-digit number',
       'advance-percent-min': 'Advance percentage must be at least 10%',
       'advance-percent-max': 'Advance percentage cannot exceed 80%',
-      'fte-should-be-valid': 'Workload must be between 0.1 and 3'
+      'fte-should-be-valid': 'Workload must be between 0.1 and 3',
+      'image-size-limit-10mb': 'Image size must not exceed 10MB',
+      'only-images-allowed': 'Only image files are accepted'
     },
     users: 'Users',
     'new-employee-add': 'Add User',
@@ -1276,11 +1272,7 @@ export default {
     'loading.uploading-excel': 'Uploading Excel...',
     'success.example-downloaded': 'Template downloaded successfully',
     'success.excel-uploaded': 'Excel uploaded successfully',
-    validation: {
-      ...{},
-      'image-size-limit-10mb': 'Image size must not exceed 10MB',
-      'only-images-allowed': 'Only image files are accepted'
-    },
+
     months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
     camera: {
       'upload-photo-label': 'Upload Photo',
@@ -1359,7 +1351,9 @@ export default {
       'mfo-should-be-valid': 'MFO باید یک عدد ۵ رقمی باشد',
       'advance-percent-min': 'درصد پیش‌پرداخت باید حداقل ۱۰٪ باشد',
       'advance-percent-max': 'درصد پیش‌پرداخت نمی‌تواند بیشتر از ۸۰٪ باشد',
-      'fte-should-be-valid': 'بار کاری باید بین ۰.۱ و ۳ باشد'
+      'fte-should-be-valid': 'بار کاری باید بین ۰.۱ و ۳ باشد',
+      'image-size-limit-10mb': 'حجم تصویر نباید از ۱۰ مگابایت بیشتر باشد',
+      'only-images-allowed': 'فقط فایل‌های تصویری قابل قبول هستند'
     },
     users: 'کاربران',
     'new-employee-add': 'افزودن کاربر',
@@ -1594,11 +1588,7 @@ export default {
     'loading.uploading-excel': 'Excel در حال بارگذاری...',
     'success.example-downloaded': 'نمونه با موفقیت دانلود شد',
     'success.excel-uploaded': 'Excel با موفقیت بارگذاری شد',
-    validation: {
-      ...{},
-      'image-size-limit-10mb': 'حجم تصویر نباید از ۱۰ مگابایت بیشتر باشد',
-      'only-images-allowed': 'فقط فایل‌های تصویری قابل قبول هستند'
-    },
+
     months: ['جنوری','فبروری','مارچ','اپریل','می','جون','جولای','اگست','سپتمبر','اکتوبر','نوامبر','دسمبر'],
     camera: {
       'upload-photo-label': 'بارگذاری عکس',
@@ -1677,7 +1667,9 @@ export default {
       'mfo-should-be-valid': 'MFO باید ۵ عدده شمیره وي',
       'advance-percent-min': 'د پیش پیسو سلنه باید لږترلږه ۱۰٪ وي',
       'advance-percent-max': 'د پیش پیسو سلنه له ۸۰٪ ډیره نه شي',
-      'fte-should-be-valid': 'د کار بار باید د ۰.۱ او ۳ ترمنځ وي'
+      'fte-should-be-valid': 'د کار بار باید د ۰.۱ او ۳ ترمنځ وي',
+      'image-size-limit-10mb': 'د انځور اندازه باید له ۱۰MB کمه وي',
+      'only-images-allowed': 'یوازې د انځور فایلونه منل کیږي'
     },
     users: 'کاروونکي',
     'new-employee-add': 'کاروونکی اضافه کړئ',
@@ -1912,11 +1904,7 @@ export default {
     'loading.uploading-excel': 'Excel پورته کیږي...',
     'success.example-downloaded': 'نمونه بریالیتوب سره ډاونلوډ شوه',
     'success.excel-uploaded': 'Excel بریالیتوب سره پورته شو',
-    validation: {
-      ...{},
-      'image-size-limit-10mb': 'د انځور اندازه باید له ۱۰MB کمه وي',
-      'only-images-allowed': 'یوازې د انځور فایلونه منل کیږي'
-    },
+
     months: ['جنوري','فبروري','مارچ','اپریل','می','جون','جولای','اگست','سپتمبر','اکتوبر','نومبر','دسمبر'],
     camera: {
       'upload-photo-label': 'انځور پورته کړئ',
@@ -1995,7 +1983,9 @@ export default {
       'mfo-should-be-valid': 'MFO 5 ہندسوں کا نمبر ہونا چاہیے',
       'advance-percent-min': 'پیشگی فیصد کم از کم 10٪ ہونا چاہیے',
       'advance-percent-max': 'پیشگی فیصد 80٪ سے زیادہ نہیں ہوسکتا',
-      'fte-should-be-valid': 'کام کا بوجھ 0.1 اور 3 کے درمیان ہونا چاہیے'
+      'fte-should-be-valid': 'کام کا بوجھ 0.1 اور 3 کے درمیان ہونا چاہیے',
+      'image-size-limit-10mb': 'تصویر کا سائز 10MB سے زیادہ نہیں ہونا چاہیے',
+      'only-images-allowed': 'صرف تصویر فائلیں قبول کی جاتی ہیں'
     },
     users: 'صارفین',
     'new-employee-add': 'صارف شامل کریں',
@@ -2230,11 +2220,7 @@ export default {
     'loading.uploading-excel': 'Excel اپ لوڈ ہو رہا ہے...',
     'success.example-downloaded': 'نمونہ کامیابی سے ڈاؤن لوڈ ہوا',
     'success.excel-uploaded': 'Excel کامیابی سے اپ لوڈ ہوا',
-    validation: {
-      ...{},
-      'image-size-limit-10mb': 'تصویر کا سائز 10MB سے زیادہ نہیں ہونا چاہیے',
-      'only-images-allowed': 'صرف تصویر فائلیں قبول کی جاتی ہیں'
-    },
+
     months: ['جنوری','فروری','مارچ','اپریل','مئی','جون','جولائی','اگست','ستمبر','اکتوبر','نومبر','دسمبر'],
     camera: {
       'upload-photo-label': 'تصویر اپ لوڈ کریں',
