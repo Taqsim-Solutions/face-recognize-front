@@ -225,8 +225,10 @@ const processFile = (file: File) => {
     toast.error(t('validation.image-size-limit-10mb', 'Rasm hajmi 10MB dan oshmasligi kerak'))
     return
   }
-  photoFile.value = file
-  photoPreviewUrl.value = URL.createObjectURL(file)
+  compressImage(file).then((compressed) => {
+    photoFile.value = compressed
+    photoPreviewUrl.value = URL.createObjectURL(compressed)
+  })
 }
 
 const onDragOver = (e: DragEvent) => {
@@ -314,6 +316,34 @@ const closeCamera = () => {
   isCameraOpen.value = false
 }
 
+
+// Compress image before upload (max 800px, 80% quality)
+const compressImage = (file: File, maxSize = 800, quality = 0.8): Promise<File> => {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      let { width, height } = img
+      if (width > maxSize || height > maxSize) {
+        if (width > height) { height = Math.round(height * maxSize / width); width = maxSize }
+        else { width = Math.round(width * maxSize / height); height = maxSize }
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, width, height)
+      canvas.toBlob((blob) => {
+        if (blob) resolve(new File([blob], file.name, { type: 'image/jpeg' }))
+        else resolve(file)
+      }, 'image/jpeg', quality)
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file) }
+    img.src = url
+  })
+}
+
 const capturePhoto = () => {
   if (videoRef.value) {
     const canvas = document.createElement('canvas')
@@ -322,13 +352,7 @@ const capturePhoto = () => {
     const ctx = canvas.getContext('2d')
     if (ctx) {
       // Mirror the image to match screen preview
-      const tracks = mediaStream.value?.getVideoTracks() || []
-      const settings = tracks[0]?.getSettings?.() || {}
-      const isFront = (settings as any).facingMode === 'user'
-      if (isFront) {
-        ctx.translate(canvas.width, 0)
-        ctx.scale(-1, 1)
-      }
+      // No mirror transform - capture as-is for correct face recognition
       ctx.drawImage(videoRef.value, 0, 0, canvas.width, canvas.height)
 
       canvas.toBlob(
