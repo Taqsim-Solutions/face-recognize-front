@@ -305,12 +305,22 @@ const openCamera = async () => {
   cameraError.value = null
   await nextTick()
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user', width: 640, height: 480 }
-    })
+    let stream: MediaStream | null = null
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+      })
+    } catch {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+      })
+    }
     mediaStream.value = stream
     if (videoRef.value) {
       videoRef.value.srcObject = stream
+      videoRef.value.setAttribute('playsinline', 'true')
+      videoRef.value.setAttribute('autoplay', 'true')
+      try { await videoRef.value.play() } catch { /* ok */ }
     }
   } catch (err: any) {
     console.error('Kameraga kirishda xatolik:', err)
@@ -332,25 +342,28 @@ const closeCamera = () => {
 const capturePhoto = () => {
   if (videoRef.value) {
     const canvas = document.createElement('canvas')
-    canvas.width = videoRef.value.videoWidth || 640
-    canvas.height = videoRef.value.videoHeight || 480
+    const video = videoRef.value
+    canvas.width = video.videoWidth || 640
+    canvas.height = video.videoHeight || 480
     const ctx = canvas.getContext('2d')
     if (ctx) {
-      ctx.translate(canvas.width, 0)
-      ctx.scale(-1, 1)
-      ctx.drawImage(videoRef.value, 0, 0, canvas.width, canvas.height)
-
+      const tracks = mediaStream.value?.getVideoTracks() || []
+      const settings = tracks[0]?.getSettings?.() || {}
+      const isFront = (settings as any).facingMode === 'user'
+      if (isFront) {
+        ctx.translate(canvas.width, 0)
+        ctx.scale(-1, 1)
+      }
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
       canvas.toBlob(
         (blob) => {
           if (blob) {
             const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' })
             photoFile.value = file
-
             if (photoPreviewUrl.value && !photoPreviewUrl.value.startsWith('/api')) {
               URL.revokeObjectURL(photoPreviewUrl.value)
             }
             photoPreviewUrl.value = URL.createObjectURL(blob)
-
             closeCamera()
           }
         },
