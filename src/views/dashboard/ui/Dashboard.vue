@@ -417,30 +417,77 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
 
       <!-- ── Top 4 stat cards ─────────────────────────────────── -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div v-for="card in topCards" :key="card.key" class="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3 shadow-sm hover:shadow transition">
-          <div :class="[card.bg, 'p-2.5 rounded-xl shrink-0']">
-            <component :is="card.icon" :class="[card.color, 'w-5 h-5']" />
-          </div>
-          <div class="min-w-0 flex-1">
-            <p class="text-xl font-bold text-gray-900">{{ card.value.toLocaleString() }}</p>
-            <p class="text-xs text-gray-500 truncate">{{ card.label }}</p>
-            <!-- Camera inline stats -->
-            <template v-if="card.showCamStats && camTotal > 0">
-              <div class="flex items-center gap-2 mt-1">
-                <span class="flex items-center gap-1 text-xs text-green-600 font-medium">
-                  <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>{{ camOnline }}
+        <template v-for="card in topCards" :key="card.key">
+
+          <!-- Camera card with donut -->
+          <div v-if="card.showCamStats" class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow transition">
+            <div class="flex items-center gap-3">
+              <div :class="[card.bg, 'p-2.5 rounded-xl shrink-0']">
+                <component :is="card.icon" :class="[card.color, 'w-5 h-5']" />
+              </div>
+              <div class="min-w-0">
+                <p class="text-xl font-bold text-gray-900">{{ card.value.toLocaleString() }}</p>
+                <p class="text-xs text-gray-500 truncate">{{ card.label }}</p>
+              </div>
+            </div>
+            <!-- Donut chart + legend -->
+            <div v-if="camTotal > 0" class="mt-3 flex items-center gap-3">
+              <!-- SVG donut -->
+              <div class="relative shrink-0" style="width:56px;height:56px">
+                <svg viewBox="0 0 56 56" class="w-full h-full -rotate-90">
+                  <!-- Background circle -->
+                  <circle cx="28" cy="28" r="22" fill="none" stroke="#f3f4f6" stroke-width="7"/>
+                  <!-- Online arc -->
+                  <circle cx="28" cy="28" r="22" fill="none" stroke="#22c55e" stroke-width="7"
+                    :stroke-dasharray="`${(camOnline / camTotal) * 138.2} 138.2`"
+                    stroke-dashoffset="0" stroke-linecap="butt"/>
+                  <!-- Offline arc -->
+                  <circle cx="28" cy="28" r="22" fill="none" stroke="#ef4444" stroke-width="7"
+                    :stroke-dasharray="`${(camOffline / camTotal) * 138.2} 138.2`"
+                    :stroke-dashoffset="`${-((camOnline / camTotal) * 138.2)}`"
+                    stroke-linecap="butt"/>
+                  <!-- Error arc -->
+                  <circle cx="28" cy="28" r="22" fill="none" stroke="#f59e0b" stroke-width="7"
+                    :stroke-dasharray="`${(camError / camTotal) * 138.2} 138.2`"
+                    :stroke-dashoffset="`${-(((camOnline + camOffline) / camTotal) * 138.2)}`"
+                    stroke-linecap="butt"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-xs font-bold text-gray-700">{{ pct(camOnline, camTotal) }}%</span>
+                </div>
+              </div>
+              <!-- Legend -->
+              <div class="flex flex-col gap-1 text-xs">
+                <span class="flex items-center gap-1.5 text-gray-600">
+                  <span class="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
+                  Online <strong class="text-gray-800 ml-auto pl-2">{{ camOnline }}</strong>
                 </span>
-                <span v-if="camOffline > 0" class="flex items-center gap-1 text-xs text-red-500 font-medium">
-                  <span class="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>{{ camOffline }}
+                <span class="flex items-center gap-1.5 text-gray-600">
+                  <span class="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
+                  Offline <strong class="text-gray-800 ml-auto pl-2">{{ camOffline }}</strong>
                 </span>
-                <span v-if="camError > 0" class="flex items-center gap-1 text-xs text-amber-500 font-medium">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>{{ camError }}
+                <span class="flex items-center gap-1.5 text-gray-600">
+                  <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                  {{ t('error', 'Xato') }} <strong class="text-gray-800 ml-auto pl-2">{{ camError }}</strong>
                 </span>
               </div>
-            </template>
-            <p v-else class="text-xs font-medium" :class="card.color">{{ card.delta }}</p>
+            </div>
+            <div v-else class="mt-2 text-xs text-gray-400">{{ t('no-data', "Ma'lumot yo'q") }}</div>
           </div>
-        </div>
+
+          <!-- Regular stat card -->
+          <div v-else class="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3 shadow-sm hover:shadow transition">
+            <div :class="[card.bg, 'p-2.5 rounded-xl shrink-0']">
+              <component :is="card.icon" :class="[card.color, 'w-5 h-5']" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xl font-bold text-gray-900">{{ card.value.toLocaleString() }}</p>
+              <p class="text-xs text-gray-500 truncate">{{ card.label }}</p>
+              <p class="text-xs font-medium" :class="card.color">{{ card.delta }}</p>
+            </div>
+          </div>
+
+        </template>
       </div>
 
       <!-- ── Today 5 attendance cards ─────────────────────────── -->
