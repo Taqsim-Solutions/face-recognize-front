@@ -170,7 +170,7 @@ const topCards = computed(() => [
   { key: 'students', icon: Users2Icon, value: s.value.totalStudents ?? 0, delta: '+12', color: 'text-blue-500',   bg: 'bg-blue-50',   label: t('dashboard.overall.students', "Jami o'quvchilar") },
   { key: 'teachers', icon: UserIcon,   value: s.value.totalTeachers ?? 0, delta: '+5',  color: 'text-green-500',  bg: 'bg-green-50',  label: t('teachers', "Jami o'qituvchilar") },
   { key: 'schools',  icon: SchoolIcon, value: s.value.totalSchools ?? sn.value.allSchoolsNumber ?? 0, delta: `${sn.value.connectedSchoolsNumber ?? 0} ulangan`, color: 'text-orange-500', bg: 'bg-orange-50', label: t('schools', 'Jami maktablar') },
-  { key: 'cameras',  icon: CameraIcon, value: s.value.totalCameras ?? 0, delta: `${s.value.onlineCameras ?? 0} online`, color: 'text-purple-500', bg: 'bg-purple-50', label: t('cameras', 'Jami kameralar') }
+  { key: 'cameras',  icon: CameraIcon, value: s.value.totalCameras ?? 0, delta: `${s.value.onlineCameras ?? 0} online`, color: 'text-purple-500', bg: 'bg-purple-50', label: t('cameras', 'Jami kameralar'), showCamStats: true }
 ])
 
 // Today attendance cards (6 cards like EduVision)
@@ -413,7 +413,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
           <div class="flex flex-col gap-1">
             <label class="text-xs invisible">-</label>
             <div class="flex gap-1">
-              <button v-for="q in [{ l: 'Bugun', f: today, t: today }, { l: '7 kun', f: daysAgo(6), t: today }, { l: '30 kun', f: daysAgo(29), t: today }]"
+              <button v-for="q in [{ l: t('today', 'Bugun'), f: today, t: today }, { l: t('7-days', '7 kun'), f: daysAgo(6), t: today }, { l: t('30-days', '30 kun'), f: daysAgo(29), t: today }]"
                 :key="q.l" @click="dateFrom = q.f; dateTo = q.t"
                 :class="['h-8 px-2.5 text-xs rounded-lg border transition', dateFrom === q.f && dateTo === q.t ? 'bg-[#ff792d] text-white border-[#ff792d] font-semibold' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50']">
                 {{ q.l }}
@@ -429,10 +429,24 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
           <div :class="[card.bg, 'p-2.5 rounded-xl shrink-0']">
             <component :is="card.icon" :class="[card.color, 'w-5 h-5']" />
           </div>
-          <div class="min-w-0">
+          <div class="min-w-0 flex-1">
             <p class="text-xl font-bold text-gray-900">{{ card.value.toLocaleString() }}</p>
             <p class="text-xs text-gray-500 truncate">{{ card.label }}</p>
-            <p class="text-xs font-medium" :class="card.color">{{ card.delta }}</p>
+            <!-- Camera inline stats -->
+            <template v-if="card.showCamStats && camTotal > 0">
+              <div class="flex items-center gap-2 mt-1">
+                <span class="flex items-center gap-1 text-xs text-green-600 font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>{{ camOnline }}
+                </span>
+                <span v-if="camOffline > 0" class="flex items-center gap-1 text-xs text-red-500 font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>{{ camOffline }}
+                </span>
+                <span v-if="camError > 0" class="flex items-center gap-1 text-xs text-amber-500 font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>{{ camError }}
+                </span>
+              </div>
+            </template>
+            <p v-else class="text-xs font-medium" :class="card.color">{{ card.delta }}</p>
           </div>
         </div>
       </div>
@@ -469,13 +483,13 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
             <!-- School bar -->
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
               <div class="flex items-center justify-between mb-3">
-                <h3 class="text-sm font-semibold text-gray-700">Maktablar bo'yicha davomad (%)</h3>
+                <h3 class="text-sm font-semibold text-gray-700">{{ t('schools-attendance', 'Maktablar bo\'yicha davomad (%)') }}</h3>
                 <button v-if="selectedSchoolId" @click="selectedSchoolId = undefined; selectedSchoolName = ''"
                   class="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
                   <XIcon class="w-3 h-3" />Bekor
                 </button>
               </div>
-              <div v-if="!activeSchoolDetails.length" class="h-44 flex items-center justify-center text-gray-400 text-sm">Ma'lumot yo'q</div>
+              <div v-if="!activeSchoolDetails.length" class="h-44 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data', 'Ma\'lumot yo\'q') }}</div>
               <VueApexCharts v-else type="bar" height="200" :options="schoolBarOptions" :series="schoolBarSeries" />
             </div>
 
@@ -483,7 +497,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
               <div class="flex items-start justify-between mb-3">
                 <div>
-                  <h3 class="text-sm font-semibold text-gray-700">Sinflar bo'yicha davomad</h3>
+                  <h3 class="text-sm font-semibold text-gray-700">{{ t('classes-attendance', 'Sinflar bo\'yicha davomad') }}</h3>
                   <p v-if="selectedSchoolName" class="text-xs text-[#ff792d] font-medium mt-0.5 flex items-center gap-1">
                     <ChevronRightIcon class="w-3 h-3" />{{ selectedSchoolName }}
                   </p>
@@ -491,7 +505,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
               </div>
               <div v-if="!selectedSchoolId" class="h-44 flex flex-col items-center justify-center text-gray-300 gap-2">
                 <SchoolIcon class="w-7 h-7" />
-                <p class="text-xs text-center">Maktabni bosing</p>
+                <p class="text-xs text-center">{{ t('select-school-hint', 'Maktabni bosing') }}</p>
               </div>
               <div v-else-if="!activeClassAttendance.length" class="h-44 flex items-center justify-center text-gray-400 text-sm">Ma'lumot yo'q</div>
               <VueApexCharts v-else type="bar" height="200" :options="classBarOptions" :series="classBarSeries" />
@@ -504,7 +518,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
             <!-- Weekly line -->
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
               <div class="flex items-center justify-between mb-3">
-                <h3 class="text-sm font-semibold text-gray-700">Haftalik davomad</h3>
+                <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.weekly-stats', 'Haftalik davomad') }}</h3>
                 <span v-if="selectedSchoolName" class="text-xs text-[#ff792d] bg-orange-50 px-2 py-0.5 rounded-full">{{ selectedSchoolName }}</span>
               </div>
               <div v-if="!weeklyLineSeries[0]?.data?.length" class="h-44 flex items-center justify-center text-gray-400 text-sm">Ma'lumot yo'q</div>
@@ -514,14 +528,14 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
             <!-- School table compact -->
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
               <div class="px-4 py-3 border-b border-gray-50">
-                <h3 class="text-sm font-semibold text-gray-700">Maktablar statistikasi</h3>
+                <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.school-details.school-table-title', 'Maktablar statistikasi') }}</h3>
               </div>
               <div v-if="!activeSchoolDetails.length" class="flex-1 flex items-center justify-center py-8 text-gray-400 text-sm">Ma'lumot yo'q</div>
               <div v-else class="overflow-y-auto max-h-[230px]">
                 <table class="w-full text-xs">
                   <thead class="sticky top-0 bg-gray-50">
                     <tr>
-                      <th class="px-3 py-2 text-left font-semibold text-gray-500 uppercase">Maktab</th>
+                      <th class="px-3 py-2 text-left font-semibold text-gray-500 uppercase">{{ t('school', 'Maktab') }}</th>
                       <th class="px-2 py-2 text-right font-semibold text-gray-500">Jami</th>
                       <th class="px-2 py-2 text-right font-semibold text-gray-500">✓</th>
                       <th class="px-2 py-2 text-right font-semibold text-gray-500">✗</th>
@@ -557,7 +571,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
               <div class="px-4 py-3 border-b border-gray-50 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <ClockIcon class="w-4 h-4 text-amber-500" />
-                  <h3 class="text-sm font-semibold text-gray-700">Kech qolganlar</h3>
+                  <h3 class="text-sm font-semibold text-gray-700">{{ t('late-students', 'Kech qolganlar') }}</h3>
                   <span v-if="selectedSchoolName" class="text-xs text-[#ff792d] bg-orange-50 px-1.5 py-0.5 rounded-full">{{ selectedSchoolName }}</span>
                 </div>
                 <div v-if="!isDemoMode" class="flex items-center gap-1">
@@ -566,7 +580,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
                   <input type="date" v-model="lateTo" :min="lateFrom" :max="today" class="h-6 px-1.5 rounded border border-gray-200 text-xs text-gray-600 focus:outline-none" />
                 </div>
               </div>
-              <div v-if="!activeLateStudents.length" class="flex-1 flex items-center justify-center py-6 text-gray-400 text-sm">Kech qolganlar yo'q</div>
+              <div v-if="!activeLateStudents.length" class="flex-1 flex items-center justify-center py-6 text-gray-400 text-sm">{{ t('no-late-students', 'Kech qolganlar yo\'q') }}</div>
               <div v-else class="overflow-y-auto max-h-[260px] divide-y divide-gray-50">
                 <div v-for="st in activeLateStudents" :key="st.studentId" class="flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 transition">
                   <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">
@@ -590,10 +604,10 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
               <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2">
                 <XCircleIcon class="w-4 h-4 text-red-400" />
-                <h3 class="text-sm font-semibold text-gray-700">Kelmagan o'quvchilar</h3>
+                <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.absents.title', 'Kelmagan o\'quvchilar') }}</h3>
                 <span v-if="selectedSchoolName" class="text-xs text-[#ff792d] bg-orange-50 px-1.5 py-0.5 rounded-full">{{ selectedSchoolName }}</span>
               </div>
-              <div v-if="!activeAbsents.length" class="flex-1 flex items-center justify-center py-6 text-gray-400 text-sm">Kelmagan o'quvchilar yo'q</div>
+              <div v-if="!activeAbsents.length" class="flex-1 flex items-center justify-center py-6 text-gray-400 text-sm">{{ t('no-data', 'Ma\'lumot yo\'q') }}</div>
               <div v-else class="overflow-y-auto max-h-[260px] divide-y divide-gray-50">
                 <div v-for="st in activeAbsents" :key="st.id" class="flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 transition">
                   <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-600 shrink-0">
@@ -603,7 +617,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
                     <p class="text-xs font-semibold text-gray-800 truncate">{{ st.lastName }} {{ st.firstName || st.studentName }}</p>
                     <p class="text-xs text-gray-400 truncate">{{ st.schoolName || st.school }} • {{ st.className || st.class }}</p>
                   </div>
-                  <span class="text-xs text-red-500 font-semibold bg-red-50 px-2 py-0.5 rounded-full shrink-0">Kelmagan</span>
+                  <span class="text-xs text-red-500 font-semibold bg-red-50 px-2 py-0.5 rounded-full shrink-0">{{ t('not-attended', 'Kelmagan') }}</span>
                 </div>
               </div>
             </div>
@@ -622,7 +636,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </div>
-                <h3 class="text-sm font-semibold text-gray-700">Live мониторинг</h3>
+                <h3 class="text-sm font-semibold text-gray-700">{{ t('live-monitoring', 'Live мониторинг') }}</h3>
                 <span v-if="isDemoMode" class="text-xs bg-violet-100 text-violet-600 px-1.5 py-0.5 rounded-full">Demo</span>
               </div>
               <button @click="fetchLiveEvents()" class="text-xs text-[#ff792d] flex items-center gap-1">
@@ -631,27 +645,27 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
             </div>
             <div v-if="!liveEvents.length" class="flex flex-col items-center justify-center py-8 text-gray-300 gap-1">
               <ActivityIcon class="w-6 h-6" />
-              <p class="text-xs">Bugun hodisalar yo'q</p>
+              <p class="text-xs">{{ t('no-live-events', 'Bugun hodisalar yo\'q') }}</p>
             </div>
             <div v-else class="divide-y divide-gray-50">
-              <div v-for="(ev, i) in liveEvents" :key="i" class="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 transition">
-                <!-- Photo -->
-                <div class="shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-gray-100 shadow-sm">
+              <div v-for="(ev, i) in liveEvents" :key="i" class="flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition">
+                <!-- Photo (big) -->
+                <div class="shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shadow ring-2 ring-white">
                   <img v-if="ev.photoUrl || ev.image || ev.faceImage || ev.photo"
                     :src="ev.photoUrl || ev.image || ev.faceImage || ev.photo"
                     class="w-full h-full object-cover"
                     @error="($event.target as HTMLImageElement).style.display='none'" />
-                  <div v-else class="w-full h-full flex items-center justify-center text-xs font-bold text-gray-400 bg-gray-200">
+                  <div v-else class="w-full h-full flex items-center justify-center text-sm font-bold text-gray-400 bg-gray-200">
                     {{ (ev.firstName?.[0] || '?').toUpperCase() }}
                   </div>
                 </div>
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
-                  <p class="text-xs font-semibold text-gray-800 truncate">{{ ev.lastName }} {{ ev.firstName || ev.fullName || "Noma'lum" }}</p>
+                  <p class="text-sm font-semibold text-gray-800 truncate">{{ ev.lastName }} {{ ev.firstName || ev.fullName || "Noma'lum" }}</p>
                   <p class="text-xs text-gray-400 truncate">{{ ev.schoolName || '' }}{{ ev.className ? ' • ' + ev.className : '' }}</p>
-                  <div class="flex items-center gap-2 mt-0.5">
-                    <span class="text-xs text-gray-500">{{ formatTime(ev.attendanceTime || ev.comingTime) }}</span>
-                    <span :class="['text-xs px-1.5 py-0 rounded-full font-medium', liveStatusColor(ev.type || ev.status)]">
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-xs text-gray-500 font-medium">{{ formatTime(ev.attendanceTime || ev.comingTime) }}</span>
+                    <span :class="['text-xs px-2 py-0.5 rounded-full font-semibold', liveStatusColor(ev.type || ev.status)]">
                       {{ liveStatusLabel(ev.type || ev.status) }}
                     </span>
                   </div>
@@ -663,37 +677,14 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
             </div>
           </div>
 
-          <!-- Camera status -->
-          <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-            <h3 class="text-sm font-semibold text-gray-700 mb-3">Kamera holati</h3>
-            <div v-if="camTotal === 0" class="flex items-center justify-center py-4 text-gray-400 text-sm">Ma'lumot yo'q</div>
-            <div v-else>
-              <VueApexCharts type="donut" height="140" :options="cameraDonutOptions" :series="cameraDonutSeries" />
-              <div class="space-y-1.5 mt-3">
-                <div class="flex justify-between text-xs">
-                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>Online</span>
-                  <span class="font-semibold">{{ camOnline }} ({{ pct(camOnline, camTotal) }}%)</span>
-                </div>
-                <div class="flex justify-between text-xs">
-                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>Offline</span>
-                  <span class="font-semibold">{{ camOffline }} ({{ pct(camOffline, camTotal) }}%)</span>
-                </div>
-                <div class="flex justify-between text-xs">
-                  <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>Xato</span>
-                  <span class="font-semibold">{{ camError }} ({{ pct(camError, camTotal) }}%)</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Notifications (demo only) -->
           <div v-if="activeNotifications.length" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50">
               <div class="flex items-center gap-2">
                 <BellIcon class="w-4 h-4 text-gray-500" />
-                <h3 class="text-sm font-semibold text-gray-700">Bildirishnomalar</h3>
+                <h3 class="text-sm font-semibold text-gray-700">{{ t('notifications', 'Bildirishnomalar') }}</h3>
               </div>
-              <span class="text-xs text-gray-400">Ko'rish →</span>
+              <span class="text-xs text-gray-400">{{ t('view-all', 'Ko\'rish →') }}</span>
             </div>
             <div class="divide-y divide-gray-50">
               <div v-for="(n, i) in activeNotifications" :key="i" class="flex items-start gap-3 px-3 py-2.5 hover:bg-gray-50 transition">

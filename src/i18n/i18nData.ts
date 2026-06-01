@@ -249,6 +249,10 @@ export default {
         'page-info': 'Sahifa {current} dan {total}'
       }
     },
+    'notifications': 'Bildirishnomalar',
+    'view-all': "Ko'rish →",
+    '7-days': '7 kun',
+    '30-days': '30 kun',
     'live-monitoring': 'Live monitoring',
     'last-5': 'oxirgi 5 ta',
     'auto-refresh-30s': 'Avtomatik yangilash: 30 soniya',
@@ -931,6 +935,10 @@ export default {
         'page-info': 'Страница {current} из {total}'
       }
     },
+    'notifications': 'Уведомления',
+    'view-all': 'Смотреть все →',
+    '7-days': '7 дн',
+    '30-days': '30 дн',
     'live-monitoring': 'Live мониторинг',
     'last-5': 'последние 5',
     'auto-refresh-30s': 'Автообновление: 30 секунд',
