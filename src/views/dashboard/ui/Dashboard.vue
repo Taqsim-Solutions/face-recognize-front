@@ -7,7 +7,7 @@ import VueApexCharts from 'vue3-apexcharts'
 import {
   Users2Icon, UserIcon, SchoolIcon, CameraIcon,
   RefreshCwIcon, ClockIcon, CalendarIcon, XIcon,
-  ActivityIcon, ChevronRightIcon
+  ActivityIcon, ChevronRightIcon, FlaskConicalIcon
 } from 'lucide-vue-next'
 import {
   fetchSchoolsNumber, fetchWeeklyPerformance,
@@ -16,6 +16,11 @@ import {
 } from '../api'
 import { fetchTodayStats } from '../api/todayStats'
 import api from '@/api'
+import {
+  mockTodayStats, mockSchoolsNumber, mockWeeklyPerformance,
+  mockSchoolDetails, mockClassAttendance, mockAbsents,
+  mockLateStudents, mockLiveEvents
+} from '../mockData'
 
 const { t, locale } = useI18n()
 const {
@@ -23,8 +28,11 @@ const {
   hideRegionFilter, hideCityFilter, hideSchoolFilter
 } = useCurrentUser()
 
+// ── Demo mode ─────────────────────────────────────────────────────
+const isDemoMode = ref(false)
+
 // ── Date helpers ──────────────────────────────────────────────────
-const today = new Date().toISOString().split('T')[0]
+const today  = new Date().toISOString().split('T')[0]
 const daysAgo = (n: number) => new Date(Date.now() - n * 86400000).toISOString().split('T')[0]
 
 // ── Filters ───────────────────────────────────────────────────────
@@ -62,7 +70,7 @@ const { data: regionsRaw } = useQuery({
   queryKey: ['regions-dash'],
   queryFn: () => fetchRegions(),
   select: (r: any) => r?.data?.result || [],
-  enabled: computed(() => !hideRegionFilter.value)
+  enabled: computed(() => !hideRegionFilter.value && !isDemoMode.value)
 })
 
 const cities = computed(() => {
@@ -74,7 +82,7 @@ const { data: schoolsRaw } = useQuery({
   queryKey: ['schools-dash', filterCityId],
   queryFn: () => fetchSchoolsByCity(filterCityId.value!),
   select: (r: any) => r?.data?.result?.data || [],
-  enabled: computed(() => !!filterCityId.value && !hideSchoolFilter.value)
+  enabled: computed(() => !!filterCityId.value && !hideSchoolFilter.value && !isDemoMode.value)
 })
 
 // ── Main queries ──────────────────────────────────────────────────
@@ -83,98 +91,36 @@ const commonKey = computed(() => [
   activeDateFrom.value, activeDateTo.value
 ])
 
-const { data: todayRaw, refetch: refetchToday } = useQuery({
-  queryKey: computed(() => ['today-stats', ...commonKey.value]),
-  queryFn: () => fetchTodayStats({
-    regionId: activeRegionId.value,
-    cityId: activeCityId.value,
-    schoolId: activeSchoolId.value
-  }),
-  select: (r: any) => r?.data?.result
-})
+const { data: todayRaw,         refetch: refetchToday    } = useQuery({ queryKey: computed(() => ['today-stats', ...commonKey.value]),     queryFn: () => fetchTodayStats({ regionId: activeRegionId.value, cityId: activeCityId.value, schoolId: activeSchoolId.value }), select: (r: any) => r?.data?.result, enabled: computed(() => !isDemoMode.value) })
+const { data: schoolsNumberRaw, refetch: refetchSN       } = useQuery({ queryKey: computed(() => ['sn-dash', ...commonKey.value]),          queryFn: () => fetchSchoolsNumber({ regionId: activeRegionId.value, cityId: activeCityId.value, schoolId: activeSchoolId.value, fromDate: activeDateFrom.value, toDate: activeDateTo.value }), select: (r: any) => r?.data?.result, enabled: computed(() => !isDemoMode.value) })
+const { data: performanceRaw,   refetch: refetchPerf     } = useQuery({ queryKey: computed(() => ['perf-dash', activeRegionId.value, activeCityId.value]), queryFn: () => fetchWeeklyPerformance({ RegionId: activeRegionId.value, CityId: activeCityId.value }), select: (r: any) => r?.data?.result, enabled: computed(() => !isDemoMode.value) })
+const { data: schoolDetailsRaw, refetch: refetchDetails  } = useQuery({ queryKey: computed(() => ['school-details-dash', ...commonKey.value]), queryFn: () => fetchSchoolDetails({ RegionId: activeRegionId.value, CityId: activeCityId.value, DateFrom: activeDateFrom.value, DateTo: activeDateTo.value, PageIndex: 1 }), select: (r: any) => r?.data?.result?.data || [], enabled: computed(() => !isDemoMode.value) })
+const { data: absentsRaw,       refetch: refetchAbsents  } = useQuery({ queryKey: computed(() => ['absents-dash', ...commonKey.value]),      queryFn: () => fetchAbsents({ RegionId: activeRegionId.value, CityId: activeCityId.value, SchoolId: activeSchoolId.value, DateFrom: activeDateFrom.value, DateTo: activeDateTo.value }), select: (r: any) => r?.data?.result?.data || [], enabled: computed(() => !isDemoMode.value) })
+const { data: lateStudentsRaw,  refetch: refetchLate     } = useQuery({ queryKey: computed(() => ['late-dash', lateFrom.value, lateTo.value, activeRegionId.value, activeCityId.value, activeSchoolId.value]), queryFn: () => fetchLateStudents({ dateFrom: lateFrom.value, dateTo: lateTo.value, regionId: activeRegionId.value, cityId: activeCityId.value, schoolId: activeSchoolId.value, pageSize: 20 }), select: (r: any) => r?.data?.result?.data || [], enabled: computed(() => !isDemoMode.value) })
+const { data: classAttendanceRaw } = useQuery({ queryKey: computed(() => ['class-attendance', selectedSchoolId.value, activeDateFrom.value, activeDateTo.value]), queryFn: () => fetchSchoolDetails({ RegionId: activeRegionId.value, CityId: activeCityId.value, DateFrom: activeDateFrom.value, DateTo: activeDateTo.value, PageIndex: 1 }), select: (r: any) => r?.data?.result?.data || [], enabled: computed(() => !!selectedSchoolId.value && !isDemoMode.value) })
 
-const { data: schoolsNumberRaw, refetch: refetchSN } = useQuery({
-  queryKey: computed(() => ['sn-dash', ...commonKey.value]),
-  queryFn: () => fetchSchoolsNumber({
-    regionId: activeRegionId.value,
-    cityId: activeCityId.value,
-    schoolId: activeSchoolId.value,
-    fromDate: activeDateFrom.value,
-    toDate: activeDateTo.value
-  }),
-  select: (r: any) => r?.data?.result
-})
-
-const { data: performanceRaw, refetch: refetchPerf } = useQuery({
-  queryKey: computed(() => ['perf-dash', activeRegionId.value, activeCityId.value]),
-  queryFn: () => fetchWeeklyPerformance({
-    RegionId: activeRegionId.value,
-    CityId: activeCityId.value
-  }),
-  select: (r: any) => r?.data?.result
-})
-
-const { data: schoolDetailsRaw, refetch: refetchDetails } = useQuery({
-  queryKey: computed(() => ['school-details-dash', ...commonKey.value]),
-  queryFn: () => fetchSchoolDetails({
-    RegionId: activeRegionId.value,
-    CityId: activeCityId.value,
-    DateFrom: activeDateFrom.value,
-    DateTo: activeDateTo.value,
-    PageIndex: 1
-  }),
-  select: (r: any) => r?.data?.result?.data || []
-})
-
-const { data: absentsRaw, refetch: refetchAbsents } = useQuery({
-  queryKey: computed(() => ['absents-dash', ...commonKey.value]),
-  queryFn: () => fetchAbsents({
-    RegionId: activeRegionId.value,
-    CityId: activeCityId.value,
-    SchoolId: activeSchoolId.value,
-    DateFrom: activeDateFrom.value,
-    DateTo: activeDateTo.value
-  }),
-  select: (r: any) => r?.data?.result?.data || []
-})
-
-const { data: lateStudentsRaw, refetch: refetchLate } = useQuery({
-  queryKey: computed(() => ['late-dash', lateFrom.value, lateTo.value,
-    activeRegionId.value, activeCityId.value, activeSchoolId.value]),
-  queryFn: () => fetchLateStudents({
-    dateFrom: lateFrom.value,
-    dateTo: lateTo.value,
-    regionId: activeRegionId.value,
-    cityId: activeCityId.value,
-    schoolId: activeSchoolId.value,
-    pageSize: 20
-  }),
-  select: (r: any) => r?.data?.result?.data || []
-})
-
-// Class attendance for selected school
-const { data: classAttendanceRaw } = useQuery({
-  queryKey: computed(() => [
-    'class-attendance', selectedSchoolId.value,
-    activeDateFrom.value, activeDateTo.value
-  ]),
-  queryFn: () => fetchSchoolDetails({
-    RegionId: activeRegionId.value,
-    CityId: activeCityId.value,
-    DateFrom: activeDateFrom.value,
-    DateTo: activeDateTo.value,
-    PageIndex: 1
-  }),
-  select: (r: any) => r?.data?.result?.data || [],
-  enabled: computed(() => !!selectedSchoolId.value)
+// ── Active data (real or mock) ────────────────────────────────────
+const activeToday         = computed(() => isDemoMode.value ? mockTodayStats       : ((todayRaw.value         as any) || {}))
+const activeSchoolsNumber = computed(() => isDemoMode.value ? mockSchoolsNumber    : ((schoolsNumberRaw.value  as any) || {}))
+const activePerformance   = computed(() => isDemoMode.value ? mockWeeklyPerformance : ((performanceRaw.value   as any) || {}))
+const activeSchoolDetails = computed(() => isDemoMode.value ? mockSchoolDetails    : ((schoolDetailsRaw.value  as any[]) || []))
+const activeAbsents       = computed(() => isDemoMode.value ? mockAbsents          : ((absentsRaw.value        as any[]) || []))
+const activeLateStudents  = computed(() => isDemoMode.value ? mockLateStudents     : ((lateStudentsRaw.value   as any[]) || []))
+const activeClassAttendance = computed(() => {
+  if (isDemoMode.value) return selectedSchoolId.value ? mockClassAttendance : []
+  return (classAttendanceRaw.value as any[]) || []
 })
 
 // ── Live monitoring ───────────────────────────────────────────────
-const liveEvents   = ref<any[]>([])
-const liveLoading  = ref(false)
+const liveEvents  = ref<any[]>([])
+const liveLoading = ref(false)
 let liveInterval: ReturnType<typeof setInterval>
 
 const fetchLiveEvents = async () => {
+  if (isDemoMode.value) {
+    liveEvents.value = mockLiveEvents
+    return
+  }
   try {
     liveLoading.value = true
     const todayStr = new Date().toISOString().split('T')[0]
@@ -193,6 +139,8 @@ const fetchLiveEvents = async () => {
   }
 }
 
+watch(isDemoMode, () => fetchLiveEvents())
+
 onMounted(() => {
   fetchLiveEvents()
   liveInterval = setInterval(fetchLiveEvents, 30000)
@@ -200,14 +148,15 @@ onMounted(() => {
 onUnmounted(() => clearInterval(liveInterval))
 
 const refetchAll = () => {
+  if (isDemoMode.value) return
   refetchToday(); refetchSN(); refetchPerf()
   refetchDetails(); refetchAbsents(); refetchLate()
   fetchLiveEvents()
 }
 
 // ── Computed stats ────────────────────────────────────────────────
-const s   = computed(() => (todayRaw.value      as any) || {})
-const sn  = computed(() => (schoolsNumberRaw.value as any) || {})
+const s   = activeToday
+const sn  = activeSchoolsNumber
 const pct = (v: number, tot: number) => tot > 0 ? Math.round(v * 100 / tot) : 0
 
 const topCards = computed(() => [
@@ -218,9 +167,9 @@ const topCards = computed(() => [
 ])
 
 const attendanceCards = computed(() => [
-  { label: t('attended', "Kelgan o'quvchilar"),     value: s.value.presentStudents ?? 0, total: s.value.totalStudents || 1, color: '#22c55e', border: 'border-green-100' },
-  { label: t('not-attended', "Kelmagan o'quvchilar"), value: s.value.absentStudents  ?? 0, total: s.value.totalStudents || 1, color: '#ef4444', border: 'border-red-100' },
-  { label: t('attended', "Kelgan o'qituvchilar"),   value: s.value.presentTeachers ?? 0, total: s.value.totalTeachers || 1, color: '#3b82f6', border: 'border-blue-100' },
+  { label: t('attended', "Kelgan o'quvchilar"),       value: s.value.presentStudents ?? 0, total: s.value.totalStudents || 1, color: '#22c55e', border: 'border-green-100' },
+  { label: t('not-attended', "Kelmagan o'quvchilar"), value: s.value.absentStudents  ?? 0, total: s.value.totalStudents || 1, color: '#ef4444', border: 'border-red-100'   },
+  { label: t('attended', "Kelgan o'qituvchilar"),     value: s.value.presentTeachers ?? 0, total: s.value.totalTeachers || 1, color: '#3b82f6', border: 'border-blue-100'  },
   { label: t('not-attended', "Kelmagan o'qituvchilar"), value: s.value.absentTeachers ?? 0, total: s.value.totalTeachers || 1, color: '#f59e0b', border: 'border-amber-100' }
 ])
 
@@ -232,7 +181,7 @@ const schoolBarOptions = computed(() => ({
     fontFamily: 'inherit',
     events: {
       dataPointSelection: (_: any, __: any, config: any) => {
-        const row = (schoolDetailsRaw.value as any[])?.[config.dataPointIndex]
+        const row = activeSchoolDetails.value[config.dataPointIndex]
         if (row) {
           selectedSchoolId.value   = row.id ?? row.schoolId
           selectedSchoolName.value = row.name ?? row.schoolName ?? ''
@@ -244,7 +193,7 @@ const schoolBarOptions = computed(() => ({
   dataLabels: { enabled: false },
   colors: ['#ff792d'],
   xaxis: {
-    categories: (schoolDetailsRaw.value as any[] || []).map((s: any) => {
+    categories: activeSchoolDetails.value.map((s: any) => {
       const name = s.name ?? s.schoolName ?? ''
       return name.length > 14 ? name.slice(0, 14) + '…' : name
     }),
@@ -258,12 +207,12 @@ const schoolBarOptions = computed(() => ({
   tooltip: {
     y: { formatter: (v: number) => v + '%' },
     custom: ({ dataPointIndex }: any) => {
-      const row = (schoolDetailsRaw.value as any[])?.[dataPointIndex]
+      const row = activeSchoolDetails.value[dataPointIndex]
       if (!row) return ''
-      const name    = row.name ?? row.schoolName ?? ''
-      const total   = row.totalStudents ?? row.allStudentsCount ?? 0
+      const name     = row.name ?? row.schoolName ?? ''
+      const total    = row.totalStudents ?? row.allStudentsCount ?? 0
       const attended = row.attendedStudentsCount ?? 0
-      const pctVal  = row.percentage ?? row.attendedPercentage ?? '0'
+      const pctVal   = row.percentage ?? row.attendedPercentage ?? '0'
       return `<div style="padding:8px 12px;font-size:12px"><b>${name}</b><br/>
         ${t('attended', 'Kelgan')}: ${attended}/${total} (${pctVal}%)
         <br/><span style="color:#999;font-size:11px">${t('click-for-classes', 'Sinflar uchun bosing')}</span></div>`
@@ -274,7 +223,7 @@ const schoolBarOptions = computed(() => ({
 
 const schoolBarSeries = computed(() => [{
   name: t('attended', 'Kelgan %'),
-  data: (schoolDetailsRaw.value as any[] || []).map((s: any) =>
+  data: activeSchoolDetails.value.map((s: any) =>
     parseFloat(String(s.percentage ?? s.attendedPercentage ?? '0')) || 0
   )
 }])
@@ -286,7 +235,7 @@ const classBarOptions = computed(() => ({
   dataLabels: { enabled: false },
   colors: ['#6366f1'],
   xaxis: {
-    categories: (classAttendanceRaw.value as any[] || []).map(
+    categories: activeClassAttendance.value.map(
       (c: any) => c.name ?? c.className ?? c.class ?? ''
     ),
     labels: { style: { fontSize: '11px', colors: '#9ca3af' } }
@@ -301,7 +250,7 @@ const classBarOptions = computed(() => ({
 
 const classBarSeries = computed(() => [{
   name: t('attended', 'Kelgan %'),
-  data: (classAttendanceRaw.value as any[] || []).map((c: any) =>
+  data: activeClassAttendance.value.map((c: any) =>
     parseFloat(String(c.percentage ?? c.attendedPercentage ?? '0')) || 0
   )
 }])
@@ -362,7 +311,7 @@ const weeklyLineOptions = computed(() => ({
 }))
 
 const weeklyLineSeries = computed(() => {
-  const days = (performanceRaw.value as any)?.thisWeekPerformance || []
+  const days = activePerformance.value?.thisWeekPerformance || []
   return [
     { name: t('attended',     'Kelgan'),   data: days.map((d: any) => d.attendedCount    || 0) },
     { name: t('not-attended', 'Kelmagan'), data: days.map((d: any) => d.notAttendedCount || 0) }
@@ -370,7 +319,7 @@ const weeklyLineSeries = computed(() => {
 })
 
 // ── Helpers ───────────────────────────────────────────────────────
-const isToday = computed(() => dateFrom.value === today && dateTo.value === today)
+const isToday       = computed(() => dateFrom.value === today && dateTo.value === today)
 const resetDateRange = () => { dateFrom.value = today; dateTo.value = today }
 
 const todayLabel = computed(() => {
@@ -412,21 +361,56 @@ const liveStatusLabel = (type: string) => {
   <div class="min-h-screen bg-[#f8fafc] pb-10">
 
     <!-- Header -->
-    <header class="flex justify-between items-start px-6 py-4 border-b bg-white sticky top-0 z-10">
+    <header class="flex justify-between items-center px-6 py-4 border-b bg-white sticky top-0 z-10">
       <h1 class="text-[20px] font-bold text-[#1b1b1b]">{{ t('dashboard.statistics', 'Статистика') }}</h1>
+
       <div class="flex items-center gap-3">
+        <!-- Demo mode switch -->
+        <button
+          @click="isDemoMode = !isDemoMode"
+          :class="[
+            'flex items-center gap-2 px-3 py-1.5 rounded-xl border text-sm font-medium transition-all',
+            isDemoMode
+              ? 'bg-violet-50 border-violet-200 text-violet-700'
+              : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+          ]"
+        >
+          <FlaskConicalIcon class="w-4 h-4" />
+          <span>Demo</span>
+          <!-- Toggle pill -->
+          <div :class="['relative w-9 h-5 rounded-full transition-colors', isDemoMode ? 'bg-violet-500' : 'bg-gray-200']">
+            <div :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform', isDemoMode ? 'translate-x-4' : 'translate-x-0.5']" />
+          </div>
+        </button>
+
         <span class="text-sm text-gray-500 bg-gray-100 rounded-lg px-3 py-1.5 font-medium">📅 {{ todayLabel }}</span>
-        <button @click="refetchAll()" class="flex items-center gap-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 cursor-pointer transition">
+
+        <button
+          @click="refetchAll()"
+          :disabled="isDemoMode"
+          :class="['flex items-center gap-1.5 text-sm border rounded-lg px-3 py-1.5 transition', isDemoMode ? 'text-gray-300 border-gray-100 cursor-not-allowed' : 'text-gray-600 bg-white border-gray-200 hover:bg-gray-50 cursor-pointer']"
+        >
           <RefreshCwIcon class="w-4 h-4" />
           {{ t('refresh', 'Yangilash') }}
         </button>
       </div>
     </header>
 
+    <!-- Demo banner -->
+    <div v-if="isDemoMode" class="mx-6 mt-4 flex items-center gap-3 bg-violet-50 border border-violet-200 rounded-xl px-4 py-3">
+      <FlaskConicalIcon class="w-4 h-4 text-violet-500 shrink-0" />
+      <p class="text-sm text-violet-700 font-medium">
+        Demo rejim — ko'rsatilayotgan ma'lumotlar <strong>statik (mock)</strong>. Haqiqiy ma'lumotlarni ko'rish uchun Demo'ni o'chiring.
+      </p>
+      <button @click="isDemoMode = false" class="ml-auto text-xs text-violet-500 hover:text-violet-700 underline shrink-0">
+        O'chirish
+      </button>
+    </div>
+
     <div class="px-6 pt-5 space-y-5">
 
       <!-- Filter Bar -->
-      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4">
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4" :class="{ 'opacity-50 pointer-events-none': isDemoMode }">
         <div class="flex flex-wrap items-end gap-4">
 
           <div v-if="!hideRegionFilter" class="flex flex-col gap-1">
@@ -464,7 +448,8 @@ const liveStatusLabel = (type: string) => {
               <span class="text-gray-400 text-sm">—</span>
               <input type="date" v-model="dateTo" :min="dateFrom" :max="today"
                 class="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-[#ff792d] bg-white" />
-              <button v-if="!isToday" @click="resetDateRange" class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition">
+              <button v-if="!isToday" @click="resetDateRange"
+                class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition">
                 <XIcon class="w-4 h-4" />
               </button>
             </div>
@@ -474,12 +459,15 @@ const liveStatusLabel = (type: string) => {
             <label class="text-xs font-medium text-gray-500 invisible">-</label>
             <div class="flex gap-1.5">
               <button v-for="q in [
-                { label: t('today', 'Сегодня'), from: today, to: today },
-                { label: '7 ' + t('days', 'дн'),  from: daysAgo(6),  to: today },
+                { label: t('today', 'Сегодня'), from: today,     to: today },
+                { label: '7 '  + t('days', 'дн'), from: daysAgo(6),  to: today },
                 { label: '30 ' + t('days', 'дн'), from: daysAgo(29), to: today },
               ]" :key="q.label"
                 @click="dateFrom = q.from; dateTo = q.to"
-                :class="['h-9 px-3 text-xs rounded-lg border transition', dateFrom === q.from && dateTo === q.to ? 'bg-[#ff792d] text-white border-[#ff792d] font-semibold' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50']">
+                :class="['h-9 px-3 text-xs rounded-lg border transition',
+                  dateFrom === q.from && dateTo === q.to
+                    ? 'bg-[#ff792d] text-white border-[#ff792d] font-semibold'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50']">
                 {{ q.label }}
               </button>
             </div>
@@ -489,7 +477,8 @@ const liveStatusLabel = (type: string) => {
 
       <!-- Top 4 cards -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div v-for="card in topCards" :key="card.key" class="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-4 shadow-sm hover:shadow transition">
+        <div v-for="card in topCards" :key="card.key"
+          class="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-4 shadow-sm hover:shadow transition">
           <div :class="[card.bg, 'p-3 rounded-xl shrink-0']">
             <component :is="card.icon" :class="[card.color, 'w-6 h-6']" />
           </div>
@@ -505,7 +494,8 @@ const liveStatusLabel = (type: string) => {
       <div>
         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{{ t('davomad', 'Посещаемость') }}</p>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div v-for="card in attendanceCards" :key="card.label" :class="['bg-white rounded-2xl border p-4 shadow-sm', card.border]">
+          <div v-for="card in attendanceCards" :key="card.label"
+            :class="['bg-white rounded-2xl border p-4 shadow-sm', card.border]">
             <p class="text-xs text-gray-500 font-medium mb-2 leading-tight">{{ card.label }}</p>
             <p class="text-3xl font-bold text-gray-900">{{ card.value.toLocaleString() }}</p>
             <div class="mt-3">
@@ -514,7 +504,8 @@ const liveStatusLabel = (type: string) => {
                 <span>/ {{ card.total.toLocaleString() }}</span>
               </div>
               <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-700" :style="{ width: pct(card.value, card.total) + '%', background: card.color }" />
+                <div class="h-full rounded-full transition-all duration-700"
+                  :style="{ width: pct(card.value, card.total) + '%', background: card.color }" />
               </div>
             </div>
           </div>
@@ -524,7 +515,6 @@ const liveStatusLabel = (type: string) => {
       <!-- Live Monitoring + Camera -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-        <!-- Live -->
         <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div class="flex items-center justify-between px-5 py-4 border-b border-gray-50">
             <div class="flex items-center gap-2">
@@ -534,6 +524,7 @@ const liveStatusLabel = (type: string) => {
               </div>
               <h3 class="text-sm font-semibold text-gray-700">{{ t('live-monitoring', 'Live мониторинг') }}</h3>
               <span class="text-xs text-gray-400">({{ t('last-5', 'последние 5') }})</span>
+              <span v-if="isDemoMode" class="text-xs bg-violet-100 text-violet-600 px-2 py-0.5 rounded-full font-medium">Demo</span>
             </div>
             <button @click="fetchLiveEvents()" class="text-xs text-[#ff792d] hover:underline flex items-center gap-1">
               <RefreshCwIcon class="w-3 h-3" :class="{ 'animate-spin': liveLoading }" />
@@ -547,12 +538,12 @@ const liveStatusLabel = (type: string) => {
           </div>
 
           <div v-else class="divide-y divide-gray-50">
-            <div v-for="(ev, i) in liveEvents" :key="i" class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition">
+            <div v-for="(ev, i) in liveEvents" :key="i"
+              class="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition">
               <div class="shrink-0 w-10 h-10 rounded-full overflow-hidden bg-gray-100 ring-2 ring-white shadow">
                 <img v-if="ev.photoUrl || ev.image || ev.faceImage || ev.photo"
                   :src="ev.photoUrl || ev.image || ev.faceImage || ev.photo"
                   class="w-full h-full object-cover"
-                  :alt="ev.firstName || ev.fullName || 'face'"
                   @error="($event.target as HTMLImageElement).style.display='none'" />
                 <div v-else class="w-full h-full flex items-center justify-center text-xs font-bold text-gray-500 bg-gray-200">
                   {{ (ev.firstName?.[0] || ev.fullName?.[0] || '?').toUpperCase() }}
@@ -576,7 +567,7 @@ const liveStatusLabel = (type: string) => {
           </div>
 
           <div class="px-5 py-3 border-t border-gray-50 text-xs text-gray-400 text-center">
-            {{ t('auto-refresh-30s', 'Avtomatik yangilash: 30 soniya') }}
+            {{ isDemoMode ? 'Demo rejim — statik ma\'lumotlar' : t('auto-refresh-30s', 'Avtomatik yangilash: 30 soniya') }}
           </div>
         </div>
 
@@ -611,7 +602,7 @@ const liveStatusLabel = (type: string) => {
             <h3 class="text-sm font-semibold text-gray-700">{{ t('schools-attendance', "Maktablar bo'yicha davomad (%)") }}</h3>
             <span class="text-xs text-gray-400">{{ t('click-school', 'Maktabni bosing → sinflar') }}</span>
           </div>
-          <div v-if="!(schoolDetailsRaw as any[])?.length" class="h-52 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data', 'Нет данных') }}</div>
+          <div v-if="!activeSchoolDetails.length" class="h-52 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data', 'Нет данных') }}</div>
           <VueApexCharts v-else type="bar" height="240" :options="schoolBarOptions" :series="schoolBarSeries" />
         </div>
 
@@ -632,7 +623,7 @@ const liveStatusLabel = (type: string) => {
             <SchoolIcon class="w-8 h-8 opacity-30" />
             <p class="text-sm text-center">{{ t('select-school-hint', 'Chapdan maktabni tanlang') }}</p>
           </div>
-          <div v-else-if="!(classAttendanceRaw as any[])?.length" class="h-52 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data', 'Нет данных') }}</div>
+          <div v-else-if="!activeClassAttendance.length" class="h-52 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data', 'Нет данных') }}</div>
           <VueApexCharts v-else type="bar" height="240" :options="classBarOptions" :series="classBarSeries" />
         </div>
       </div>
@@ -649,7 +640,7 @@ const liveStatusLabel = (type: string) => {
         <div class="px-5 py-4 border-b border-gray-50">
           <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.school-details.school-table-title', 'Подробная статистика по школам') }}</h3>
         </div>
-        <div v-if="!(schoolDetailsRaw as any[])?.length" class="h-16 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data') }}</div>
+        <div v-if="!activeSchoolDetails.length" class="h-16 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data') }}</div>
         <div v-else class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
@@ -662,7 +653,7 @@ const liveStatusLabel = (type: string) => {
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-              <tr v-for="row in (schoolDetailsRaw as any[])" :key="row.id ?? row.schoolId"
+              <tr v-for="row in activeSchoolDetails" :key="row.id ?? row.schoolId"
                 class="hover:bg-gray-50 transition cursor-pointer"
                 @click="selectedSchoolId = row.id ?? row.schoolId; selectedSchoolName = row.name ?? row.schoolName ?? ''">
                 <td class="px-5 py-3 font-medium text-gray-800 max-w-[220px] truncate">{{ row.name ?? row.schoolName }}</td>
@@ -688,13 +679,13 @@ const liveStatusLabel = (type: string) => {
             <ClockIcon class="w-4 h-4 text-amber-500" />
             <h3 class="text-sm font-semibold text-gray-700">{{ t('late-students', 'Опоздавшие ученики') }}</h3>
           </div>
-          <div class="flex items-center gap-2">
+          <div v-if="!isDemoMode" class="flex items-center gap-2">
             <input type="date" v-model="lateFrom" :max="lateTo" class="h-8 px-2 rounded-lg border border-gray-200 text-xs text-gray-600 focus:outline-none focus:border-[#ff792d]" />
             <span class="text-gray-400 text-xs">—</span>
             <input type="date" v-model="lateTo" :min="lateFrom" :max="today" class="h-8 px-2 rounded-lg border border-gray-200 text-xs text-gray-600 focus:outline-none focus:border-[#ff792d]" />
           </div>
         </div>
-        <div v-if="!(lateStudentsRaw as any[])?.length" class="h-16 flex items-center justify-center text-gray-400 text-sm">{{ t('no-late-students', 'Opozganlar topilmadi') }}</div>
+        <div v-if="!activeLateStudents.length" class="h-16 flex items-center justify-center text-gray-400 text-sm">{{ t('no-late-students', 'Opozganlar topilmadi') }}</div>
         <div v-else class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
@@ -707,7 +698,7 @@ const liveStatusLabel = (type: string) => {
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-              <tr v-for="st in (lateStudentsRaw as any[])" :key="st.studentId" class="hover:bg-gray-50 transition">
+              <tr v-for="st in activeLateStudents" :key="st.studentId" class="hover:bg-gray-50 transition">
                 <td class="px-5 py-3">
                   <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">
@@ -739,12 +730,12 @@ const liveStatusLabel = (type: string) => {
       </div>
 
       <!-- Absent students -->
-      <div v-if="(absentsRaw as any[])?.length" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div v-if="activeAbsents.length" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-50">
           <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.absents.title', 'Отсутствующие') }}</h3>
         </div>
         <div class="divide-y divide-gray-50">
-          <div v-for="st in (absentsRaw as any[])" :key="st.id" class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition">
+          <div v-for="st in activeAbsents" :key="st.id" class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition">
             <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-600 shrink-0">
               {{ ((st.firstName || st.studentName || '?')[0] || '').toUpperCase() }}
             </div>
