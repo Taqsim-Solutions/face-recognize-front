@@ -1,71 +1,158 @@
 <script setup lang="ts">
 import UserContextBadges from '@/components/UserContextBadges.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import VueApexCharts from 'vue3-apexcharts'
-import { Users2Icon, UserIcon, SchoolIcon, CameraIcon, RefreshCwIcon, ClockIcon } from 'lucide-vue-next'
+import { Users2Icon, UserIcon, SchoolIcon, CameraIcon, RefreshCwIcon, ClockIcon, CalendarIcon, XIcon } from 'lucide-vue-next'
 import {
   fetchSchoolsNumber, fetchWeeklyPerformance,
   fetchMonthlyOverview, fetchSchoolDetails, fetchAbsents,
-  fetchLateStudents
+  fetchLateStudents, fetchRegions, fetchSchoolsByCity
 } from '../api'
 import { fetchTodayStats } from '../api/todayStats'
 
 const { t, locale } = useI18n()
-const { } = useCurrentUser()
+const { regionId: userRegionId, cityId: userCityId, schoolId: userSchoolId,
+        hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
 
-// Late students date range
-const lateFrom = ref(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-const lateTo = ref(new Date().toISOString().split('T')[0])
+// ── Filters ───────────────────────────────────────────────────────
+const filterRegionId  = ref<number | undefined>(undefined)
+const filterCityId    = ref<number | undefined>(undefined)
+const filterSchoolId  = ref<number | undefined>(undefined)
+
+// Date range — shared across all stats
+const today = new Date().toISOString().split('T')[0]
+const dateFrom = ref(today)
+const dateTo   = ref(today)
+
+// Late students date range (separate)
+const lateFrom    = ref(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+const lateTo      = ref(today)
 const latePageSize = ref(10)
 
-// ── Queries ──────────────────────────────────────────────────────
+// Reset city/school when region changes
+watch(filterRegionId, () => { filterCityId.value = undefined; filterSchoolId.value = undefined })
+watch(filterCityId,   () => { filterSchoolId.value = undefined })
+
+// Effective filter values (user context takes priority)
+const activeRegionId = computed(() => userRegionId.value ?? filterRegionId.value)
+const activeCityId   = computed(() => userCityId.value   ?? filterCityId.value)
+const activeSchoolId = computed(() => userSchoolId.value  ?? filterSchoolId.value)
+
+// Shared date ISO strings (full day)
+const activeDateFrom = computed(() =>
+  dateFrom.value ? new Date(dateFrom.value + 'T00:00:00').toISOString() : undefined
+)
+const activeDateTo = computed(() =>
+  dateTo.value ? new Date(dateTo.value + 'T23:59:59').toISOString() : undefined
+)
+
+// ── Cascade filter data ───────────────────────────────────────────
+const { data: regionsRaw } = useQuery({
+  queryKey: ['regions-dash'],
+  queryFn: () => fetchRegions(),
+  select: (r: any) => r?.data?.result || [],
+  enabled: computed(() => !hideRegionFilter.value)
+})
+
+const cities = computed(() => {
+  if (!filterRegionId.value || !regionsRaw.value) return []
+  return regionsRaw.value.find((r: any) => r.id === filterRegionId.value)?.cities || []
+})
+
+const { data: schoolsRaw } = useQuery({
+  queryKey: ['schools-dash', filterCityId],
+  queryFn: () => fetchSchoolsByCity(filterCityId.value!),
+  select: (r: any) => r?.data?.result?.data || [],
+  enabled: computed(() => !!filterCityId.value && !hideSchoolFilter.value)
+})
+
+// ── Main Queries ──────────────────────────────────────────────────
+const commonQueryKey = computed(() => [
+  activeRegionId.value, activeCityId.value, activeSchoolId.value,
+  activeDateFrom.value, activeDateTo.value
+])
+
 const { data: todayRaw, refetch: refetchToday } = useQuery({
-  queryKey: ['today-stats'],
-  queryFn: () => fetchTodayStats({}),
+  queryKey: computed(() => ['today-stats', ...commonQueryKey.value]),
+  queryFn: () => fetchTodayStats({
+    regionId: activeRegionId.value,
+    cityId: activeCityId.value,
+    schoolId: activeSchoolId.value,
+  }),
   select: (r: any) => r?.data?.result
 })
+
 const { data: schoolsNumberRaw, refetch: refetchSN } = useQuery({
-  queryKey: ['schools-number-dash'],
-  queryFn: () => fetchSchoolsNumber({ fromDate: new Date().toISOString(), toDate: new Date().toISOString() }),
+  queryKey: computed(() => ['schools-number-dash', ...commonQueryKey.value]),
+  queryFn: () => fetchSchoolsNumber({
+    regionId: activeRegionId.value,
+    cityId: activeCityId.value,
+    schoolId: activeSchoolId.value,
+    fromDate: activeDateFrom.value,
+    toDate: activeDateTo.value,
+  }),
   select: (r: any) => r?.data?.result
 })
+
 const { data: performanceRaw, refetch: refetchPerf } = useQuery({
-  queryKey: ['weekly-perf-dash'],
-  queryFn: () => fetchWeeklyPerformance({}),
+  queryKey: computed(() => ['weekly-perf-dash', activeRegionId.value, activeCityId.value]),
+  queryFn: () => fetchWeeklyPerformance({ RegionId: activeRegionId.value, CityId: activeCityId.value }),
   select: (r: any) => r?.data?.result
 })
+
 const { data: overviewRaw, refetch: refetchOverview } = useQuery({
-  queryKey: ['monthly-overview-dash'],
-  queryFn: () => fetchMonthlyOverview({}),
+  queryKey: computed(() => ['monthly-overview-dash', activeRegionId.value, activeCityId.value]),
+  queryFn: () => fetchMonthlyOverview({ RegionId: activeRegionId.value, CityId: activeCityId.value }),
   select: (r: any) => r?.data?.result
 })
+
 const { data: schoolDetailsRaw, refetch: refetchDetails } = useQuery({
-  queryKey: ['school-details-dash'],
-  queryFn: () => fetchSchoolDetails({ PageIndex: 1 }),
+  queryKey: computed(() => ['school-details-dash', ...commonQueryKey.value]),
+  queryFn: () => fetchSchoolDetails({
+    RegionId: activeRegionId.value,
+    CityId: activeCityId.value,
+    DateFrom: activeDateFrom.value,
+    DateTo: activeDateTo.value,
+    PageIndex: 1,
+  }),
   select: (r: any) => r?.data?.result?.data || []
 })
+
 const { data: absentsRaw, refetch: refetchAbsents } = useQuery({
-  queryKey: ['absents-today-dash'],
-  queryFn: () => fetchAbsents({ DateFrom: new Date().toISOString(), DateTo: new Date().toISOString() }),
+  queryKey: computed(() => ['absents-today-dash', ...commonQueryKey.value]),
+  queryFn: () => fetchAbsents({
+    RegionId: activeRegionId.value,
+    CityId: activeCityId.value,
+    SchoolId: activeSchoolId.value,
+    DateFrom: activeDateFrom.value,
+    DateTo: activeDateTo.value,
+  }),
   select: (r: any) => r?.data?.result?.data || []
 })
 
 const { data: lateStudentsRaw, refetch: refetchLate } = useQuery({
-  queryKey: ['late-students-dash', lateFrom, lateTo],
-  queryFn: () => fetchLateStudents({ dateFrom: lateFrom.value, dateTo: lateTo.value, pageSize: latePageSize.value }),
+  queryKey: computed(() => ['late-students-dash', lateFrom.value, lateTo.value, activeRegionId.value, activeCityId.value, activeSchoolId.value]),
+  queryFn: () => fetchLateStudents({
+    dateFrom: lateFrom.value,
+    dateTo: lateTo.value,
+    regionId: activeRegionId.value,
+    cityId: activeCityId.value,
+    schoolId: activeSchoolId.value,
+    pageSize: latePageSize.value
+  }),
   select: (r: any) => r?.data?.result?.data || []
 })
 
 const refetchAll = () => {
-  refetchToday(); refetchSN(); refetchPerf();
+  refetchToday(); refetchSN(); refetchPerf()
   refetchOverview(); refetchDetails(); refetchAbsents(); refetchLate()
 }
 
-// ── Computed ─────────────────────────────────────────────────────
-const s = computed(() => todayRaw.value || {})
+// ── Computed stats ────────────────────────────────────────────────
+const s  = computed(() => todayRaw.value || {})
 const sn = computed(() => schoolsNumberRaw.value || {})
 
 const topCards = computed(() => [
@@ -84,7 +171,7 @@ const attendanceCards = computed(() => [
 
 const pct = (v: number, t: number) => t > 0 ? Math.round(v * 100 / t) : 0
 
-// Bar chart — schools
+// Bar chart
 const schoolBarOptions = computed(() => ({
   chart: { type: 'bar' as const, toolbar: { show: false }, fontFamily: 'inherit' },
   plotOptions: { bar: { borderRadius: 6, columnWidth: '55%' } },
@@ -101,10 +188,10 @@ const schoolBarSeries = computed(() => [{
 }])
 
 // Camera donut
-const camTotal = computed(() => s.value.totalCameras || 0)
-const camOnline = computed(() => s.value.onlineCameras ?? camTotal.value)
+const camTotal   = computed(() => s.value.totalCameras || 0)
+const camOnline  = computed(() => s.value.onlineCameras  ?? camTotal.value)
 const camOffline = computed(() => s.value.offlineCameras || 0)
-const camError = computed(() => s.value.errorCameras || 0)
+const camError   = computed(() => s.value.errorCameras   || 0)
 
 const cameraDonutOptions = computed(() => ({
   chart: { type: 'donut' as const, fontFamily: 'inherit' },
@@ -117,7 +204,7 @@ const cameraDonutOptions = computed(() => ({
 }))
 const cameraDonutSeries = computed(() => [camOnline.value || 0, camOffline.value || 0, camError.value || 0])
 
-// Line chart — weekly
+// Weekly line chart
 const dayNames = computed(() => {
   const m: Record<string, string[]> = {
     uz: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'],
@@ -157,6 +244,9 @@ const todayLabel = computed(() => {
   const m = months[locale.value] || months.uz
   return `${now.getDate()} ${m[now.getMonth()]}, ${now.getFullYear()}`
 })
+
+const isToday = computed(() => dateFrom.value === today && dateTo.value === today)
+const resetDateRange = () => { dateFrom.value = today; dateTo.value = today }
 </script>
 
 <template>
@@ -177,6 +267,105 @@ const todayLabel = computed(() => {
     </header>
 
     <div class="px-6 pt-5 space-y-5">
+
+      <!-- ── Filter Bar ────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4">
+        <div class="flex flex-wrap items-end gap-4">
+
+          <!-- Region -->
+          <div v-if="!hideRegionFilter" class="flex flex-col gap-1 min-w-[160px]">
+            <label class="text-xs font-medium text-gray-500">{{ t('region', 'Viloyat') }}</label>
+            <select
+              v-model="filterRegionId"
+              class="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-[#ff792d] bg-white"
+            >
+              <option :value="undefined">{{ t('all', 'Barchasi') }}</option>
+              <option v-for="r in (regionsRaw || [])" :key="r.id" :value="r.id">{{ r.name }}</option>
+            </select>
+          </div>
+
+          <!-- City -->
+          <div v-if="!hideCityFilter && filterRegionId" class="flex flex-col gap-1 min-w-[160px]">
+            <label class="text-xs font-medium text-gray-500">{{ t('district', 'Tuman') }}</label>
+            <select
+              v-model="filterCityId"
+              class="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-[#ff792d] bg-white"
+            >
+              <option :value="undefined">{{ t('all', 'Barchasi') }}</option>
+              <option v-for="c in cities" :key="c.id" :value="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+
+          <!-- School -->
+          <div v-if="!hideSchoolFilter && filterCityId" class="flex flex-col gap-1 min-w-[180px]">
+            <label class="text-xs font-medium text-gray-500">{{ t('school', 'Maktab') }}</label>
+            <select
+              v-model="filterSchoolId"
+              class="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-[#ff792d] bg-white"
+            >
+              <option :value="undefined">{{ t('all', 'Barchasi') }}</option>
+              <option v-for="sc in (schoolsRaw || [])" :key="sc.id" :value="sc.id">{{ sc.name }}</option>
+            </select>
+          </div>
+
+          <!-- Date Range -->
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-medium text-gray-500 flex items-center gap-1">
+              <CalendarIcon class="w-3 h-3" />
+              {{ t('date_range', 'Sana oralig\'i') }}
+            </label>
+            <div class="flex items-center gap-2">
+              <input
+                type="date"
+                v-model="dateFrom"
+                :max="dateTo"
+                class="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-[#ff792d] bg-white"
+              />
+              <span class="text-gray-400 text-sm">—</span>
+              <input
+                type="date"
+                v-model="dateTo"
+                :min="dateFrom"
+                :max="today"
+                class="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-[#ff792d] bg-white"
+              />
+              <button
+                v-if="!isToday"
+                @click="resetDateRange"
+                class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition"
+                title="Bugun"
+              >
+                <XIcon class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick date buttons -->
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-medium text-gray-500 invisible">-</label>
+            <div class="flex items-center gap-1.5">
+              <button
+                v-for="q in [
+                  { label: 'Bugun', from: today, to: today },
+                  { label: '7 kun', from: new Date(Date.now()-6*86400000).toISOString().split('T')[0], to: today },
+                  { label: '30 kun', from: new Date(Date.now()-29*86400000).toISOString().split('T')[0], to: today },
+                ]"
+                :key="q.label"
+                @click="dateFrom = q.from; dateTo = q.to"
+                :class="[
+                  'h-9 px-3 text-xs rounded-lg border transition',
+                  dateFrom === q.from && dateTo === q.to
+                    ? 'bg-[#ff792d] text-white border-[#ff792d] font-semibold'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                ]"
+              >
+                {{ q.label }}
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
 
       <!-- Top 4 cards -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -293,22 +482,14 @@ const todayLabel = computed(() => {
             <ClockIcon class="w-4 h-4 text-amber-500" />
             <h3 class="text-sm font-semibold text-gray-700">Kech qolgan o'quvchilar</h3>
           </div>
-          <!-- Date range filter -->
           <div class="flex items-center gap-2 text-sm">
-            <input
-              type="date"
-              v-model="lateFrom"
-              class="h-8 px-2 rounded-lg border border-gray-200 text-gray-600 text-xs focus:outline-none focus:border-[#ff792d]"
-            />
+            <input type="date" v-model="lateFrom" :max="lateTo"
+              class="h-8 px-2 rounded-lg border border-gray-200 text-gray-600 text-xs focus:outline-none focus:border-[#ff792d]" />
             <span class="text-gray-400">—</span>
-            <input
-              type="date"
-              v-model="lateTo"
-              class="h-8 px-2 rounded-lg border border-gray-200 text-gray-600 text-xs focus:outline-none focus:border-[#ff792d]"
-            />
+            <input type="date" v-model="lateTo" :min="lateFrom" :max="today"
+              class="h-8 px-2 rounded-lg border border-gray-200 text-gray-600 text-xs focus:outline-none focus:border-[#ff792d]" />
           </div>
         </div>
-
         <div v-if="!lateStudentsRaw?.length" class="h-20 flex items-center justify-center text-gray-400 text-sm">
           {{ t('no-data', 'Kech qolganlar topilmadi') }}
         </div>
@@ -342,11 +523,8 @@ const todayLabel = computed(() => {
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex flex-wrap gap-1">
-                    <span
-                      v-for="entry in st.lateEntries?.slice(0, 3)"
-                      :key="entry.date"
-                      class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5"
-                    >
+                    <span v-for="entry in st.lateEntries?.slice(0, 3)" :key="entry.date"
+                      class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5">
                       {{ new Date(entry.comingTime).toLocaleTimeString('uz', { hour: '2-digit', minute: '2-digit' }) }}
                       <span class="text-red-400">+{{ entry.lateMinutes }}min</span>
                     </span>
@@ -358,10 +536,10 @@ const todayLabel = computed(() => {
         </div>
       </div>
 
-      <!-- Absent students today -->
+      <!-- Absent students -->
       <div v-if="absentsRaw?.length > 0" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-50">
-          <h3 class="text-sm font-semibold text-gray-700">Bugun kelmagan o'quvchilar</h3>
+          <h3 class="text-sm font-semibold text-gray-700">Kelmagan o'quvchilar</h3>
         </div>
         <div class="divide-y divide-gray-50">
           <div v-for="st in absentsRaw" :key="st.id" class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition">
