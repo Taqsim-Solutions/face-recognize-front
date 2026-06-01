@@ -8,7 +8,7 @@ import {
   Users2Icon, UserIcon, SchoolIcon, CameraIcon,
   RefreshCwIcon, ClockIcon, CalendarIcon, XIcon,
   ActivityIcon, ChevronRightIcon, FlaskConicalIcon,
-  BellIcon, TrendingUpIcon, CheckCircleIcon, XCircleIcon
+  BellIcon, CheckCircleIcon, XCircleIcon
 } from 'lucide-vue-next'
 import {
   fetchSchoolsNumber, fetchWeeklyPerformance,
