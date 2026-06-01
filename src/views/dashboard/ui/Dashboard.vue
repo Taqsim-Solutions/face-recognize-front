@@ -175,11 +175,11 @@ const topCards = computed(() => [
 
 // Today attendance cards (6 cards like EduVision)
 const todayCards = computed(() => [
-  { label: "Kelgan o'quvchilar",   value: s.value.presentStudents ?? 0, total: s.value.totalStudents || 1, color: '#22c55e', icon: CheckCircleIcon, iconColor: 'text-green-500', bg: 'bg-green-50' },
-  { label: "Kelmagan o'quvchilar", value: s.value.absentStudents  ?? 0, total: s.value.totalStudents || 1, color: '#ef4444', icon: XCircleIcon,     iconColor: 'text-red-500',   bg: 'bg-red-50'   },
-  { label: "Kech qolganlar",       value: activeLateStudents.value.length || (s.value.lateStudents ?? 0), total: s.value.totalStudents || 1, color: '#f59e0b', icon: ClockIcon, iconColor: 'text-amber-500', bg: 'bg-amber-50' },
-  { label: "Kelgan o'qituvchilar", value: s.value.presentTeachers ?? 0, total: s.value.totalTeachers || 1, color: '#3b82f6', icon: CheckCircleIcon, iconColor: 'text-blue-500',  bg: 'bg-blue-50'  },
-  { label: "Kelmagan o'qituvchilar", value: s.value.absentTeachers ?? 0, total: s.value.totalTeachers || 1, color: '#ef4444', icon: XCircleIcon,    iconColor: 'text-red-500',   bg: 'bg-red-50'   },
+  { label: t('students-present', "Kelgan o'quvchilar"),   value: s.value.presentStudents ?? 0, total: s.value.totalStudents || 1, color: '#22c55e', icon: CheckCircleIcon, iconColor: 'text-green-500', bg: 'bg-green-50' },
+  { label: t('students-absent',  "Kelmagan o'quvchilar"), value: s.value.absentStudents  ?? 0, total: s.value.totalStudents || 1, color: '#ef4444', icon: XCircleIcon,     iconColor: 'text-red-500',   bg: 'bg-red-50'   },
+  { label: t('late-students',    "Kech qolganlar"),        value: activeLateStudents.value.length || (s.value.lateStudents ?? 0), total: s.value.totalStudents || 1, color: '#f59e0b', icon: ClockIcon, iconColor: 'text-amber-500', bg: 'bg-amber-50' },
+  { label: t('teachers-present', "Kelgan o'qituvchilar"), value: s.value.presentTeachers ?? 0, total: s.value.totalTeachers || 1, color: '#3b82f6', icon: CheckCircleIcon, iconColor: 'text-blue-500',  bg: 'bg-blue-50'  },
+  { label: t('teachers-absent',  "Kelmagan o'qituvchilar"), value: s.value.absentTeachers ?? 0, total: s.value.totalTeachers || 1, color: '#ef4444', icon: XCircleIcon,    iconColor: 'text-red-500',   bg: 'bg-red-50'   },
 ])
 
 // ── School bar chart ──────────────────────────────────────────────
