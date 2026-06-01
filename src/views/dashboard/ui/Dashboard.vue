@@ -259,20 +259,6 @@ const classBarSeries = computed(() => [{
   data: activeClassAttendance.value.map((c: any) => parseFloat(String(c.percentage ?? c.attendedPercentage ?? '0')) || 0)
 }])
 
-// ── Camera donut ──────────────────────────────────────────────────
-const camTotal   = computed(() => s.value.totalCameras  || 0)
-const camOnline  = computed(() => s.value.onlineCameras  ?? camTotal.value)
-const camOffline = computed(() => s.value.offlineCameras || 0)
-const camError   = computed(() => s.value.errorCameras   || 0)
-
-const cameraDonutOptions = computed(() => ({
-  chart: { type: 'donut' as const, fontFamily: 'inherit' },
-  labels: ['Online', 'Offline', 'Xato'],
-  colors: ['#22c55e', '#ef4444', '#f59e0b'],
-  plotOptions: { pie: { donut: { size: '68%', labels: { show: true, total: { show: true, label: 'Jami', formatter: () => String(camTotal.value) } } } } },
-  dataLabels: { enabled: false }, legend: { show: false }, stroke: { width: 0 }
-}))
-const cameraDonutSeries = computed(() => [camOnline.value || 0, camOffline.value || 0, camError.value || 0])
 
 // ── Weekly line chart ─────────────────────────────────────────────
 const dayNames = computed(() => {
