@@ -260,6 +260,12 @@ const classBarSeries = computed(() => [{
 }])
 
 
+// ── Camera stats ──────────────────────────────────────────────────
+const camTotal   = computed(() => s.value.totalCameras  || 0)
+const camOnline  = computed(() => s.value.onlineCameras  ?? camTotal.value)
+const camOffline = computed(() => s.value.offlineCameras || 0)
+const camError   = computed(() => s.value.errorCameras   || 0)
+
 // ── Weekly line chart ─────────────────────────────────────────────
 const dayNames = computed(() => {
   const m: Record<string, string[]> = {
