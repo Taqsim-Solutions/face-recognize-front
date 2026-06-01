@@ -628,124 +628,116 @@ const liveStatusLabel = (type: string) => {
         </div>
       </div>
 
-      <!-- Weekly line -->
-      <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-        <h3 class="text-sm font-semibold text-gray-700 mb-4">{{ t('dashboard.weekly-stats', 'Статистика школ по неделям') }}</h3>
-        <div v-if="!weeklyLineSeries[0]?.data?.length" class="h-40 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data', 'Нет данных') }}</div>
-        <VueApexCharts v-else type="line" height="200" :options="weeklyLineOptions" :series="weeklyLineSeries" />
-      </div>
+      <!-- Weekly + School details side by side -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-      <!-- School details table -->
-      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-50">
-          <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.school-details.school-table-title', 'Подробная статистика по школам') }}</h3>
+        <!-- Weekly line chart -->
+        <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">{{ t('dashboard.weekly-stats', 'Статистика школ по неделям') }}</h3>
+          <div v-if="!weeklyLineSeries[0]?.data?.length" class="h-48 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data', 'Нет данных') }}</div>
+          <VueApexCharts v-else type="line" height="220" :options="weeklyLineOptions" :series="weeklyLineSeries" />
         </div>
-        <div v-if="!activeSchoolDetails.length" class="h-16 flex items-center justify-center text-gray-400 text-sm">{{ t('no-data') }}</div>
-        <div v-else class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50">
-                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{{ t('school', 'Школа') }}</th>
-                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{{ t('dashboard.overall.students', 'Ученики') }}</th>
-                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{{ t('attended', 'Kelgan') }}</th>
-                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{{ t('not-attended', 'Kelmagan') }}</th>
-                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">%</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
-              <tr v-for="row in activeSchoolDetails" :key="row.id ?? row.schoolId"
-                class="hover:bg-gray-50 transition cursor-pointer"
-                @click="selectedSchoolId = row.id ?? row.schoolId; selectedSchoolName = row.name ?? row.schoolName ?? ''">
-                <td class="px-5 py-3 font-medium text-gray-800 max-w-[220px] truncate">{{ row.name ?? row.schoolName }}</td>
-                <td class="px-4 py-3 text-right text-gray-600">{{ row.totalStudents ?? row.allStudentsCount }}</td>
-                <td class="px-4 py-3 text-right text-green-600 font-medium">{{ row.attendedStudentsCount ?? (row.totalStudents - row.absentsCount) }}</td>
-                <td class="px-4 py-3 text-right text-red-500 font-medium">{{ row.notAttendedStudentsCount ?? row.absentsCount }}</td>
-                <td class="px-4 py-3 text-right">
-                  <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold"
-                    :class="parseFloat(row.percentage ?? row.attendedPercentage ?? '0') >= 80 ? 'bg-green-100 text-green-700' : parseFloat(row.percentage ?? row.attendedPercentage ?? '0') >= 50 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'">
-                    {{ row.percentage ?? row.attendedPercentage }}%
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      <!-- Late students -->
-      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-50 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-2">
-            <ClockIcon class="w-4 h-4 text-amber-500" />
-            <h3 class="text-sm font-semibold text-gray-700">{{ t('late-students', 'Опоздавшие ученики') }}</h3>
+        <!-- School details table (compact) -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+          <div class="px-4 py-3 border-b border-gray-50">
+            <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.school-details.school-table-title', 'Подробная статистика по школам') }}</h3>
           </div>
-          <div v-if="!isDemoMode" class="flex items-center gap-2">
-            <input type="date" v-model="lateFrom" :max="lateTo" class="h-8 px-2 rounded-lg border border-gray-200 text-xs text-gray-600 focus:outline-none focus:border-[#ff792d]" />
-            <span class="text-gray-400 text-xs">—</span>
-            <input type="date" v-model="lateTo" :min="lateFrom" :max="today" class="h-8 px-2 rounded-lg border border-gray-200 text-xs text-gray-600 focus:outline-none focus:border-[#ff792d]" />
-          </div>
-        </div>
-        <div v-if="!activeLateStudents.length" class="h-16 flex items-center justify-center text-gray-400 text-sm">{{ t('no-late-students', 'Opozganlar topilmadi') }}</div>
-        <div v-else class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50">
-                <th class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{{ t('student', 'Ученик') }}</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{{ t('sinf', 'Класс') }}</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{{ t('school', 'Школа') }}</th>
-                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{{ t('late-count', 'Опозданий') }}</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{{ t('late-times', 'Время') }}</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
-              <tr v-for="st in activeLateStudents" :key="st.studentId" class="hover:bg-gray-50 transition">
-                <td class="px-5 py-3">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">
-                      {{ (st.firstName?.[0] || '').toUpperCase() + (st.lastName?.[0] || '').toUpperCase() }}
-                    </div>
-                    <span class="font-medium text-gray-800">{{ st.lastName }} {{ st.firstName }}</span>
-                  </div>
-                </td>
-                <td class="px-4 py-3 text-gray-600">{{ st.className }}</td>
-                <td class="px-4 py-3 text-gray-500 text-xs max-w-[160px] truncate">{{ st.schoolName }}</td>
-                <td class="px-4 py-3 text-right">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
-                    {{ st.lateCount }}x
-                  </span>
-                </td>
-                <td class="px-4 py-3">
-                  <div class="flex flex-wrap gap-1">
-                    <span v-for="entry in st.lateEntries?.slice(0, 3)" :key="entry.date"
-                      class="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5">
-                      {{ formatTime(entry.comingTime) }}
-                      <span class="text-red-400">+{{ entry.lateMinutes }}{{ t('min', 'мин') }}</span>
+          <div v-if="!activeSchoolDetails.length" class="flex-1 flex items-center justify-center text-gray-400 text-sm py-8">{{ t('no-data') }}</div>
+          <div v-else class="overflow-y-auto max-h-[320px]">
+            <table class="w-full text-xs">
+              <thead class="sticky top-0 bg-gray-50 z-10">
+                <tr>
+                  <th class="px-4 py-2.5 text-left font-semibold text-gray-500 uppercase tracking-wide">{{ t('school', 'Школа') }}</th>
+                  <th class="px-3 py-2.5 text-right font-semibold text-gray-500 uppercase tracking-wide">{{ t('dashboard.overall.students', 'Жами') }}</th>
+                  <th class="px-3 py-2.5 text-right font-semibold text-gray-500 uppercase tracking-wide">✓</th>
+                  <th class="px-3 py-2.5 text-right font-semibold text-gray-500 uppercase tracking-wide">✗</th>
+                  <th class="px-3 py-2.5 text-right font-semibold text-gray-500 uppercase tracking-wide">%</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50">
+                <tr v-for="row in activeSchoolDetails" :key="row.id ?? row.schoolId"
+                  class="hover:bg-gray-50 transition cursor-pointer"
+                  @click="selectedSchoolId = row.id ?? row.schoolId; selectedSchoolName = row.name ?? row.schoolName ?? ''">
+                  <td class="px-4 py-2.5 font-medium text-gray-800 max-w-[150px] truncate">{{ row.name ?? row.schoolName }}</td>
+                  <td class="px-3 py-2.5 text-right text-gray-500">{{ row.totalStudents ?? row.allStudentsCount }}</td>
+                  <td class="px-3 py-2.5 text-right text-green-600 font-semibold">{{ row.attendedStudentsCount ?? (row.totalStudents - row.absentsCount) }}</td>
+                  <td class="px-3 py-2.5 text-right text-red-500 font-semibold">{{ row.notAttendedStudentsCount ?? row.absentsCount }}</td>
+                  <td class="px-3 py-2.5 text-right">
+                    <span class="inline-flex px-1.5 py-0.5 rounded-md text-xs font-bold"
+                      :class="parseFloat(row.percentage ?? row.attendedPercentage ?? '0') >= 80 ? 'bg-green-100 text-green-700' : parseFloat(row.percentage ?? row.attendedPercentage ?? '0') >= 50 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'">
+                      {{ row.percentage ?? row.attendedPercentage }}%
                     </span>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Absent students -->
-      <div v-if="activeAbsents.length" class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-50">
-          <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.absents.title', 'Отсутствующие') }}</h3>
-        </div>
-        <div class="divide-y divide-gray-50">
-          <div v-for="st in activeAbsents" :key="st.id" class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition">
-            <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-600 shrink-0">
-              {{ ((st.firstName || st.studentName || '?')[0] || '').toUpperCase() }}
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-800 truncate">{{ st.lastName }} {{ st.firstName || st.studentName }}</p>
-              <p class="text-xs text-gray-400 truncate">{{ st.schoolName || st.school }} • {{ st.className || st.class }}</p>
-            </div>
-            <span class="text-xs text-red-500 font-medium bg-red-50 px-2 py-0.5 rounded-full">{{ t('not-attended', 'Отсутствовал') }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
+
+      </div>
+
+      <!-- Late + Absent side by side -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        <!-- Late students (compact) -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+          <div class="px-4 py-3 border-b border-gray-50 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <ClockIcon class="w-4 h-4 text-amber-500" />
+              <h3 class="text-sm font-semibold text-gray-700">{{ t('late-students', 'Опоздавшие ученики') }}</h3>
+            </div>
+            <div v-if="!isDemoMode" class="flex items-center gap-1.5">
+              <input type="date" v-model="lateFrom" :max="lateTo" class="h-7 px-2 rounded-lg border border-gray-200 text-xs text-gray-600 focus:outline-none focus:border-[#ff792d]" />
+              <span class="text-gray-300 text-xs">—</span>
+              <input type="date" v-model="lateTo" :min="lateFrom" :max="today" class="h-7 px-2 rounded-lg border border-gray-200 text-xs text-gray-600 focus:outline-none focus:border-[#ff792d]" />
+            </div>
+          </div>
+          <div v-if="!activeLateStudents.length" class="flex-1 flex items-center justify-center py-8 text-gray-400 text-sm">{{ t('no-late-students', 'Opozganlar topilmadi') }}</div>
+          <div v-else class="overflow-y-auto max-h-[320px] divide-y divide-gray-50">
+            <div v-for="st in activeLateStudents" :key="st.studentId" class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition">
+              <!-- Avatar -->
+              <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">
+                {{ (st.firstName?.[0] || '').toUpperCase() + (st.lastName?.[0] || '').toUpperCase() }}
+              </div>
+              <!-- Name + class + school -->
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-gray-800 truncate">{{ st.lastName }} {{ st.firstName }}</p>
+                <p class="text-xs text-gray-400 truncate">{{ st.schoolName }} • {{ st.className }}</p>
+              </div>
+              <!-- Count badge -->
+              <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full shrink-0">{{ st.lateCount }}x</span>
+              <!-- Times -->
+              <div class="flex flex-wrap gap-1 justify-end max-w-[160px]">
+                <span v-for="entry in st.lateEntries?.slice(0, 2)" :key="entry.date"
+                  class="text-xs bg-gray-100 text-gray-500 rounded px-1.5 py-0.5 whitespace-nowrap">
+                  {{ formatTime(entry.comingTime) }} <span class="text-red-400">+{{ entry.lateMinutes }}{{ t('min', 'м') }}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Absent students (compact) -->
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+          <div class="px-4 py-3 border-b border-gray-50">
+            <h3 class="text-sm font-semibold text-gray-700">{{ t('dashboard.absents.title', 'Отсутствующие') }}</h3>
+          </div>
+          <div v-if="!activeAbsents.length" class="flex-1 flex items-center justify-center py-8 text-gray-400 text-sm">{{ t('no-data') }}</div>
+          <div v-else class="overflow-y-auto max-h-[320px] divide-y divide-gray-50">
+            <div v-for="st in activeAbsents" :key="st.id" class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition">
+              <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-600 shrink-0">
+                {{ ((st.firstName || st.studentName || '?')[0] || '').toUpperCase() }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-gray-800 truncate">{{ st.lastName }} {{ st.firstName || st.studentName }}</p>
+                <p class="text-xs text-gray-400 truncate">{{ st.schoolName || st.school }} • {{ st.className || st.class }}</p>
+              </div>
+              <span class="text-xs text-red-500 font-semibold bg-red-50 px-2 py-0.5 rounded-full shrink-0">{{ t('not-attended', 'Отсутствовал') }}</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>

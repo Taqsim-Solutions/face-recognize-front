@@ -125,10 +125,19 @@ export const mockLateStudents = [
   },
 ]
 
+// Realistic face photos from randomuser.me (consistent per seed)
+const mockPhotos = [
+  'https://randomuser.me/api/portraits/men/32.jpg',
+  'https://randomuser.me/api/portraits/women/44.jpg',
+  'https://randomuser.me/api/portraits/men/65.jpg',
+  'https://randomuser.me/api/portraits/women/28.jpg',
+  'https://randomuser.me/api/portraits/men/51.jpg',
+]
+
 export const mockLiveEvents = [
-  { firstName: 'Azizbek',  lastName: 'Mirzayev',   schoolName: '1-maktab', className: '9-A sinf',  attendanceTime: new Date(Date.now() - 1 * 60000).toISOString(),  type: 'entry', photo: null },
-  { firstName: 'Zulfiya',  lastName: 'Hasanova',   schoolName: '3-maktab', className: '7-B sinf',  attendanceTime: new Date(Date.now() - 3 * 60000).toISOString(),  type: 'entry', photo: null },
-  { firstName: 'Sardor',   lastName: 'Qodirov',    schoolName: '2-maktab', className: '11-A sinf', attendanceTime: new Date(Date.now() - 6 * 60000).toISOString(),  type: 'exit',  photo: null },
-  { firstName: 'Mohira',   lastName: 'Umarova',    schoolName: '5-maktab', className: '4-A sinf',  attendanceTime: new Date(Date.now() - 9 * 60000).toISOString(),  type: 'entry', photo: null },
-  { firstName: 'Firdavs',  lastName: 'Normatov',   schoolName: '8-maktab', className: '6-A sinf',  attendanceTime: new Date(Date.now() - 14 * 60000).toISOString(), type: 'entry', photo: null },
+  { firstName: 'Azizbek',  lastName: 'Mirzayev',   schoolName: '1-maktab', className: '9-A sinf',  attendanceTime: new Date(Date.now() - 1 * 60000).toISOString(),  type: 'entry', photo: mockPhotos[0] },
+  { firstName: 'Zulfiya',  lastName: 'Hasanova',   schoolName: '3-maktab', className: '7-B sinf',  attendanceTime: new Date(Date.now() - 3 * 60000).toISOString(),  type: 'entry', photo: mockPhotos[1] },
+  { firstName: 'Sardor',   lastName: 'Qodirov',    schoolName: '2-maktab', className: '11-A sinf', attendanceTime: new Date(Date.now() - 6 * 60000).toISOString(),  type: 'exit',  photo: mockPhotos[2] },
+  { firstName: 'Mohira',   lastName: 'Umarova',    schoolName: '5-maktab', className: '4-A sinf',  attendanceTime: new Date(Date.now() - 9 * 60000).toISOString(),  type: 'entry', photo: mockPhotos[3] },
+  { firstName: 'Firdavs',  lastName: 'Normatov',   schoolName: '8-maktab', className: '6-A sinf',  attendanceTime: new Date(Date.now() - 14 * 60000).toISOString(), type: 'entry', photo: mockPhotos[4] },
 ]
