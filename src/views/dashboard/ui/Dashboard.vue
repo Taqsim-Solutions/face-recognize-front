@@ -420,59 +420,51 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
         <template v-for="card in topCards" :key="card.key">
 
           <!-- Camera card with donut -->
-          <div v-if="card.showCamStats" class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow transition">
-            <div class="flex items-center gap-3">
-              <div :class="[card.bg, 'p-2.5 rounded-xl shrink-0']">
-                <component :is="card.icon" :class="[card.color, 'w-5 h-5']" />
-              </div>
-              <div class="min-w-0">
-                <p class="text-xl font-bold text-gray-900">{{ card.value.toLocaleString() }}</p>
-                <p class="text-xs text-gray-500 truncate">{{ card.label }}</p>
-              </div>
+          <div v-if="card.showCamStats" class="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3 shadow-sm hover:shadow transition">
+            <!-- Left: icon + count + label -->
+            <div :class="[card.bg, 'p-2.5 rounded-xl shrink-0']">
+              <component :is="card.icon" :class="[card.color, 'w-5 h-5']" />
             </div>
-            <!-- Donut chart + legend -->
-            <div v-if="camTotal > 0" class="mt-3 flex items-center gap-3">
-              <!-- SVG donut -->
-              <div class="relative shrink-0" style="width:56px;height:56px">
-                <svg viewBox="0 0 56 56" class="w-full h-full -rotate-90">
-                  <!-- Background circle -->
-                  <circle cx="28" cy="28" r="22" fill="none" stroke="#f3f4f6" stroke-width="7"/>
-                  <!-- Online arc -->
-                  <circle cx="28" cy="28" r="22" fill="none" stroke="#22c55e" stroke-width="7"
-                    :stroke-dasharray="`${(camOnline / camTotal) * 138.2} 138.2`"
-                    stroke-dashoffset="0" stroke-linecap="butt"/>
-                  <!-- Offline arc -->
-                  <circle cx="28" cy="28" r="22" fill="none" stroke="#ef4444" stroke-width="7"
-                    :stroke-dasharray="`${(camOffline / camTotal) * 138.2} 138.2`"
-                    :stroke-dashoffset="`${-((camOnline / camTotal) * 138.2)}`"
-                    stroke-linecap="butt"/>
-                  <!-- Error arc -->
-                  <circle cx="28" cy="28" r="22" fill="none" stroke="#f59e0b" stroke-width="7"
-                    :stroke-dasharray="`${(camError / camTotal) * 138.2} 138.2`"
-                    :stroke-dashoffset="`${-(((camOnline + camOffline) / camTotal) * 138.2)}`"
-                    stroke-linecap="butt"/>
+            <div class="min-w-0 flex-1">
+              <p class="text-xl font-bold text-gray-900">{{ card.value.toLocaleString() }}</p>
+              <p class="text-xs text-gray-500 truncate">{{ card.label }}</p>
+            </div>
+            <!-- Right: donut + legend (only if data exists) -->
+            <div v-if="camTotal > 0" class="flex items-center gap-2 shrink-0">
+              <!-- SVG donut (small, same height as card) -->
+              <div class="relative" style="width:44px;height:44px">
+                <svg viewBox="0 0 44 44" class="w-full h-full -rotate-90">
+                  <circle cx="22" cy="22" r="17" fill="none" stroke="#f3f4f6" stroke-width="6"/>
+                  <circle cx="22" cy="22" r="17" fill="none" stroke="#22c55e" stroke-width="6"
+                    :stroke-dasharray="`${(camOnline / camTotal) * 106.8} 106.8`"
+                    stroke-dashoffset="0"/>
+                  <circle cx="22" cy="22" r="17" fill="none" stroke="#ef4444" stroke-width="6"
+                    :stroke-dasharray="`${(camOffline / camTotal) * 106.8} 106.8`"
+                    :stroke-dashoffset="`${-((camOnline / camTotal) * 106.8)}`"/>
+                  <circle cx="22" cy="22" r="17" fill="none" stroke="#f59e0b" stroke-width="6"
+                    :stroke-dasharray="`${(camError / camTotal) * 106.8} 106.8`"
+                    :stroke-dashoffset="`${-(((camOnline + camOffline) / camTotal) * 106.8)}`"/>
                 </svg>
                 <div class="absolute inset-0 flex items-center justify-center">
-                  <span class="text-xs font-bold text-gray-700">{{ pct(camOnline, camTotal) }}%</span>
+                  <span style="font-size:9px" class="font-bold text-gray-700">{{ pct(camOnline, camTotal) }}%</span>
                 </div>
               </div>
-              <!-- Legend -->
-              <div class="flex flex-col gap-1 text-xs">
-                <span class="flex items-center gap-1.5 text-gray-600">
-                  <span class="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
-                  Online <strong class="text-gray-800 ml-auto pl-2">{{ camOnline }}</strong>
+              <!-- Compact legend -->
+              <div class="flex flex-col gap-0.5 text-xs">
+                <span class="flex items-center gap-1 text-gray-600 whitespace-nowrap">
+                  <span class="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
+                  <span class="font-medium text-gray-800">{{ camOnline }}</span>
                 </span>
-                <span class="flex items-center gap-1.5 text-gray-600">
-                  <span class="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
-                  Offline <strong class="text-gray-800 ml-auto pl-2">{{ camOffline }}</strong>
+                <span class="flex items-center gap-1 text-gray-600 whitespace-nowrap">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span>
+                  <span class="font-medium text-gray-800">{{ camOffline }}</span>
                 </span>
-                <span class="flex items-center gap-1.5 text-gray-600">
-                  <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-                  {{ t('error', 'Xato') }} <strong class="text-gray-800 ml-auto pl-2">{{ camError }}</strong>
+                <span class="flex items-center gap-1 text-gray-600 whitespace-nowrap">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                  <span class="font-medium text-gray-800">{{ camError }}</span>
                 </span>
               </div>
             </div>
-            <div v-else class="mt-2 text-xs text-gray-400">{{ t('no-data', "Ma'lumot yo'q") }}</div>
           </div>
 
           <!-- Regular stat card -->
