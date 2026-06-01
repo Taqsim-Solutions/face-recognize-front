@@ -192,7 +192,7 @@ const schoolBarOptions = computed(() => ({
         <br/><span style="color:#999;font-size:11px">${t('click-for-classes','Sinflar uchun bosing')}</span></div>`
     }
   },
-  states: { hover: { filter: { type: 'darken', value: 0.85 } } }
+  states: { hover: { filter: { type: 'darken' as const, value: 0.85 } } }
 }))
 
 const schoolBarSeries = computed(() => [{
