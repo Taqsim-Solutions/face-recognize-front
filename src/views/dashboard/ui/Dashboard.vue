@@ -11,9 +11,8 @@ import {
 } from 'lucide-vue-next'
 import {
   fetchSchoolsNumber, fetchWeeklyPerformance,
-  fetchMonthlyOverview, fetchSchoolDetails, fetchAbsents,
-  fetchLateStudents, fetchRegions, fetchSchoolsByCity,
-  fetchOverallStatistics
+  fetchSchoolDetails, fetchAbsents,
+  fetchLateStudents, fetchRegions, fetchSchoolsByCity
 } from '../api'
 import { fetchTodayStats } from '../api/todayStats'
 import api from '@/api'
@@ -73,61 +72,6 @@ const { data: schoolsRaw } = useQuery({
   enabled: computed(() => !!filterCityId.value && !hideSchoolFilter.value)
 })
 
-// Classes for selected school
-const { data: classesRaw } = useQuery({
-  queryKey: computed(() => ['classes-dash', selectedSchoolId.value]),
-  queryFn: () => api.get('/api/classes', { params: { SchoolId: selectedSchoolId.value, PageSize: 999 } }),
-  select: (r: any) => r?.data?.result?.data || [],
-  enabled: computed(() => !!selectedSchoolId.value)
-})
-
-// ── Main stats queries ────────────────────────────────────────────
-const commonKey = computed(() => [
-  activeRegionId.value, activeCityId.value, activeSchoolId.value,
-  activeDateFrom.value, activeDateTo.value
-])
-
-const { data: todayRaw,         refetch: refetchToday }    = useQuery({ queryKey: computed(() => ['today-stats', ...commonKey.value]),  queryFn: () => fetchTodayStats({ regionId: activeRegionId.value, cityId: activeCityId.value, schoolId: activeSchoolId.value }), select: (r: any) => r?.data?.result })
-const { data: schoolsNumberRaw, refetch: refetchSN }       = useQuery({ queryKey: computed(() => ['sn-dash', ...commonKey.value]),        queryFn: () => fetchSchoolsNumber({ regionId: activeRegionId.value, cityId: activeCityId.value, schoolId: activeSchoolId.value, fromDate: activeDateFrom.value, toDate: activeDateTo.value }), select: (r: any) => r?.data?.result })
-const { data: performanceRaw,   refetch: refetchPerf }     = useQuery({ queryKey: computed(() => ['perf-dash', activeRegionId.value, activeCityId.value]), queryFn: () => fetchWeeklyPerformance({ RegionId: activeRegionId.value, CityId: activeCityId.value }), select: (r: any) => r?.data?.result })
-const { data: schoolDetailsRaw, refetch: refetchDetails }  = useQuery({ queryKey: computed(() => ['school-details-dash', ...commonKey.value]), queryFn: () => fetchSchoolDetails({ RegionId: activeRegionId.value, CityId: activeCityId.value, DateFrom: activeDateFrom.value, DateTo: activeDateTo.value, PageIndex: 1 }), select: (r: any) => r?.data?.result?.data || [] })
-const { data: absentsRaw,       refetch: refetchAbsents }  = useQuery({ queryKey: computed(() => ['absents-dash', ...commonKey.value]),     queryFn: () => fetchAbsents({ RegionId: activeRegionId.value, CityId: activeCityId.value, SchoolId: activeSchoolId.value, DateFrom: activeDateFrom.value, DateTo: activeDateTo.value }), select: (r: any) => r?.data?.result?.data || [] })
-const { data: lateStudentsRaw,  refetch: refetchLate }     = useQuery({ queryKey: computed(() => ['late-dash', lateFrom.value, lateTo.value, activeRegionId.value, activeCityId.value, activeSchoolId.value]), queryFn: () => fetchLateStudents({ dateFrom: lateFrom.value, dateTo: lateTo.value, regionId: activeRegionId.value, cityId: activeCityId.value, schoolId: activeSchoolId.value, pageSize: 20 }), select: (r: any) => r?.data?.result?.data || [] })
-
-// Class attendance for selected school
-const { data: classAttendanceRaw } = useQuery({
-  queryKey: computed(() => ['class-attendance', selectedSchoolId.value, activeDateFrom.value, activeDateTo.value]),
-  queryFn: () => fetchSchoolDetails({ RegionId: activeRegionId.value, CityId: activeCityId.value, DateFrom: activeDateFrom.value, DateTo: activeDateTo.value, PageIndex: 1 }),
-  select: (r: any) => r?.data?.result?.data || [],
-  enabled: computed(() => !!selectedSchoolId.value)
-})
-
-// ── Live monitoring — last 5 face-recognition events ──────────────
-const liveEvents = ref<any[]>([])
-const liveLoading = ref(false)
-let liveInterval: ReturnType<typeof setInterval>
-
-const fetchLiveEvents = async () => {
-  try {
-    liveLoading.value = true
-    const todayStr = new Date().toISOString().split('T')[0]
-    const res = await api.get('/api/Attendances/date/' + todayStr)
-    const data: any[] = res?.data?.result || []
-    // Sort by time desc, take 5
-    liveEvents.value = data
-      .sort((a: any, b: any) => new Date(b.attendanceTime || b.comingTime || b.date || 0).getTime() - new Date(a.attendanceTime || a.comingTime || a.date || 0).getTime())
-      .slice(0, 5)
-  } catch {
-    // silent
-  } finally {
-    liveLoading.value = false
-  }
-}
-
-onMounted(() => {
-  fetchLiveEvents()
-  liveInterval = setInterval(fetchLiveEvents, 30000) // refresh every 30s
-})
 onUnmounted(() => clearInterval(liveInterval))
 
 const refetchAll = () => {
