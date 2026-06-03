@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -28,6 +28,7 @@ import {
   fetchSchoolsByCity,
   fetchClassesBySchool
 } from '../api'
+import { useCameraCapture } from '@/composables/useCameraCapture'
 
 const props = defineProps<{
   open: boolean
@@ -45,11 +46,14 @@ const isOpen = computed({
   set: (val) => emit('update:open', val)
 })
 
-// Photo state
-const photoFile = ref<File | null>(null)
-const photoPreviewUrl = ref<string | null>(null)
-const isDragging = ref(false)
-const fileInputRef = ref<HTMLInputElement | null>(null)
+// Photo + camera logic (shared composable). Teacher photos are not mirrored.
+const {
+  photoFile, photoPreviewUrl, isDragging, fileInputRef,
+  triggerFileInput, handleFileSelect, removePhoto,
+  onDragOver, onDragLeave, onDrop,
+  isCameraOpen, videoRef, mediaStream, cameraError,
+  openCamera, closeCamera, capturePhoto
+} = useCameraCapture({ mirrorFront: false })
 
 // Cascade APIs
 // 1. Fetch Regions
@@ -203,64 +207,7 @@ watch(
   }
 )
 
-// Photo drag & drop handlers
-const triggerFileInput = () => {
-  fileInputRef.value?.click()
-}
-
-const handleFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    processFile(file)
-  }
-}
-
-const processFile = (file: File) => {
-  if (!file.type.startsWith('image/')) {
-    toast.error(t('validation.only-images-allowed', 'Faqat rasm fayllari qabul qilinadi'))
-    return
-  }
-  if (file.size > 10 * 1024 * 1024) {
-    toast.error(t('validation.image-size-limit-10mb', 'Rasm hajmi 10MB dan oshmasligi kerak'))
-    return
-  }
-  compressImage(file).then((compressed) => {
-    photoFile.value = compressed
-    photoPreviewUrl.value = URL.createObjectURL(compressed)
-  })
-}
-
-const onDragOver = (e: DragEvent) => {
-  e.preventDefault()
-  isDragging.value = true
-}
-
-const onDragLeave = () => {
-  isDragging.value = false
-}
-
-const onDrop = (e: DragEvent) => {
-  e.preventDefault()
-  isDragging.value = false
-  const file = e.dataTransfer?.files?.[0]
-  if (file) {
-    processFile(file)
-  }
-}
-
-const removePhoto = () => {
-  photoFile.value = null
-  if (photoPreviewUrl.value) {
-    URL.revokeObjectURL(photoPreviewUrl.value)
-    photoPreviewUrl.value = null
-  }
-  if (fileInputRef.value) {
-    fileInputRef.value.value = ''
-  }
-}
-
-// Reset form & photo when sheet closes or opens
+// Reset form & photo when sheet opens
 watch(
   () => props.open,
   (val) => {
@@ -271,116 +218,7 @@ watch(
   }
 )
 
-// Camera capture logic
-const isCameraOpen = ref(false)
-const videoRef = ref<HTMLVideoElement | null>(null)
-const mediaStream = ref<MediaStream | null>(null)
-const cameraError = ref<string | null>(null)
 
-const openCamera = async () => {
-  isCameraOpen.value = true
-  cameraError.value = null
-  await nextTick()
-  try {
-    let stream: MediaStream | null = null
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-      })
-    } catch {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
-      })
-    }
-    mediaStream.value = stream
-    if (videoRef.value) {
-      videoRef.value.srcObject = stream
-      videoRef.value.setAttribute('playsinline', 'true')
-      videoRef.value.setAttribute('autoplay', 'true')
-      try { await videoRef.value.play() } catch { /* ok */ }
-    }
-  } catch (err: any) {
-    console.error('Kameraga kirishda xatolik:', err)
-    cameraError.value = t(
-      'camera.failed-to-start',
-      "Kamerani ishga tushirib bo'lmadi. Kameraga ruxsat berilganini tekshiring."
-    )
-  }
-}
-
-const closeCamera = () => {
-  if (mediaStream.value) {
-    mediaStream.value.getTracks().forEach((track) => track.stop())
-    mediaStream.value = null
-  }
-  isCameraOpen.value = false
-}
-
-
-// Compress image before upload (max 800px, 80% quality)
-const compressImage = (file: File, maxSize = 800, quality = 0.8): Promise<File> => {
-  return new Promise((resolve) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    img.onload = () => {
-      URL.revokeObjectURL(url)
-      let { width, height } = img
-      if (width > maxSize || height > maxSize) {
-        if (width > height) { height = Math.round(height * maxSize / width); width = maxSize }
-        else { width = Math.round(width * maxSize / height); height = maxSize }
-      }
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0, width, height)
-      canvas.toBlob((blob) => {
-        if (blob) resolve(new File([blob], file.name, { type: 'image/jpeg' }))
-        else resolve(file)
-      }, 'image/jpeg', quality)
-    }
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(file) }
-    img.src = url
-  })
-}
-
-const capturePhoto = () => {
-  if (videoRef.value) {
-    const canvas = document.createElement('canvas')
-    canvas.width = videoRef.value.videoWidth || 640
-    canvas.height = videoRef.value.videoHeight || 480
-    const ctx = canvas.getContext('2d')
-    if (ctx) {
-      // Mirror the image to match screen preview
-      // No mirror transform - capture as-is for correct face recognition
-      ctx.drawImage(videoRef.value, 0, 0, canvas.width, canvas.height)
-
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' })
-            photoFile.value = file
-
-            if (photoPreviewUrl.value && !photoPreviewUrl.value.startsWith('/api')) {
-              URL.revokeObjectURL(photoPreviewUrl.value)
-            }
-            photoPreviewUrl.value = URL.createObjectURL(blob)
-
-            closeCamera()
-          }
-        },
-        'image/jpeg',
-        0.95
-      )
-    }
-  }
-}
-
-watch(isCameraOpen, (val) => {
-  if (!val) {
-    closeCamera()
-  }
-})
 
 // Mutation to create teacher and upload photo
 const { isPending: isSubmitPending, mutate } = useMutation({

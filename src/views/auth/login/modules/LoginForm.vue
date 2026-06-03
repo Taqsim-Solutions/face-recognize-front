@@ -5,6 +5,7 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 
 import axios from 'axios'
+import api from '@/api'
 import * as z from 'zod'
 
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-icons/vue'
@@ -55,7 +56,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       password: values.password
     }
 
-    const { data, status } = await axios.post<LoginResponse>('/api/authentication', payload, {
+    const { data, status } = await api.post<LoginResponse>('/api/authentication', payload, {
       validateStatus: (s) => s === 200
     })
 
