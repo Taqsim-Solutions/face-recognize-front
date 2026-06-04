@@ -58,6 +58,10 @@ const formIpAddress = ref('')
 const formUsername = ref('')
 const formPassword = ref('')
 const formType = ref(1)
+// DDNS (external access for cameras without public IP)
+const formUseDdns = ref(false)
+const formDdnsHost = ref('')
+const formExternalPort = ref<number | null>(9001)
 
 // Cascading selectors in Drawer
 const formRegionId = ref('all')
@@ -212,6 +216,9 @@ const openAddDrawer = () => {
   formUsername.value = ''
   formPassword.value = ''
   formType.value = 1
+  formUseDdns.value = false
+  formDdnsHost.value = ''
+  formExternalPort.value = 9001
   formRegionId.value = 'all'
   formCityId.value = 'all'
   formSchoolId.value = 'all'
@@ -227,6 +234,9 @@ const openEditDrawer = (camera: any) => {
   formUsername.value = camera.username || ''
   formPassword.value = camera.password || ''
   formType.value = camera.type || 1
+  formUseDdns.value = camera.useDdns || false
+  formDdnsHost.value = camera.ddnsHost || ''
+  formExternalPort.value = camera.externalPort ?? 9001
 
   // Support both nested school object and flat regionId/cityId fields
   if (camera.school) {
@@ -262,7 +272,10 @@ const saveCameraForm = () => {
     username: formUsername.value,
     password: formPassword.value,
     type: formType.value,
-    schoolId: Number(formSchoolId.value)
+    schoolId: Number(formSchoolId.value),
+    useDdns: formUseDdns.value,
+    ddnsHost: formUseDdns.value ? formDdnsHost.value.trim() : null,
+    externalPort: formUseDdns.value ? Number(formExternalPort.value) || null : null
   }
 
   if (isEditing.value && currentCameraId.value !== null) {
@@ -833,6 +846,43 @@ const getHeartbeatTimeOnly = (cam: any) => {
                 :placeholder="t('ip-address-placeholder')"
                 class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white"
               />
+            </div>
+
+            <!-- DDNS external access -->
+            <div class="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  v-model="formUseDdns"
+                  class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <span class="text-sm font-semibold text-gray-700">
+                  {{ t('use-ddns', 'Tashqaridan ulanish (DDNS)') }}
+                </span>
+              </label>
+              <p class="text-xs text-gray-400 leading-snug">
+                {{ t('ddns-hint', "Kamerada tashqi (public) IP bo'lmasa yoqing. Router port-forward orqali ulanadi.") }}
+              </p>
+
+              <template v-if="formUseDdns">
+                <div class="space-y-1.5">
+                  <Label class="text-xs font-medium text-gray-600">{{ t('ddns-host', 'DDNS manzili') }}</Label>
+                  <Input
+                    v-model="formDdnsHost"
+                    placeholder="30-maktab.duckdns.org"
+                    class="h-10 rounded-lg border border-gray-300 focus:border-primary bg-white"
+                  />
+                </div>
+                <div class="space-y-1.5">
+                  <Label class="text-xs font-medium text-gray-600">{{ t('external-port', 'Tashqi port') }}</Label>
+                  <Input
+                    v-model.number="formExternalPort"
+                    type="number"
+                    placeholder="9001"
+                    class="h-10 rounded-lg border border-gray-300 focus:border-primary bg-white"
+                  />
+                </div>
+              </template>
             </div>
 
             <!-- Username -->
