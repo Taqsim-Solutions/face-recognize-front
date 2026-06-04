@@ -4,7 +4,7 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { fetchCameras, createCamera, updateCamera, deleteCamera, resyncSchool } from '../api'
+import { fetchCameras, createCamera, updateCamera, deleteCamera, resyncSchool, syncAllCameras, fetchCameraUsers, importCameraUsers, fetchClassesBySchool } from '../api'
 import { fetchRegions, fetchSchoolsByCity } from '@/views/students/list/api'
 import {
   Table,
@@ -33,7 +33,9 @@ import {
   AlertCircle,
   CameraIcon,
   ArrowLeftIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  DownloadIcon,
+  XIcon
 } from 'lucide-vue-next'
 
 const { t } = useI18n()
@@ -205,6 +207,138 @@ const resyncMutation = useMutation({
     syncingCameraId.value = null
   }
 })
+
+// ── Sync ALL schools to cameras (push system → camera) ──────────
+const syncAllMutation = useMutation({
+  mutationFn: () => syncAllCameras(),
+  onSuccess: () => {
+    toast.success(
+      t('sync-all-started', "Sinxronizatsiya boshlandi. O'quvchi va o'qituvchilar kameralarga yuborilmoqda.")
+    )
+  },
+  onError: (error: any) => {
+    toast.error(error?.response?.data?.message || t('resync-error', 'Xatolik yuz berdi'))
+  }
+})
+
+const handleSyncAll = () => {
+  if (confirm(t('sync-all-confirm', "Barcha o'quvchi va o'qituvchilarni kameralarga yuborishni boshlaymizmi? Bu biroz vaqt olishi mumkin."))) {
+    syncAllMutation.mutate()
+  }
+}
+
+// ── Import FROM camera (camera → system) ────────────────────────
+const isImportOpen = ref(false)
+const importCameraId = ref<number | null>(null)
+const importLoading = ref(false)
+const importRows = ref<any[]>([])
+
+const openImportDialog = () => {
+  importCameraId.value = cameras.value.length ? cameras.value[0].id : null
+  importRows.value = []
+  isImportOpen.value = true
+  loadImportClasses()
+}
+
+// The camera belongs to a school; load that school's classes for student assignment.
+const importSchoolId = ref<number | null>(null)
+const importClasses = ref<any[]>([])
+
+const importSchoolName = computed(() => {
+  const cam = cameras.value.find((c) => c.id === importCameraId.value)
+  return cam?.school?.name || ''
+})
+
+const loadImportClasses = async () => {
+  importClasses.value = []
+  importSchoolId.value = null
+  if (!importCameraId.value) return
+  const cam = cameras.value.find((c) => c.id === importCameraId.value)
+  const schoolId = cam?.schoolId || cam?.school?.id
+  if (!schoolId) return
+  importSchoolId.value = schoolId
+  try {
+    const res = await fetchClassesBySchool(schoolId)
+    importClasses.value = (res as any)?.data?.result?.data || (res as any)?.data?.result || []
+  } catch {
+    importClasses.value = []
+  }
+}
+
+const loadCameraUsers = async () => {
+  if (!importCameraId.value) {
+    toast.error(t('select-camera-first', 'Avval kamerani tanlang'))
+    return
+  }
+  importLoading.value = true
+  try {
+    const res = await fetchCameraUsers(importCameraId.value)
+    const list = (res as any)?.data?.result || (res as any)?.result || []
+    // Map each camera user to an editable import row
+    importRows.value = list.map((u: any) => {
+      const fullName = (u.name || '').trim().split(/\s+/)
+      return {
+        employeeNo: u.employeeNo,
+        // best-effort name split: "Familiya Ism" → lastName firstName
+        lastName: fullName[0] || '',
+        firstName: fullName.slice(1).join(' ') || '',
+        fatherName: '',
+        // auto-detected kind from S{id}/T{id}; 0 = unknown, force admin to pick
+        kind: u.detectedKind || 0,
+        gender: 1,
+        classId: null,
+        schoolId: null,
+        selected: true
+      }
+    })
+    if (!importRows.value.length) {
+      toast.info(t('no-camera-users', 'Kamerada foydalanuvchilar topilmadi'))
+    }
+  } catch (e: any) {
+    toast.error(e?.response?.data?.message || t('camera-fetch-error', "Kameradan ma'lumot olishda xatolik"))
+  } finally {
+    importLoading.value = false
+  }
+}
+
+const importMutation = useMutation({
+  mutationFn: () => {
+    const users = importRows.value
+      .filter((r) => r.selected && r.kind > 0)
+      .map((r) => ({
+        employeeNo: r.employeeNo,
+        firstName: r.firstName,
+        lastName: r.lastName,
+        fatherName: r.fatherName,
+        kind: r.kind,
+        gender: r.gender,
+        classId: r.kind === 1 ? r.classId : null,
+        schoolId: r.kind === 2 ? r.schoolId : null
+      }))
+    return importCameraUsers({ cameraId: importCameraId.value!, users })
+  },
+  onSuccess: (res: any) => {
+    const result = res?.data?.result || res?.result || {}
+    toast.success(
+      t('import-done', "Import yakunlandi") +
+        `: ${result.created || 0} ${t('created', 'qo\'shildi')}, ${result.skipped || 0} ${t('skipped', "o'tkazib yuborildi")}`
+    )
+    isImportOpen.value = false
+    queryClient.invalidateQueries({ queryKey: ['cameras-list'] })
+  },
+  onError: (error: any) => {
+    toast.error(error?.response?.data?.message || t('import-error', 'Import xatosi'))
+  }
+})
+
+const handleImport = () => {
+  const ready = importRows.value.filter((r) => r.selected && r.kind > 0)
+  if (!ready.length) {
+    toast.error(t('select-rows-and-kind', "Kamida bitta qator tanlang va turini belgilang"))
+    return
+  }
+  importMutation.mutate()
+}
 
 // Form Actions
 const openAddDrawer = () => {
@@ -406,6 +540,21 @@ const getHeartbeatTimeOnly = (cam: any) => {
       </div>
 
       <div class="flex items-center gap-2">
+        <Button
+          @click="handleSyncAll"
+          :disabled="syncAllMutation.isPending.value"
+          class="h-10 px-4 rounded-xl bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm flex items-center gap-2 border border-gray-200 transition-all cursor-pointer"
+        >
+          <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': syncAllMutation.isPending.value }" />
+          <span>{{ t('sync-all-to-cameras', 'Hammasini kameraga yuborish') }}</span>
+        </Button>
+        <Button
+          @click="openImportDialog"
+          class="h-10 px-4 rounded-xl bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm flex items-center gap-2 border border-gray-200 transition-all cursor-pointer"
+        >
+          <DownloadIcon class="w-4 h-4" />
+          <span>{{ t('import-from-camera', 'Kameradan import') }}</span>
+        </Button>
         <Button
           @click="openAddDrawer"
           class="h-10 px-4 rounded-xl bg-[#ff792d] hover:bg-[#e06520] text-white font-bold text-sm flex items-center gap-2 shadow-none transition-all cursor-pointer border-none"
@@ -1010,6 +1159,127 @@ const getHeartbeatTimeOnly = (cam: any) => {
         </form>
       </SheetContent>
     </Sheet>
+
+    <!-- ── Import from camera modal ──────────────────────────────── -->
+    <div
+      v-if="isImportOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      @click.self="isImportOpen = false"
+    >
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[88vh] flex flex-col overflow-hidden">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div class="flex items-center gap-2">
+            <DownloadIcon class="w-5 h-5 text-[#ff792d]" />
+            <h3 class="text-base font-bold text-gray-800">{{ t('import-from-camera', 'Kameradan import') }}</h3>
+          </div>
+          <button @click="isImportOpen = false" class="text-gray-400 hover:text-gray-600">
+            <XIcon class="w-5 h-5" />
+          </button>
+        </div>
+
+        <!-- Camera select + load -->
+        <div class="px-5 py-3 border-b border-gray-50 flex items-end gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-medium text-gray-500">{{ t('cameras', 'Kamera') }}</label>
+            <select
+              v-model="importCameraId"
+              @change="loadImportClasses"
+              class="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-[#ff792d] bg-white min-w-[220px]"
+            >
+              <option v-for="cam in cameras" :key="cam.id" :value="cam.id">
+                {{ cam.name }} — {{ cam.school?.name || '' }}
+              </option>
+            </select>
+          </div>
+          <Button
+            @click="loadCameraUsers"
+            :disabled="importLoading"
+            class="h-9 px-4 rounded-lg bg-[#ff792d] hover:bg-[#e06520] text-white text-sm font-semibold flex items-center gap-2"
+          >
+            <Loader2Icon v-if="importLoading" class="w-4 h-4 animate-spin" />
+            <RefreshCw v-else class="w-4 h-4" />
+            {{ t('load-camera-users', 'Kameradan yuklash') }}
+          </Button>
+        </div>
+
+        <!-- Rows -->
+        <div class="flex-1 overflow-y-auto px-5 py-3">
+          <div v-if="importLoading" class="flex items-center justify-center py-12 text-gray-400">
+            <Loader2Icon class="w-6 h-6 animate-spin" />
+          </div>
+          <div v-else-if="!importRows.length" class="flex flex-col items-center justify-center py-12 text-gray-400 gap-2">
+            <CameraIcon class="w-8 h-8 opacity-40" />
+            <p class="text-sm">{{ t('load-camera-users-hint', "Kameradan foydalanuvchilarni yuklang") }}</p>
+          </div>
+          <table v-else class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-50 text-xs text-gray-500 uppercase">
+                <th class="px-2 py-2 w-8"></th>
+                <th class="px-2 py-2 text-left">{{ t('last-name', 'Familiya') }}</th>
+                <th class="px-2 py-2 text-left">{{ t('first-name', 'Ism') }}</th>
+                <th class="px-2 py-2 text-left">{{ t('type', 'Turi') }}</th>
+                <th class="px-2 py-2 text-left">{{ t('sinf', 'Sinf') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <tr v-for="(row, i) in importRows" :key="i" class="hover:bg-gray-50">
+                <td class="px-2 py-2">
+                  <input type="checkbox" v-model="row.selected" class="w-4 h-4 rounded border-gray-300 text-[#ff792d]" />
+                </td>
+                <td class="px-2 py-2">
+                  <input v-model="row.lastName" class="w-full h-8 px-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-[#ff792d]" />
+                </td>
+                <td class="px-2 py-2">
+                  <input v-model="row.firstName" class="w-full h-8 px-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-[#ff792d]" />
+                </td>
+                <td class="px-2 py-2">
+                  <select v-model.number="row.kind" class="h-8 px-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-[#ff792d] bg-white">
+                    <option :value="0">— {{ t('select', 'tanlang') }} —</option>
+                    <option :value="1">{{ t('student', "O'quvchi") }}</option>
+                    <option :value="2">{{ t('teacher', "O'qituvchi") }}</option>
+                  </select>
+                </td>
+                <td class="px-2 py-2">
+                  <select
+                    v-if="row.kind === 1"
+                    v-model.number="row.classId"
+                    class="h-8 px-2 rounded border border-gray-200 text-sm focus:outline-none focus:border-[#ff792d] bg-white"
+                  >
+                    <option :value="null">— {{ t('select', 'tanlang') }} —</option>
+                    <option v-for="c in importClasses" :key="c.id" :value="c.id">
+                      {{ c.degree }}-{{ c.symbol }}
+                    </option>
+                  </select>
+                  <span v-else-if="row.kind === 2" class="text-xs text-gray-400">{{ importSchoolName }}</span>
+                  <span v-else class="text-xs text-gray-300">—</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
+          <span class="text-xs text-gray-400">
+            {{ importRows.filter((r) => r.selected && r.kind > 0).length }} / {{ importRows.length }} {{ t('selected', 'tanlangan') }}
+          </span>
+          <div class="flex gap-2">
+            <Button @click="isImportOpen = false" class="h-9 px-4 rounded-lg bg-white border border-gray-200 text-gray-600 text-sm hover:bg-gray-50">
+              {{ t('cancel', 'Bekor') }}
+            </Button>
+            <Button
+              @click="handleImport"
+              :disabled="importMutation.isPending.value"
+              class="h-9 px-4 rounded-lg bg-[#ff792d] hover:bg-[#e06520] text-white text-sm font-semibold flex items-center gap-2"
+            >
+              <Loader2Icon v-if="importMutation.isPending.value" class="w-4 h-4 animate-spin" />
+              {{ t('import', 'Import qilish') }}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
