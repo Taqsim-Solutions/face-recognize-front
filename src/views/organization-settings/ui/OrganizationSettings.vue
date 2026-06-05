@@ -1058,14 +1058,14 @@ const getHeartbeatTimeOnly = (cam: any) => {
             <!-- Type -->
             <div class="space-y-1.5">
               <Label class="text-sm font-semibold text-gray-700">{{ t('camera-type', 'Kamera turi') }}</Label>
-              <Select v-model.number="formType">
+              <Select :model-value="String(formType)" @update:model-value="(v) => formType = Number(v)">
                 <SelectTrigger class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white">
                   <SelectValue :placeholder="t('camera-type', 'Kamera turi')" />
                 </SelectTrigger>
                 <SelectContent class="bg-white">
-                  <SelectItem :value="1">{{ t('camera-type-entrance', 'Kirish') }}</SelectItem>
-                  <SelectItem :value="2">{{ t('camera-type-exit', 'Chiqish') }}</SelectItem>
-                  <SelectItem :value="3">{{ t('camera-type-both', 'Kirish va chiqish') }}</SelectItem>
+                  <SelectItem value="1">{{ t('camera-type-entrance', 'Kirish') }}</SelectItem>
+                  <SelectItem value="2">{{ t('camera-type-exit', 'Chiqish') }}</SelectItem>
+                  <SelectItem value="3">{{ t('camera-type-both', 'Kirish va chiqish') }}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
