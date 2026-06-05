@@ -34,10 +34,41 @@ const { t, locale } = useI18n()
 const queryClient = useQueryClient()
 const { hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
 
-// Cascade filters
+// Draft filters (user is selecting — not yet applied)
+const draftRegion = ref<string>('all')
+const draftCity   = ref<string>('all')
+const draftSchool = ref<string>('all')
+
+// Applied filters (sent to API only after "Filter" button is pressed)
 const regionFilter = ref<string>('all')
-const cityFilter = ref<string>('all')
+const cityFilter   = ref<string>('all')
 const schoolFilter = ref<string>('all')
+
+// Cascade: reset lower draft selections when a parent changes
+watch(draftRegion, () => { draftCity.value = 'all'; draftSchool.value = 'all' })
+watch(draftCity,   () => { draftSchool.value = 'all' })
+
+// "Filter" button handler
+const applyFilters = () => {
+  regionFilter.value = draftRegion.value
+  cityFilter.value   = draftCity.value
+  schoolFilter.value = draftSchool.value
+  page.value = 1
+}
+
+// "Reset" clears both draft and applied
+const resetFilters = () => {
+  draftRegion.value = 'all'; draftCity.value = 'all'; draftSchool.value = 'all'
+  regionFilter.value = 'all'; cityFilter.value = 'all'; schoolFilter.value = 'all'
+  page.value = 1
+}
+
+// Whether draft differs from applied (show indicator)
+const hasUnappliedChanges = computed(() =>
+  draftRegion.value !== regionFilter.value ||
+  draftCity.value   !== cityFilter.value ||
+  draftSchool.value !== schoolFilter.value
+)
 
 const { data: regionsRes } = useQuery({
   queryKey: ['regions-unknown'],
@@ -49,14 +80,14 @@ const regions = computed(() => {
   return res?.data?.result || res?.result || []
 })
 const availableCities = computed(() => {
-  if (regionFilter.value === 'all') return []
-  const reg = regions.value.find((r: any) => String(r.id) === regionFilter.value)
+  if (draftRegion.value === 'all') return []
+  const reg = regions.value.find((r: any) => String(r.id) === draftRegion.value)
   return reg?.cities || []
 })
 const { data: schoolsRes } = useQuery({
-  queryKey: ['schools-unknown', cityFilter],
-  queryFn: () => api.get('/api/schools', { params: { CityId: Number(cityFilter.value), PageSize: 999 } }),
-  enabled: computed(() => cityFilter.value !== 'all'),
+  queryKey: ['schools-unknown', draftCity],
+  queryFn: () => api.get('/api/schools', { params: { CityId: Number(draftCity.value), PageSize: 999 } }),
+  enabled: computed(() => draftCity.value !== 'all'),
   select: (r: any) => r?.data?.result?.data || []
 })
 const schools = computed(() => schoolsRes.value || [])
@@ -463,7 +494,7 @@ const handleImgError = (e: Event) => {
         </Popover>
 
         <!-- Region filter -->
-        <Select v-if="!hideRegionFilter" v-model="regionFilter">
+        <Select v-if="!hideRegionFilter" v-model="draftRegion">
           <SelectTrigger class="h-9 w-[180px] border border-[#E0E6F0] rounded-lg bg-white text-sm text-gray-700 font-medium">
             <SelectValue :placeholder="t('all-regions', 'Viloyatni tanlang')" />
           </SelectTrigger>
@@ -474,7 +505,7 @@ const handleImgError = (e: Event) => {
         </Select>
 
         <!-- City filter -->
-        <Select v-if="!hideCityFilter" v-model="cityFilter" :disabled="regionFilter === 'all' && !hideRegionFilter">
+        <Select v-if="!hideCityFilter" v-model="draftCity" :disabled="draftRegion === 'all' && !hideRegionFilter">
           <SelectTrigger class="h-9 w-[180px] border border-[#E0E6F0] rounded-lg bg-white text-sm text-gray-700 font-medium disabled:opacity-50">
             <SelectValue :placeholder="t('all-cities', 'Tumanni tanlang')" />
           </SelectTrigger>
@@ -485,7 +516,7 @@ const handleImgError = (e: Event) => {
         </Select>
 
         <!-- School filter -->
-        <Select v-if="!hideSchoolFilter" v-model="schoolFilter" :disabled="cityFilter === 'all' && !hideCityFilter">
+        <Select v-if="!hideSchoolFilter" v-model="draftSchool" :disabled="draftCity === 'all' && !hideCityFilter">
           <SelectTrigger class="h-9 w-[180px] border border-[#E0E6F0] rounded-lg bg-white text-sm text-gray-700 font-medium disabled:opacity-50">
             <SelectValue :placeholder="t('school', 'Maktab')" />
           </SelectTrigger>
@@ -494,6 +525,33 @@ const handleImgError = (e: Event) => {
             <SelectItem v-for="s in schools" :key="s.id" :value="String(s.id)">{{ s.name }}</SelectItem>
           </SelectContent>
         </Select>
+
+        <!-- Apply filter button -->
+        <button
+          @click="applyFilters"
+          class="h-9 px-4 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer border-none"
+          :class="hasUnappliedChanges
+            ? 'bg-[#ff792d] hover:bg-[#e06520] text-white shadow-sm'
+            : 'bg-gray-100 hover:bg-gray-200 text-gray-600'"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+          </svg>
+          {{ t('apply-filter', 'Filter') }}
+          <span v-if="hasUnappliedChanges" class="w-2 h-2 rounded-full bg-white/80 inline-block"></span>
+        </button>
+
+        <!-- Reset button (shown when any filter is applied) -->
+        <button
+          v-if="regionFilter !== 'all' || cityFilter !== 'all' || schoolFilter !== 'all'"
+          @click="resetFilters"
+          class="h-9 px-3 rounded-lg bg-white border border-[#E0E6F0] text-gray-500 hover:text-red-500 hover:border-red-200 text-sm font-medium flex items-center gap-1.5 transition-all cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          {{ t('reset', 'Bekor') }}
+        </button>
       </div>
 
       <!-- Main Content Grid -->
