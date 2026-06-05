@@ -246,7 +246,7 @@ const importClasses = ref<any[]>([])
 
 const importSchoolName = computed(() => {
   const cam = cameras.value.find((c) => c.id === importCameraId.value)
-  return cam?.school?.name || ''
+  return cam?.schoolName || cam?.school?.name || ''
 })
 
 const loadImportClasses = async () => {
@@ -433,17 +433,17 @@ const filteredCameras = computed(() => {
       const nameMatch = cam.name?.toLowerCase().includes(q)
       const snMatch = cam.serialNumber?.toLowerCase().includes(q)
       const ipMatch = cam.ipAddress?.toLowerCase().includes(q)
-      const schoolMatch = cam.school?.name?.toLowerCase().includes(q)
+      const schoolMatch = (cam.schoolName || cam.school?.name)?.toLowerCase().includes(q)
       if (!nameMatch && !snMatch && !ipMatch && !schoolMatch) return false
     }
 
     if (selectedRegion.value !== 'all') {
-      const rId = cam.school?.region?.id || cam.school?.regionId
+      const rId = cam.regionId || cam.school?.region?.id || cam.school?.regionId
       if (String(rId) !== selectedRegion.value) return false
     }
 
     if (selectedCity.value !== 'all') {
-      const cId = cam.school?.city?.id || cam.school?.cityId
+      const cId = cam.cityId || cam.school?.city?.id || cam.school?.cityId
       if (String(cId) !== selectedCity.value) return false
     }
 
@@ -483,15 +483,15 @@ const getPageNumbers = () => {
 
 // Fallback logic for regions, cities and schools matching exact screenshot values
 const getRegionName = (cam: any) => {
-  return cam.school?.region?.name || cam.regionName
+  return cam.regionName || cam.school?.region?.name || ''
 }
 
 const getCityName = (cam: any) => {
-  return cam.school?.city?.name || cam.cityName
+  return cam.cityName || cam.school?.city?.name || ''
 }
 
 const getSchoolName = (cam: any) => {
-  return cam.school?.name || cam.schoolName
+  return cam.schoolName || cam.school?.name || ''
 }
 
 // Precise Heartbeat formatting separating date and time values
@@ -1188,7 +1188,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
               class="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-700 focus:outline-none focus:border-[#ff792d] bg-white min-w-[220px]"
             >
               <option v-for="cam in cameras" :key="cam.id" :value="cam.id">
-                {{ cam.name }} — {{ cam.school?.name || '' }}
+                {{ cam.name }} — {{ cam.schoolName || cam.school?.name || '' }}
               </option>
             </select>
           </div>
