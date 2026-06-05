@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
-import { fetchAttendances } from '../api'
+import { fetchAttendances, fetchAttendanceRange } from '../api'
 import {
   fetchRegions,
   fetchSchoolsByCity,
@@ -24,7 +24,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar as CalendarComponent } from '@/components/ui/calendar'
+import { RangeCalendar } from '@/components/ui/range-calendar'
 import { Button } from '@/components/ui/button'
 import { parseDate } from '@internationalized/date'
 import {
@@ -41,25 +41,26 @@ import { useCurrentUser } from '@/composables/useCurrentUser'
 const { t, locale } = useI18n()
 const { hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
 // Filters
-const selectedDate = ref(new Date().toISOString().split('T')[0])
 const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
 const schoolFilter = ref<string>('all')
 const classFilter = ref<string>('all')
 
-const apiDate = computed(() => {
-  return `${selectedDate.value}Z`
-})
+const todayStr = new Date().toISOString().split('T')[0]
+const defaultStart = `${new Date().getFullYear()}-01-01`
 
-// Popover Calendar State - Using any to avoid strict version mismatch of DateValue type
-const selectedDateValue = ref<any>(parseDate(selectedDate.value))
+const selectedDateRange = ref<any>({
+  start: parseDate(defaultStart),
+  end: parseDate(todayStr)
+})
+const dateFrom = ref<string>(defaultStart)
+const dateTo   = ref<string>(todayStr)
 const isCalendarOpen = ref(false)
 
-watch(selectedDateValue, (newVal) => {
-  if (newVal) {
-    selectedDate.value = newVal.toString()
-    isCalendarOpen.value = false
-  }
+watch(selectedDateRange, (val) => {
+  if (val?.start) dateFrom.value = val.start.toString()
+  if (val?.end)   dateTo.value   = val.end.toString()
+  if (val?.start && val?.end) isCalendarOpen.value = false
 })
 
 const formatDateValue = (dateVal: any) => {
@@ -138,9 +139,11 @@ const formatDateValue = (dateVal: any) => {
   return `${day} ${monthName}, ${year}`
 }
 
-const dateLabel = computed(() => {
-  if (!selectedDateValue.value) return t('pick-date')
-  return formatDateValue(selectedDateValue.value)
+const dateRangeLabel = computed(() => {
+  if (!selectedDateRange.value?.start) return t('pick-date')
+  const s = formatDateValue(selectedDateRange.value.start)
+  if (!selectedDateRange.value.end) return `${s} - ...`
+  return `${s} — ${formatDateValue(selectedDateRange.value.end)}`
 })
 
 const calendarLocale = computed(() => {
@@ -155,7 +158,7 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 
 // Reset pagination and cascading selections
-watch([selectedDate, regionFilter, cityFilter, schoolFilter, classFilter], () => {
+watch([dateFrom, dateTo, regionFilter, cityFilter, schoolFilter, classFilter], () => {
   currentPage.value = 1
 })
 
@@ -175,17 +178,26 @@ watch(schoolFilter, () => {
 })
 
 // Fetch attendances
-const { data, isLoading, isError, refetch } = useQuery({
-  queryKey: ['attendances-list-date', apiDate],
-  queryFn: () => fetchAttendances(apiDate.value),
+const { data: rangeData, isLoading, isError, refetch } = useQuery({
+  queryKey: ['attendances-range', dateFrom, dateTo],
+  queryFn: () => fetchAttendanceRange(`${dateFrom.value}Z`, `${dateTo.value}Z`),
   staleTime: 5000
 })
 
+// Flat list of class-day rows across all days in range
 const attendanceRows = computed(() => {
-  if (!data.value) return []
-  // Axios response wrapper has the payload inside .data
-  const res = data.value.data?.result || []
-  return Array.isArray(res) ? res : []
+  const days: any[] = rangeData.value?.data?.result || rangeData.value?.result || []
+  if (!Array.isArray(days) || !days.length) return []
+
+  // Flatten: each row = { date, classId, degree, symbol, studentsCount, absentStudentsCount, isStudyDay }
+  const rows: any[] = []
+  for (const day of days) {
+    const date = day.date
+    for (const cls of (day.classes || [])) {
+      rows.push({ ...cls, date })
+    }
+  }
+  return rows
 })
 
 // Cascading Filter Options Fetch
@@ -360,16 +372,16 @@ const getPageNumbers = () => {
 
     <!-- Filters Row -->
     <div class="flex flex-wrap items-center gap-3 px-6 pt-5 bg-white pb-5">
-      <!-- Date Selector Popover (Calendar) -->
+      <!-- Date Range Selector Popover -->
       <Popover v-model:open="isCalendarOpen">
         <PopoverTrigger as-child>
           <Button
             variant="outline"
-            class="h-10 w-full sm:w-[220px] border border-gray-200 rounded-xl bg-white text-gray-600 font-semibold px-3 hover:bg-gray-50 flex items-center justify-between text-sm select-none cursor-pointer"
+            class="h-10 w-full sm:w-[280px] border border-gray-200 rounded-xl bg-white text-gray-600 font-semibold px-3 hover:bg-gray-50 flex items-center justify-between text-sm select-none cursor-pointer"
           >
             <div class="flex items-center">
               <Calendar class="w-4 h-4 text-gray-400 mr-2 shrink-0" />
-              <span>{{ dateLabel }}</span>
+              <span>{{ dateRangeLabel }}</span>
             </div>
             <ChevronDown class="w-4 h-4 text-gray-400 shrink-0" />
           </Button>
@@ -378,14 +390,31 @@ const getPageNumbers = () => {
           class="w-auto p-0 z-[100] bg-white border border-gray-100 rounded-2xl shadow-xl"
           align="start"
         >
-          <CalendarComponent
-            :model-value="selectedDateValue"
-            @update:model-value="(val: any) => selectedDateValue = val"
+          <RangeCalendar
+            v-model="selectedDateRange"
             :locale="calendarLocale"
             initial-focus
             :week-starts-on="1"
             :weekday-format="'short'"
           />
+          <div v-if="selectedDateRange?.start" class="px-3 pb-3 flex justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              class="text-xs"
+              @click="selectedDateRange = { start: parseDate(todayStr), end: parseDate(todayStr) }; isCalendarOpen = false"
+            >
+              {{ t('today', 'Bugun') }}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="text-xs"
+              @click="isCalendarOpen = false"
+            >
+              {{ t('done', 'Tayyor') }}
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
 
@@ -469,30 +498,20 @@ const getPageNumbers = () => {
         <Table class="text-nowrap">
           <TableHeader class="sticky top-0 bg-white drop-shadow-sm z-20">
             <TableRow>
-              <TableHead
-                class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 first:pl-3 relative border-l-0 font-semibold bg-[#f2f5f4]"
-              >
-                {{ t('dashboard.absents.fish', 'F.I.Sh') }}
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 first:pl-3 relative border-l-0 font-semibold bg-[#f2f5f4]">
+                {{ t('date', 'Sana') }}
               </TableHead>
-              <TableHead
-                class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 first:pl-3 relative font-semibold bg-[#f2f5f4]"
-              >
-                {{ t('dashboard.absents.school', 'Maktab') }}
-              </TableHead>
-              <TableHead
-                class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 first:pl-3 relative font-semibold bg-[#f2f5f4]"
-              >
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
                 {{ t('dashboard.absents.class', 'Sinf') }}
               </TableHead>
-              <TableHead
-                class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 first:pl-3 relative font-semibold bg-[#f2f5f4]"
-              >
-                {{ t('kelgan-vaqti', 'Kelgan vaqti') }}
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('students-present', 'Kelgan') }}
               </TableHead>
-              <TableHead
-                class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 first:pl-3 relative border-r-0 font-semibold bg-[#f2f5f4]"
-              >
-                {{ t('status', 'Status') }}
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('students-absent', 'Kelmagan') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative border-r-0 font-semibold bg-[#f2f5f4]">
+                {{ t('jami', 'Jami') }}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -571,49 +590,39 @@ const getPageNumbers = () => {
             <template v-else>
               <TableRow
                 v-for="(row, idx) in paginatedAttendanceRows"
-                :key="row.id || idx"
+                :key="idx"
                 class="hover:bg-gray-50/50 transition-colors"
+                :class="{ 'opacity-50': !row.isStudyDay }"
               >
-                <TableCell class="border p-3 pl-4 border-l-0 text-gray-800 font-semibold text-sm">
-                  <div class="flex items-center">
-                    <div
-                      class="w-8 h-8 rounded-full bg-[#eff6ff] text-[#3b82f6] flex items-center justify-center font-bold shrink-0 text-[11px] mr-3 select-none"
-                    >
-                      {{ getInitials(row) }}
-                    </div>
-                    <span class="truncate max-w-[200px]" :title="getFullName(row)">
-                      {{ getFullName(row) }}
-                    </span>
-                  </div>
+                <!-- Date -->
+                <TableCell class="border p-3 pl-4 border-l-0 text-gray-700 text-sm font-medium">
+                  {{ new Date(row.date).toLocaleDateString(calendarLocale, { day:'2-digit', month:'short', year:'numeric' }) }}
                 </TableCell>
 
-                <TableCell class="border p-3 text-gray-600 text-sm">
-                  {{ getSchoolName(row) }}
+                <!-- Class -->
+                <TableCell class="border p-3 text-gray-800 font-semibold text-sm">
+                  {{ row.degree }}-{{ row.symbol }}
                 </TableCell>
 
-                <TableCell class="border p-3 text-gray-600 text-sm">
-                  {{ getClassName(row) }}
-                </TableCell>
-
-                <TableCell class="border p-3 text-gray-600 text-sm font-medium">
-                  {{ getScanTime(row) }}
-                </TableCell>
-
-                <TableCell class="border p-3 border-r-0 text-sm">
-                  <span
-                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold transition-colors select-none"
-                    :class="[
-                      row.isAbsent === true || row.absent === true
-                        ? 'bg-red-50 text-red-600 border border-red-100'
-                        : 'bg-green-50 text-green-600 border border-green-100'
-                    ]"
-                  >
-                    {{
-                      row.isAbsent === true || row.absent === true
-                        ? t('not-attended', 'Kelmagan')
-                        : t('attended', 'Kelgan')
-                    }}
+                <!-- Present -->
+                <TableCell class="border p-3 text-sm">
+                  <span class="inline-flex items-center gap-1 font-semibold text-green-600">
+                    <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+                    {{ row.studentsCount - row.absentStudentsCount }}
                   </span>
+                </TableCell>
+
+                <!-- Absent -->
+                <TableCell class="border p-3 text-sm">
+                  <span class="inline-flex items-center gap-1 font-semibold" :class="row.absentStudentsCount > 0 ? 'text-red-500' : 'text-gray-400'">
+                    <span class="w-2 h-2 rounded-full inline-block" :class="row.absentStudentsCount > 0 ? 'bg-red-500' : 'bg-gray-300'"></span>
+                    {{ row.absentStudentsCount }}
+                  </span>
+                </TableCell>
+
+                <!-- Total -->
+                <TableCell class="border p-3 border-r-0 text-gray-600 text-sm font-medium">
+                  {{ row.studentsCount }}
                 </TableCell>
               </TableRow>
             </template>

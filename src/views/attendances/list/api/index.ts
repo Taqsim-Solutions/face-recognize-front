@@ -3,3 +3,9 @@ import api from '@/api'
 export const fetchAttendances = async (date: string) => {
   return await api.get<{ code: number; message: string; result: any[] }>(`/api/Attendances/date/${date}`)
 }
+
+export const fetchAttendanceRange = async (dateFrom: string, dateTo: string) => {
+  return await api.get<{ code: number; message: string; result: any[] }>('/api/Attendances/range', {
+    params: { dateFrom, dateTo }
+  })
+}
