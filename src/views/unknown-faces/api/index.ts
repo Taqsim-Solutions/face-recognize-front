@@ -9,12 +9,15 @@ export const fetchUnknownFaces = async (params: FetchUnknownFacesParams) => {
     throw new Error('Simulation Mode')
   }
 
-  const { page, size, dateFrom, dateTo } = params
+  const { page, size, dateFrom, dateTo, regionId, cityId, schoolId } = params
   const mappedParams: Record<string, any> = {}
   if (page !== undefined) mappedParams.PageIndex = page
   if (size !== undefined) mappedParams.PageSize = size
   if (dateFrom !== undefined && dateFrom !== '') mappedParams.DateFrom = dateFrom
   if (dateTo !== undefined && dateTo !== '') mappedParams.DateTo = dateTo
+  if (regionId !== undefined) mappedParams.RegionId = regionId
+  if (cityId !== undefined) mappedParams.CityId = cityId
+  if (schoolId !== undefined) mappedParams.SchoolId = schoolId
 
   const response = await api.get<{ code: number; message: string; result: UnknownFacesResponse }>(url, {
     params: mappedParams

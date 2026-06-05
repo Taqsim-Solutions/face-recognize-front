@@ -129,7 +129,10 @@ const params = computed<FetchUnknownFacesParams>(() => {
     page: page.value,
     size: size.value,
     dateFrom: dateValFrom || undefined,
-    dateTo: dateValTo || undefined
+    dateTo: dateValTo || undefined,
+    regionId: regionFilter.value !== 'all' ? Number(regionFilter.value) : undefined,
+    cityId: cityFilter.value !== 'all' ? Number(cityFilter.value) : undefined,
+    schoolId: schoolFilter.value !== 'all' ? Number(schoolFilter.value) : undefined
   }
 })
 

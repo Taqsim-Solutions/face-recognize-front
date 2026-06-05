@@ -9,6 +9,9 @@ export interface FetchUnknownFacesParams {
   size?: number
   dateFrom?: string
   dateTo?: string
+  regionId?: number
+  cityId?: number
+  schoolId?: number
 }
 
 export interface UnknownFacesResponse {
