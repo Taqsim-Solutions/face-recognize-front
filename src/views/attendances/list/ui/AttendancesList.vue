@@ -186,7 +186,8 @@ const { data: rangeData, isLoading, isError, refetch } = useQuery({
 
 // Flat list of class-day rows across all days in range
 const attendanceRows = computed(() => {
-  const days: any[] = rangeData.value?.data?.result || rangeData.value?.result || []
+  const raw = rangeData.value as any
+  const days: any[] = raw?.data?.result || raw?.result || []
   if (!Array.isArray(days) || !days.length) return []
 
   // Flatten: each row = { date, classId, degree, symbol, studentsCount, absentStudentsCount, isStudyDay }
