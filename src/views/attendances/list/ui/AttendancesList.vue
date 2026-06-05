@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
-import { fetchAttendances, fetchAttendanceRange } from '../api'
+import { fetchAttendanceRange } from '../api'
 import {
   fetchRegions,
   fetchSchoolsByCity,
@@ -246,45 +246,10 @@ const classes = computed(() => {
 })
 
 // Safe Parsers
-const getInitials = (item: any) => {
-  const name = getFullName(item)
-  if (!name || name === '—') return '?'
-  const parts = name.split(' ').filter(Boolean)
-  if (parts.length >= 2) {
-    return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase()
-  }
-  return name.substring(0, 2).toUpperCase()
-}
 
-const getFullName = (item: any) => {
-  if (item.studentName) return item.studentName
-  if (item.student?.fullName) return item.student.fullName
-  if (item.fullName) return item.fullName
-  if (item.lastName || item.firstName) {
-    return [item.lastName, item.firstName, item.fatherName].filter(Boolean).join(' ')
-  }
-  return '—'
-}
 
-const getSchoolName = (item: any) => {
-  return item.schoolName || item.school?.name || item.school || '—'
-}
 
-const getClassName = (item: any) => {
-  return item.className || item.class?.name || item.class || '—'
-}
 
-const getScanTime = (item: any) => {
-  const timeVal = item.time || item.scanTime || item.createdAt || item.date
-  if (!timeVal) return '—'
-  try {
-    const d = new Date(timeVal)
-    if (isNaN(d.getTime())) return timeVal
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-  } catch (e) {
-    return timeVal
-  }
-}
 
 // Local filtering implementation
 const filteredAttendanceRows = computed(() => {

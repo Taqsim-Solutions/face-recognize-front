@@ -53,7 +53,7 @@ const {
   photoFile, photoPreviewUrl, isDragging, fileInputRef,
   triggerFileInput, handleFileSelect, removePhoto,
   onDragOver, onDragLeave, onDrop,
-  isCameraOpen, videoRef, mediaStream, cameraError,
+  isCameraOpen, videoRef, cameraError,
   openCamera, closeCamera, capturePhoto
 } = useCameraCapture()
 

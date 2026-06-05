@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UserContextBadges from '@/components/UserContextBadges.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'

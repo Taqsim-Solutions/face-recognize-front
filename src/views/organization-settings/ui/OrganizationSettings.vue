@@ -63,7 +63,7 @@ const formType = ref(1)
 // DDNS (external access for cameras without public IP)
 const formUseDdns = ref(false)
 const formDdnsHost = ref('')
-const formExternalPort = ref<number | null>(9001)
+const formExternalPort = ref<number | undefined>(9001)
 
 // Cascading selectors in Drawer
 const formRegionId = ref('all')
@@ -409,7 +409,7 @@ const saveCameraForm = () => {
     schoolId: Number(formSchoolId.value),
     useDdns: formUseDdns.value,
     ddnsHost: formUseDdns.value ? formDdnsHost.value.trim() : null,
-    externalPort: formUseDdns.value ? Number(formExternalPort.value) || null : null
+    externalPort: formUseDdns.value ? Number(formExternalPort.value) || undefined : undefined
   }
 
   if (isEditing.value && currentCameraId.value !== null) {
