@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
-import { fetchAttendanceRange } from '../api'
+import { fetchAttendanceRange, fetchClassStudentAttendances } from '../api'
 import {
   fetchRegions,
   fetchSchoolsByCity,
@@ -253,6 +253,40 @@ const classes = computed(() => {
 
 
 // Local filtering implementation
+// ── Student detail modal ─────────────────────────────────────────
+const selectedClassRow = ref<any | null>(null)
+const isStudentModalOpen = ref(false)
+
+const { data: studentData, isLoading: studentLoading } = useQuery({
+  queryKey: ['class-students-att', computed(() => selectedClassRow.value?.date), computed(() => selectedClassRow.value?.id)],
+  queryFn: () => {
+    const row = selectedClassRow.value
+    if (!row) return Promise.resolve(null)
+    // Use the date from the row (range data), formatted as ISO UTC
+    const d = new Date(row.date)
+    const dateStr = d.toISOString().split('T')[0] + 'Z'
+    return fetchClassStudentAttendances(dateStr, row.id)
+  },
+  enabled: computed(() => !!selectedClassRow.value),
+  staleTime: 0
+})
+
+const studentRows = computed(() => {
+  const raw = studentData.value as any
+  return raw?.data?.result || raw?.result || []
+})
+
+const openStudentModal = (row: any) => {
+  selectedClassRow.value = row
+  isStudentModalOpen.value = true
+}
+
+const formatStudentTime = (dt: string | null | undefined) => {
+  if (!dt) return '—'
+  const d = new Date(dt)
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
 const filteredAttendanceRows = computed(() => {
   return attendanceRows.value.filter((item: any) => {
     // 1. Region filter
@@ -557,8 +591,9 @@ const getPageNumbers = () => {
               <TableRow
                 v-for="(row, idx) in paginatedAttendanceRows"
                 :key="idx"
-                class="hover:bg-gray-50/50 transition-colors"
+                class="hover:bg-orange-50/60 transition-colors cursor-pointer"
                 :class="{ 'opacity-50': !row.isStudyDay }"
+                @click="openStudentModal(row)"
               >
                 <!-- Date -->
                 <TableCell class="border p-3 pl-4 border-l-0 text-gray-700 text-sm font-medium">
@@ -651,6 +686,81 @@ const getPageNumbers = () => {
             <ArrowRightIcon class="w-3.5 h-3.5" />
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Student detail modal ──────────────────────────────────── -->
+  <div
+    v-if="isStudentModalOpen"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+    @click.self="isStudentModalOpen = false"
+  >
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div>
+          <h3 class="text-base font-bold text-gray-800">
+            {{ selectedClassRow?.degree }}-{{ selectedClassRow?.symbol }} —
+            {{ selectedClassRow?.date ? new Date(selectedClassRow.date).toLocaleDateString() : '' }}
+          </h3>
+          <p class="text-xs text-gray-400 mt-0.5">
+            {{ t('students-present', 'Kelgan') }}: {{ (selectedClassRow?.studentsCount || 0) - (selectedClassRow?.absentStudentsCount || 0) }}
+            &nbsp;·&nbsp;
+            {{ t('students-absent', 'Kelmagan') }}: {{ selectedClassRow?.absentStudentsCount || 0 }}
+          </p>
+        </div>
+        <button @click="isStudentModalOpen = false" class="text-gray-400 hover:text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto">
+        <div v-if="studentLoading" class="flex items-center justify-center py-12 text-gray-400">
+          <svg class="w-6 h-6 animate-spin mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          Yuklanmoqda...
+        </div>
+        <div v-else-if="!studentRows.length" class="flex items-center justify-center py-12 text-gray-400 text-sm">
+          {{ t('no-data', "Ma'lumot yo'q") }}
+        </div>
+        <table v-else class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 text-xs text-gray-500 uppercase sticky top-0">
+              <th class="px-4 py-2 text-left">F.I.Sh</th>
+              <th class="px-4 py-2 text-left">{{ t('kelgan-vaqti', 'Kelgan vaqti') }}</th>
+              <th class="px-4 py-2 text-left">{{ t('ketgan-vaqti', 'Ketgan vaqti') }}</th>
+              <th class="px-4 py-2 text-left">{{ t('status', 'Status') }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            <tr v-for="(s, i) in studentRows" :key="i" class="hover:bg-gray-50">
+              <td class="px-4 py-2.5">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-100 shrink-0">
+                    <img v-if="s.mainImageName" :src="`/api/images?filename=${s.mainImageName}`"
+                      class="w-full h-full object-cover"
+                      @error="($event.target as HTMLImageElement).style.display='none'" />
+                    <div v-else class="w-full h-full flex items-center justify-center text-xs font-bold text-gray-400">
+                      {{ (s.firstName?.[0] || '?').toUpperCase() }}
+                    </div>
+                  </div>
+                  <span class="font-medium text-gray-800">{{ s.lastName }} {{ s.firstName }}</span>
+                </div>
+              </td>
+              <td class="px-4 py-2.5 text-gray-600 font-medium">{{ formatStudentTime(s.comingTime) }}</td>
+              <td class="px-4 py-2.5 text-gray-400">{{ formatStudentTime(s.leavingTime) }}</td>
+              <td class="px-4 py-2.5">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                  :class="s.attended ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'"
+                >
+                  {{ s.attended ? t('attended', 'Kelgan') : t('not-attended', 'Kelmagan') }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
