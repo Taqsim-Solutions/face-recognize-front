@@ -23,11 +23,10 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
   updateStudent,
-  uploadStudentPhoto,
+  postStudentPhoto,
   fetchRegions,
   fetchSchoolsByCity,
-  fetchClassesBySchool,
-  setMainPhoto
+  fetchClassesBySchool
 } from '../api'
 import type { StudentModel } from '../types'
 import { useCameraCapture } from '@/composables/useCameraCapture'
@@ -258,17 +257,6 @@ const parseParentFullName = (fullName: string) => {
 // Mutation to update student
 const { isPending: isSubmitPending, mutate } = useMutation({
   mutationFn: async (payload: any) => {
-    let finalMainImageName: string | null = props.student.mainImageName || null
-    let finalImageIds = props.student.imageIds ? [...props.student.imageIds] : []
-
-    // 1. Upload Photo if a new one is selected
-    if (photoFile.value) {
-      const generatedImageName = Math.random().toString(36).substring(2, 17).toUpperCase()
-      await uploadStudentPhoto(generatedImageName, photoFile.value)
-      finalMainImageName = generatedImageName
-      finalImageIds.push(generatedImageName)
-    }
-
     const fatherParsed = parseParentFullName(payload.fatherFullName)
     const motherParsed = parseParentFullName(payload.motherFullName)
 
@@ -283,8 +271,6 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       dateOfBirth: dateOfBirthStudent,
       phoneNumber: payload.phoneNumber,
       gender: props.student.gender || 0,
-      mainImageName: finalMainImageName,
-      imageIds: finalImageIds,
       father: {
         firstName: fatherParsed.firstName,
         lastName: fatherParsed.lastName,
@@ -307,9 +293,10 @@ const { isPending: isSubmitPending, mutate } = useMutation({
 
     const res = await updateStudent({ id: props.student.id, payload: updatePayload })
 
-    // Call set main photo specifically if photo was uploaded
-    if (photoFile.value && finalMainImageName) {
-      await setMainPhoto(props.student.id, finalMainImageName)
+    // Upload photo via POST /api/students/{id}/photo — backend stores a single
+    // photo per student (the new one replaces any existing one and becomes main).
+    if (photoFile.value) {
+      await postStudentPhoto(props.student.id, photoFile.value)
     }
 
     return res
