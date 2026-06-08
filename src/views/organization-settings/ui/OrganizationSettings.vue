@@ -1060,7 +1060,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
                   type="button"
                   @click="showPassword = !showPassword"
                   class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  :title="showPassword ? t('hide-password', 'Yashirish') : t('show-password', 'Ko\\'rsatish')"
+                  :title="showPassword ? t('hide-password', 'Yashirish') : t('show-password', 'Korsatish')"
                 >
                   <!-- Eye open -->
                   <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
