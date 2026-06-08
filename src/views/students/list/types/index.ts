@@ -29,6 +29,10 @@ export type StudentModel = {
   className?: string | null
   schoolId: number
   schoolName?: string | null
+  regionId?: number | null
+  regionName?: string | null
+  cityId?: number | null
+  cityName?: string | null
   parents?: ParentModel[]
   createdAt?: string
   updatedAt?: string | null

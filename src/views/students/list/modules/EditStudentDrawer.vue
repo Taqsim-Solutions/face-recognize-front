@@ -118,8 +118,10 @@ watch(
     if (isOpenVal && props.student) {
       isPrefilling.value = true
 
-      const matchedRegionId = props.student.region?.id ? Number(props.student.region.id) : undefined
-      const matchedCityId = props.student.city?.id ? Number(props.student.city.id) : undefined
+      const matchedRegionId = props.student.regionId ? Number(props.student.regionId)
+        : props.student.region?.id ? Number(props.student.region.id) : undefined
+      const matchedCityId = props.student.cityId ? Number(props.student.cityId)
+        : props.student.city?.id ? Number(props.student.city.id) : undefined
       const matchedSchoolId = props.student.schoolId ? Number(props.student.schoolId) : undefined
       const matchedClassId = props.student.classId ? Number(props.student.classId) : undefined
 
