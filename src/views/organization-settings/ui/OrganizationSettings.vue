@@ -4,7 +4,7 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { fetchCameras, createCamera, updateCamera, deleteCamera, resyncSchool, syncAllCameras, fetchCameraUsers, importCameraUsers, fetchClassesBySchool } from '../api'
+import { fetchCameras, createCamera, updateCamera, deleteCamera, resyncSchool, syncAllCameras, fetchSyncPreview, fetchCameraUsers, importCameraUsers, fetchClassesBySchool } from '../api'
 import { fetchRegions, fetchSchoolsByCity } from '@/views/students/list/api'
 import {
   Table,
@@ -210,9 +210,14 @@ const resyncMutation = useMutation({
 })
 
 // ── Sync ALL schools to cameras (push system → camera) ──────────
+const isSyncPreviewOpen = ref(false)
+const syncPreviewLoading = ref(false)
+const syncPreview = ref<any | null>(null)
+
 const syncAllMutation = useMutation({
   mutationFn: () => syncAllCameras(),
   onSuccess: () => {
+    isSyncPreviewOpen.value = false
     toast.success(
       t('sync-all-started', "Sinxronizatsiya boshlandi. O'quvchi va o'qituvchilar kameralarga yuborilmoqda.")
     )
@@ -222,10 +227,24 @@ const syncAllMutation = useMutation({
   }
 })
 
-const handleSyncAll = () => {
-  if (confirm(t('sync-all-confirm', "Barcha o'quvchi va o'qituvchilarni kameralarga yuborishni boshlaymizmi? Bu biroz vaqt olishi mumkin."))) {
-    syncAllMutation.mutate()
+// Open preview modal and load counts first
+const handleSyncAll = async () => {
+  isSyncPreviewOpen.value = true
+  syncPreview.value = null
+  syncPreviewLoading.value = true
+  try {
+    const res = await fetchSyncPreview()
+    syncPreview.value = (res as any)?.data?.result || (res as any)?.result || null
+  } catch (e: any) {
+    toast.error(e?.response?.data?.message || t('resync-error', 'Xatolik yuz berdi'))
+    isSyncPreviewOpen.value = false
+  } finally {
+    syncPreviewLoading.value = false
   }
+}
+
+const confirmSyncAll = () => {
+  syncAllMutation.mutate()
 }
 
 // ── Import FROM camera (camera → system) ────────────────────────
@@ -237,6 +256,7 @@ const importRows = ref<any[]>([])
 const openImportDialog = () => {
   importCameraId.value = cameras.value.length ? cameras.value[0].id : null
   importRows.value = []
+  importResult.value = null
   isImportOpen.value = true
   loadImportClasses()
 }
@@ -302,6 +322,8 @@ const loadCameraUsers = async () => {
   }
 }
 
+const importResult = ref<any | null>(null)
+
 const importMutation = useMutation({
   mutationFn: () => {
     const users = importRows.value
@@ -320,11 +342,8 @@ const importMutation = useMutation({
   },
   onSuccess: (res: any) => {
     const result = res?.data?.result || res?.result || {}
-    toast.success(
-      t('import-done', "Import yakunlandi") +
-        `: ${result.created || 0} ${t('created', 'qo\'shildi')}, ${result.skipped || 0} ${t('skipped', "o'tkazib yuborildi")}`
-    )
-    isImportOpen.value = false
+    importResult.value = result
+    toast.success(t('import-done', "Import yakunlandi"))
     queryClient.invalidateQueries({ queryKey: ['cameras-list'] })
   },
   onError: (error: any) => {
@@ -1283,6 +1302,30 @@ const getHeartbeatTimeOnly = (cam: any) => {
           </table>
         </div>
 
+        <!-- Import result panel -->
+        <div v-if="importResult" class="mx-5 mb-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
+          <div class="flex items-center gap-4 mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
+              <span class="text-sm font-semibold text-gray-700">
+                {{ t('created', 'qo\'shildi') }}: {{ importResult.created || 0 }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+              <span class="text-sm font-semibold text-gray-700">
+                {{ t('skipped', "o'tkazib yuborildi") }}: {{ importResult.skipped || 0 }}
+              </span>
+            </div>
+          </div>
+          <div v-if="importResult.errors && importResult.errors.length" class="mt-2 max-h-[120px] overflow-y-auto">
+            <p class="text-xs font-medium text-gray-500 mb-1">{{ t('errors', 'Xatolar') }}:</p>
+            <ul class="space-y-0.5">
+              <li v-for="(err, i) in importResult.errors" :key="i" class="text-xs text-red-500">• {{ err }}</li>
+            </ul>
+          </div>
+        </div>
+
         <!-- Footer -->
         <div class="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
           <span class="text-xs text-gray-400">
@@ -1290,9 +1333,10 @@ const getHeartbeatTimeOnly = (cam: any) => {
           </span>
           <div class="flex gap-2">
             <Button @click="isImportOpen = false" class="h-9 px-4 rounded-lg bg-white border border-gray-200 text-gray-600 text-sm hover:bg-gray-50">
-              {{ t('cancel', 'Bekor') }}
+              {{ importResult ? t('close', 'Yopish') : t('cancel', 'Bekor') }}
             </Button>
             <Button
+              v-if="!importResult"
               @click="handleImport"
               :disabled="importMutation.isPending.value"
               class="h-9 px-4 rounded-lg bg-[#ff792d] hover:bg-[#e06520] text-white text-sm font-semibold flex items-center gap-2"
@@ -1301,6 +1345,81 @@ const getHeartbeatTimeOnly = (cam: any) => {
               {{ t('import', 'Import qilish') }}
             </Button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sync-all preview modal ────────────────────────────────── -->
+    <div
+      v-if="isSyncPreviewOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      @click.self="isSyncPreviewOpen = false"
+    >
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div class="flex items-center gap-2">
+            <RefreshCw class="w-5 h-5 text-[#ff792d]" />
+            <h3 class="text-base font-bold text-gray-800">{{ t('sync-all-to-cameras', 'Hammasini kameraga yuborish') }}</h3>
+          </div>
+          <button @click="isSyncPreviewOpen = false" class="text-gray-400 hover:text-gray-600">
+            <XIcon class="w-5 h-5" />
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="px-5 py-4">
+          <div v-if="syncPreviewLoading" class="flex items-center justify-center py-10 text-gray-400">
+            <Loader2Icon class="w-6 h-6 animate-spin" />
+          </div>
+
+          <template v-else-if="syncPreview">
+            <p class="text-sm text-gray-500 mb-4">{{ t('sync-preview-hint', 'Quyidagi maʼlumotlar kameralarga yuboriladi:') }}</p>
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between py-2 px-3 rounded-lg bg-gray-50">
+                <span class="text-sm text-gray-600">{{ t('students', "O'quvchilar") }}</span>
+                <span class="text-sm font-semibold text-gray-800">
+                  {{ syncPreview.totalStudents }}
+                  <span class="text-xs text-green-600 font-normal">({{ syncPreview.studentsWithPhoto }} {{ t('with-photo', 'rasmli') }})</span>
+                </span>
+              </div>
+              <div class="flex items-center justify-between py-2 px-3 rounded-lg bg-gray-50">
+                <span class="text-sm text-gray-600">{{ t('teachers', "O'qituvchilar") }}</span>
+                <span class="text-sm font-semibold text-gray-800">
+                  {{ syncPreview.totalTeachers }}
+                  <span class="text-xs text-green-600 font-normal">({{ syncPreview.teachersWithPhoto }} {{ t('with-photo', 'rasmli') }})</span>
+                </span>
+              </div>
+              <div class="flex items-center justify-between py-2 px-3 rounded-lg bg-gray-50">
+                <span class="text-sm text-gray-600">{{ t('cameras', 'Kameralar') }}</span>
+                <span class="text-sm font-semibold text-gray-800">{{ syncPreview.totalCameras }}</span>
+              </div>
+              <div v-if="syncPreview.schoolsWithoutCamera > 0" class="flex items-center justify-between py-2 px-3 rounded-lg bg-amber-50">
+                <span class="text-sm text-amber-700">{{ t('schools-without-camera', 'Kamerasiz maktablar') }}</span>
+                <span class="text-sm font-semibold text-amber-700">{{ syncPreview.schoolsWithoutCamera }}</span>
+              </div>
+              <div class="flex items-center justify-between py-2 px-3 rounded-lg bg-orange-50 border border-orange-100">
+                <span class="text-sm font-medium text-[#e06520]">{{ t('estimated-push', 'Jami yuborish') }}</span>
+                <span class="text-sm font-bold text-[#e06520]">{{ syncPreview.estimatedPushCount }}</span>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 mt-3">{{ t('sync-bg-note', 'Yuborish fonda amalga oshiriladi va biroz vaqt olishi mumkin.') }}</p>
+          </template>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-5 py-3 border-t border-gray-100 flex justify-end gap-2">
+          <Button @click="isSyncPreviewOpen = false" class="h-9 px-4 rounded-lg bg-white border border-gray-200 text-gray-600 text-sm hover:bg-gray-50">
+            {{ t('cancel', 'Bekor') }}
+          </Button>
+          <Button
+            @click="confirmSyncAll"
+            :disabled="syncPreviewLoading || syncAllMutation.isPending.value"
+            class="h-9 px-4 rounded-lg bg-[#ff792d] hover:bg-[#e06520] text-white text-sm font-semibold flex items-center gap-2"
+          >
+            <Loader2Icon v-if="syncAllMutation.isPending.value" class="w-4 h-4 animate-spin" />
+            {{ t('start-sync', 'Yuborishni boshlash') }}
+          </Button>
         </div>
       </div>
     </div>

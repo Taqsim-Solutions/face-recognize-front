@@ -25,6 +25,11 @@ export const syncAllCameras = async () => {
   return await api.post('/api/Cameras/sync-all')
 }
 
+// Preview what a full sync would push (counts)
+export const fetchSyncPreview = async () => {
+  return await api.get<{ code: number; message: string; result: any }>('/api/Cameras/sync-preview')
+}
+
 // Push one school's students & teachers (with photo) to its cameras
 export const syncSchoolCameras = async (schoolId: number) => {
   return await api.post(`/api/Cameras/sync-school/${schoolId}`)
