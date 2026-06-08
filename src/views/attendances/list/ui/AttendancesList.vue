@@ -179,8 +179,15 @@ watch(schoolFilter, () => {
 
 // Fetch attendances
 const { data: rangeData, isLoading, isError, refetch } = useQuery({
-  queryKey: ['attendances-range', dateFrom, dateTo],
-  queryFn: () => fetchAttendanceRange(`${dateFrom.value}Z`, `${dateTo.value}Z`),
+  queryKey: ['attendances-range', dateFrom, dateTo, regionFilter, cityFilter, schoolFilter, classFilter],
+  queryFn: () => fetchAttendanceRange(
+    `${dateFrom.value}Z`,
+    `${dateTo.value}Z`,
+    schoolFilter.value !== 'all' ? Number(schoolFilter.value) : undefined,
+    cityFilter.value   !== 'all' ? Number(cityFilter.value)   : undefined,
+    regionFilter.value !== 'all' ? Number(regionFilter.value) : undefined,
+    classFilter.value  !== 'all' ? Number(classFilter.value)  : undefined
+  ),
   staleTime: 5000
 })
 

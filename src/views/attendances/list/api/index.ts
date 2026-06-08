@@ -4,10 +4,20 @@ export const fetchAttendances = async (date: string) => {
   return await api.get<{ code: number; message: string; result: any[] }>(`/api/Attendances/date/${date}`)
 }
 
-export const fetchAttendanceRange = async (dateFrom: string, dateTo: string) => {
-  return await api.get<{ code: number; message: string; result: any[] }>('/api/Attendances/range', {
-    params: { dateFrom, dateTo }
-  })
+export const fetchAttendanceRange = async (
+  dateFrom: string,
+  dateTo: string,
+  schoolId?: number,
+  cityId?: number,
+  regionId?: number,
+  classId?: number
+) => {
+  const params: Record<string, any> = { dateFrom, dateTo }
+  if (schoolId !== undefined) params.schoolId = schoolId
+  if (cityId   !== undefined) params.cityId   = cityId
+  if (regionId !== undefined) params.regionId = regionId
+  if (classId  !== undefined) params.classId  = classId
+  return await api.get<{ code: number; message: string; result: any[] }>('/api/Attendances/range', { params })
 }
 
 export const fetchClassStudentAttendances = async (date: string, classId: number) => {
