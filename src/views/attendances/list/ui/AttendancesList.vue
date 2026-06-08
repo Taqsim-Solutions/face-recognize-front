@@ -45,24 +45,6 @@ const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
 const schoolFilter = ref<string>('all')
 const classFilter = ref<string>('all')
-const classSearch = ref<string>('')  // text search for class (e.g. "1-A", "2-B")
-
-const resetFilters = () => {
-  regionFilter.value = 'all'
-  cityFilter.value   = 'all'
-  schoolFilter.value = 'all'
-  classFilter.value  = 'all'
-  classSearch.value  = ''
-  page.value = 1
-}
-
-const hasActiveFilters = computed(() =>
-  regionFilter.value !== 'all' ||
-  cityFilter.value   !== 'all' ||
-  schoolFilter.value !== 'all' ||
-  classFilter.value  !== 'all' ||
-  classSearch.value.trim() !== ''
-)
 
 const todayStr = new Date().toISOString().split('T')[0]
 const defaultStart = `${new Date().getFullYear()}-01-01`
@@ -174,6 +156,25 @@ const calendarLocale = computed(() => {
 // Pagination
 const currentPage = ref(1)
 const pageSize = ref(20)
+
+const classSearch = ref<string>('')  // text search for class (e.g. "1-A", "2-B")
+
+const resetFilters = () => {
+  regionFilter.value = 'all'
+  cityFilter.value   = 'all'
+  schoolFilter.value = 'all'
+  classFilter.value  = 'all'
+  classSearch.value  = ''
+  currentPage.value  = 1
+}
+
+const hasActiveFilters = computed(() =>
+  regionFilter.value !== 'all' ||
+  cityFilter.value   !== 'all' ||
+  schoolFilter.value !== 'all' ||
+  classFilter.value  !== 'all' ||
+  classSearch.value.trim() !== ''
+)
 
 // Reset pagination and cascading selections
 watch([dateFrom, dateTo, regionFilter, cityFilter, schoolFilter, classFilter], () => {
