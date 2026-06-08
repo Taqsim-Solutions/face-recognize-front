@@ -45,6 +45,24 @@ const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
 const schoolFilter = ref<string>('all')
 const classFilter = ref<string>('all')
+const classSearch = ref<string>('')  // text search for class (e.g. "1-A", "2-B")
+
+const resetFilters = () => {
+  regionFilter.value = 'all'
+  cityFilter.value   = 'all'
+  schoolFilter.value = 'all'
+  classFilter.value  = 'all'
+  classSearch.value  = ''
+  page.value = 1
+}
+
+const hasActiveFilters = computed(() =>
+  regionFilter.value !== 'all' ||
+  cityFilter.value   !== 'all' ||
+  schoolFilter.value !== 'all' ||
+  classFilter.value  !== 'all' ||
+  classSearch.value.trim() !== ''
+)
 
 const todayStr = new Date().toISOString().split('T')[0]
 const defaultStart = `${new Date().getFullYear()}-01-01`
@@ -296,6 +314,16 @@ const formatStudentTime = (dt: string | null | undefined) => {
 
 const filteredAttendanceRows = computed(() => {
   return attendanceRows.value.filter((item: any) => {
+    // Class search filter (e.g. "1-A", "2b", "10")
+    if (classSearch.value.trim()) {
+      const q = classSearch.value.toLowerCase().replace(/[\s-]/g, '')
+      const sym = String(item.symbol || '').toLowerCase()
+      const deg = String(item.degree || '')
+      const full = `${deg}${sym}`          // "1a"
+      const full2 = `${deg}-${sym}`        // "1-a"
+      if (!full.includes(q) && !full2.includes(q) && !deg.startsWith(classSearch.value.trim()))
+        return false
+    }
     // 1. Region filter
     if (regionFilter.value !== 'all') {
       const rId = item.regionId || item.student?.regionId || item.school?.regionId
@@ -495,6 +523,37 @@ const getPageNumbers = () => {
           </SelectItem>
         </SelectContent>
       </Select>
+
+      <!-- Class text search (e.g. "1-A") -->
+      <div class="relative">
+        <input
+          v-model="classSearch"
+          type="text"
+          :placeholder="t('class-search-placeholder', 'Sinf: 1-A')"
+          class="h-10 w-[110px] pl-3 pr-8 border border-gray-200 rounded-xl text-sm text-gray-700 bg-white focus:outline-none focus:border-[#ff792d] placeholder:text-gray-400"
+        />
+        <button
+          v-if="classSearch"
+          @click="classSearch = ''"
+          class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Reset all filters -->
+      <button
+        v-if="hasActiveFilters"
+        @click="resetFilters"
+        class="h-10 px-3 rounded-xl bg-white border border-gray-200 text-gray-500 hover:text-red-500 hover:border-red-200 text-sm font-medium flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        {{ t('reset-filters', 'Tozalash') }}
+      </button>
     </div>
 
     <!-- Table Section with Standard Style -->
