@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { fetchAttendanceRange, fetchClassStudentAttendances } from '../api'
@@ -157,7 +157,47 @@ const calendarLocale = computed(() => {
 const currentPage = ref(1)
 const pageSize = ref(20)
 
-const classSearch = ref<string>('')  // text search for class (e.g. "1-A", "2-B")
+const classSearch = ref<string>('')  // search text inside the class dropdown
+const classDropdownOpen = ref(false)
+const classSearchInput = ref<HTMLInputElement | null>(null)
+
+// Options shown in the dropdown, filtered by the search text
+const filteredClassOptions = computed(() => {
+  const list = classes.value || []
+  const q = classSearch.value.toLowerCase().replace(/[\s-]/g, '').trim()
+  if (!q) return list
+  return list.filter((c: any) => {
+    const full = `${c.degree}${String(c.symbol || '').toLowerCase()}`
+    return full.includes(q) || String(c.degree).startsWith(classSearch.value.trim())
+  })
+})
+
+const selectedClassLabel = computed(() => {
+  if (classFilter.value === 'all') return t('sinf', 'Sinf')
+  const c = (classes.value || []).find((x: any) => String(x.id) === classFilter.value)
+  return c ? `${c.degree}-${c.symbol}` : t('sinf', 'Sinf')
+})
+
+const selectClass = (id: string) => {
+  classFilter.value = id
+  classDropdownOpen.value = false
+  classSearch.value = ''
+}
+
+// Close dropdown when clicking outside
+const handleClickOutside = (e: MouseEvent) => {
+  const target = e.target as HTMLElement
+  if (!target.closest('[data-class-dropdown]')) {
+    classDropdownOpen.value = false
+  }
+}
+onMounted(() => document.addEventListener('click', handleClickOutside))
+onUnmounted(() => document.removeEventListener('click', handleClickOutside))
+
+// Focus search box when dropdown opens
+watch(classDropdownOpen, (open) => {
+  if (open) nextTick(() => classSearchInput.value?.focus())
+})
 
 const resetFilters = () => {
   regionFilter.value = 'all'
@@ -172,8 +212,7 @@ const hasActiveFilters = computed(() =>
   regionFilter.value !== 'all' ||
   cityFilter.value   !== 'all' ||
   schoolFilter.value !== 'all' ||
-  classFilter.value  !== 'all' ||
-  classSearch.value.trim() !== ''
+  classFilter.value  !== 'all'
 )
 
 // Reset pagination and cascading selections
@@ -315,16 +354,6 @@ const formatStudentTime = (dt: string | null | undefined) => {
 
 const filteredAttendanceRows = computed(() => {
   return attendanceRows.value.filter((item: any) => {
-    // Class search filter (e.g. "1-A", "2b", "10")
-    if (classSearch.value.trim()) {
-      const q = classSearch.value.toLowerCase().replace(/[\s-]/g, '')
-      const sym = String(item.symbol || '').toLowerCase()
-      const deg = String(item.degree || '')
-      const full = `${deg}${sym}`          // "1a"
-      const full2 = `${deg}-${sym}`        // "1-a"
-      if (!full.includes(q) && !full2.includes(q) && !deg.startsWith(classSearch.value.trim()))
-        return false
-    }
     // 1. Region filter
     if (regionFilter.value !== 'all') {
       const rId = item.regionId || item.student?.regionId || item.school?.regionId
@@ -506,42 +535,61 @@ const getPageNumbers = () => {
         </SelectContent>
       </Select>
 
-      <!-- Class Select -->
-      <Select
-        v-model="classFilter"
-        name="classId"
-        :disabled="schoolFilter === 'all' || isClassesLoading"
-      >
-        <SelectTrigger
-          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
-        >
-          <SelectValue :placeholder="isClassesLoading ? t('loading') + '...' : t('sinf', 'Sinf')" />
-        </SelectTrigger>
-        <SelectContent class="bg-white">
-          <SelectItem value="all">{{ t('sinf', 'Sinf') }}</SelectItem>
-          <SelectItem v-for="cls in classes" :key="cls.id" :value="String(cls.id)">
-            {{ cls.degree }}-{{ cls.symbol }}
-          </SelectItem>
-        </SelectContent>
-      </Select>
-
-      <!-- Class text search (e.g. "1-A") -->
-      <div class="relative">
-        <input
-          v-model="classSearch"
-          type="text"
-          :placeholder="t('class-search-placeholder', 'Sinf: 1-A')"
-          class="h-10 w-[110px] pl-3 pr-8 border border-gray-200 rounded-xl text-sm text-gray-700 bg-white focus:outline-none focus:border-[#ff792d] placeholder:text-gray-400"
-        />
+      <!-- Class searchable select -->
+      <div class="relative" data-class-dropdown>
         <button
-          v-if="classSearch"
-          @click="classSearch = ''"
-          class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          type="button"
+          :disabled="schoolFilter === 'all' || isClassesLoading"
+          @click="classDropdownOpen = !classDropdownOpen"
+          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl text-gray-600 bg-white text-left font-medium px-3 flex items-center justify-between disabled:opacity-60 cursor-pointer"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
+          <span :class="{ 'text-gray-400': classFilter === 'all' }">
+            {{ isClassesLoading ? t('loading') + '...' : selectedClassLabel }}
+          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
+
+        <!-- Dropdown panel -->
+        <div
+          v-if="classDropdownOpen"
+          class="absolute z-50 mt-1 w-full sm:w-[200px] bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden"
+        >
+          <!-- Search box inside dropdown -->
+          <div class="p-2 border-b border-gray-100">
+            <input
+              ref="classSearchInput"
+              v-model="classSearch"
+              type="text"
+              :placeholder="t('class-search-placeholder', 'Qidirish: 1-A')"
+              class="h-8 w-full px-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-[#ff792d]"
+              @click.stop
+            />
+          </div>
+          <!-- Options -->
+          <div class="max-h-[240px] overflow-y-auto py-1">
+            <button
+              type="button"
+              @click="selectClass('all')"
+              class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
+              :class="classFilter === 'all' ? 'text-[#ff792d] font-semibold bg-orange-50' : 'text-gray-600'"
+            >
+              {{ t('all-classes', 'Barcha sinflar') }}
+            </button>
+            <button
+              v-for="cls in filteredClassOptions"
+              :key="cls.id"
+              type="button"
+              @click="selectClass(String(cls.id))"
+              class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
+              :class="classFilter === String(cls.id) ? 'text-[#ff792d] font-semibold bg-orange-50' : 'text-gray-700'"
+            >
+              {{ cls.degree }}-{{ cls.symbol }}
+            </button>
+            <div v-if="!filteredClassOptions.length" class="px-3 py-3 text-sm text-gray-400 text-center">
+              {{ t('no-data', "Ma'lumot yo'q") }}
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Reset all filters -->
