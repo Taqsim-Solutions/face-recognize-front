@@ -337,8 +337,8 @@ const activeNotifications = computed(() => {
     }
   }
 
-  // Late students (if loaded) → notifications
-  for (const ls of activeLateStudents.value.slice(0, 4)) {
+  // Late students → notifications
+  for (const ls of activeLateStudents.value) {
     notes.push({
       icon: '🟡',
       color: 'bg-amber-100',
@@ -348,8 +348,30 @@ const activeNotifications = computed(() => {
     })
   }
 
-  return notes.slice(0, 8)
+  return notes
 })
+
+// ── Pagination for the four feed panels (client-side, 5 per page) ──
+const PAGE_SIZE = 5
+const livePage   = ref(1)
+const notifPage  = ref(1)
+const latePage   = ref(1)
+const absentPage = ref(1)
+
+const paginate = (arr: any[], page: number) =>
+  arr.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+const pageCount = (arr: any[]) => Math.max(1, Math.ceil(arr.length / PAGE_SIZE))
+
+const pagedLiveEvents     = computed(() => paginate(liveEvents.value, livePage.value))
+const pagedNotifications  = computed(() => paginate(activeNotifications.value, notifPage.value))
+const pagedLateStudents   = computed(() => paginate(activeLateStudents.value, latePage.value))
+const pagedAbsents        = computed(() => paginate(activeAbsents.value, absentPage.value))
+
+// Reset to first page whenever the underlying list changes size meaningfully.
+watch(() => liveEvents.value.length,        () => { livePage.value = 1 })
+watch(() => activeNotifications.value.length, () => { notifPage.value = 1 })
+watch(() => activeLateStudents.value.length,  () => { latePage.value = 1 })
+watch(() => activeAbsents.value.length,       () => { absentPage.value = 1 })
 </script>
 
 <template>
@@ -633,21 +655,28 @@ const activeNotifications = computed(() => {
                 </div>
               </div>
               <div v-if="!activeLateStudents.length" class="flex-1 flex items-center justify-center py-6 text-gray-400 text-sm">{{ t('no-late-students', 'Kech qolganlar yo\'q') }}</div>
-              <div v-else class="overflow-y-auto max-h-[260px] divide-y divide-gray-50">
-                <div v-for="st in activeLateStudents" :key="st.studentId" class="flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 transition">
-                  <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">
-                    {{ (st.firstName?.[0] || '').toUpperCase() + (st.lastName?.[0] || '').toUpperCase() }}
+              <div v-else class="flex flex-col">
+                <div class="overflow-y-auto max-h-[260px] divide-y divide-gray-50">
+                  <div v-for="st in pagedLateStudents" :key="st.studentId" class="flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 transition">
+                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-600 shrink-0">
+                      {{ (st.firstName?.[0] || '').toUpperCase() + (st.lastName?.[0] || '').toUpperCase() }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs font-semibold text-gray-800 truncate">{{ st.lastName }} {{ st.firstName }}</p>
+                      <p class="text-xs text-gray-400 truncate">{{ st.schoolName }} • {{ st.className }}</p>
+                    </div>
+                    <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full shrink-0">{{ st.lateCount }}x</span>
+                    <div class="flex flex-col gap-0.5">
+                      <span v-for="entry in st.lateEntries?.slice(0, 2)" :key="entry.date" class="text-xs text-gray-500 whitespace-nowrap">
+                        {{ formatTime(entry.comingTime) }} <span class="text-red-400">+{{ entry.lateMinutes }}м</span>
+                      </span>
+                    </div>
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-xs font-semibold text-gray-800 truncate">{{ st.lastName }} {{ st.firstName }}</p>
-                    <p class="text-xs text-gray-400 truncate">{{ st.schoolName }} • {{ st.className }}</p>
-                  </div>
-                  <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full shrink-0">{{ st.lateCount }}x</span>
-                  <div class="flex flex-col gap-0.5">
-                    <span v-for="entry in st.lateEntries?.slice(0, 2)" :key="entry.date" class="text-xs text-gray-500 whitespace-nowrap">
-                      {{ formatTime(entry.comingTime) }} <span class="text-red-400">+{{ entry.lateMinutes }}м</span>
-                    </span>
-                  </div>
+                </div>
+                <div v-if="pageCount(activeLateStudents) > 1" class="flex items-center justify-between px-3 py-2 border-t border-gray-50 text-xs">
+                  <button :disabled="latePage <= 1" @click="latePage--" class="px-2 py-1 rounded border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">‹</button>
+                  <span class="text-gray-400">{{ latePage }} / {{ pageCount(activeLateStudents) }}</span>
+                  <button :disabled="latePage >= pageCount(activeLateStudents)" @click="latePage++" class="px-2 py-1 rounded border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">›</button>
                 </div>
               </div>
             </div>
@@ -660,16 +689,23 @@ const activeNotifications = computed(() => {
                 <span v-if="selectedSchoolName" class="text-xs text-[#ff792d] bg-orange-50 px-1.5 py-0.5 rounded-full">{{ selectedSchoolName }}</span>
               </div>
               <div v-if="!activeAbsents.length" class="flex-1 flex items-center justify-center py-6 text-gray-400 text-sm">{{ t('no-data', 'Ma\'lumot yo\'q') }}</div>
-              <div v-else class="overflow-y-auto max-h-[260px] divide-y divide-gray-50">
-                <div v-for="st in activeAbsents" :key="st.id" class="flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 transition">
-                  <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-600 shrink-0">
-                    {{ ((st.firstName || st.studentName || '?')[0] || '').toUpperCase() }}
+              <div v-else class="flex flex-col">
+                <div class="overflow-y-auto max-h-[260px] divide-y divide-gray-50">
+                  <div v-for="st in pagedAbsents" :key="st.id" class="flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 transition">
+                    <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-600 shrink-0">
+                      {{ ((st.firstName || st.studentName || '?')[0] || '').toUpperCase() }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs font-semibold text-gray-800 truncate">{{ st.lastName }} {{ st.firstName || st.studentName }}</p>
+                      <p class="text-xs text-gray-400 truncate">{{ st.schoolName || st.school }} • {{ st.className || st.class }}</p>
+                    </div>
+                    <span class="text-xs text-red-500 font-semibold bg-red-50 px-2 py-0.5 rounded-full shrink-0">{{ t('not-attended', 'Kelmagan') }}</span>
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-xs font-semibold text-gray-800 truncate">{{ st.lastName }} {{ st.firstName || st.studentName }}</p>
-                    <p class="text-xs text-gray-400 truncate">{{ st.schoolName || st.school }} • {{ st.className || st.class }}</p>
-                  </div>
-                  <span class="text-xs text-red-500 font-semibold bg-red-50 px-2 py-0.5 rounded-full shrink-0">{{ t('not-attended', 'Kelmagan') }}</span>
+                </div>
+                <div v-if="pageCount(activeAbsents) > 1" class="flex items-center justify-between px-3 py-2 border-t border-gray-50 text-xs">
+                  <button :disabled="absentPage <= 1" @click="absentPage--" class="px-2 py-1 rounded border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">‹</button>
+                  <span class="text-gray-400">{{ absentPage }} / {{ pageCount(activeAbsents) }}</span>
+                  <button :disabled="absentPage >= pageCount(activeAbsents)" @click="absentPage++" class="px-2 py-1 rounded border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">›</button>
                 </div>
               </div>
             </div>
@@ -700,7 +736,7 @@ const activeNotifications = computed(() => {
               <p class="text-xs">{{ t('no-live-events', 'Bugun hodisalar yo\'q') }}</p>
             </div>
             <div v-else class="divide-y divide-gray-50">
-              <div v-for="(ev, i) in liveEvents" :key="i" class="flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition">
+              <div v-for="(ev, i) in pagedLiveEvents" :key="i" class="flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition">
                 <!-- Photo (big) -->
                 <div
                   class="shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shadow ring-2"
@@ -741,6 +777,11 @@ const activeNotifications = computed(() => {
                 </div>
               </div>
             </div>
+            <div v-if="liveEvents.length && pageCount(liveEvents) > 1" class="flex items-center justify-between px-3 py-2 border-t border-gray-50 text-xs">
+              <button :disabled="livePage <= 1" @click="livePage--" class="px-2 py-1 rounded border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">‹</button>
+              <span class="text-gray-400">{{ livePage }} / {{ pageCount(liveEvents) }}</span>
+              <button :disabled="livePage >= pageCount(liveEvents)" @click="livePage++" class="px-2 py-1 rounded border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">›</button>
+            </div>
             <div class="px-4 py-2 text-xs text-gray-300 text-center border-t border-gray-50">
               {{ isDemoMode ? "Demo — statik ma'lumotlar" : 'Avtomatik yangilash: 30 soniya' }}
             </div>
@@ -756,7 +797,7 @@ const activeNotifications = computed(() => {
               <span class="text-xs text-gray-400">{{ t('view-all', 'Ko\'rish →') }}</span>
             </div>
             <div class="divide-y divide-gray-50">
-              <div v-for="(n, i) in activeNotifications" :key="i" class="flex items-start gap-3 px-3 py-2.5 hover:bg-gray-50 transition">
+              <div v-for="(n, i) in pagedNotifications" :key="i" class="flex items-start gap-3 px-3 py-2.5 hover:bg-gray-50 transition">
                 <div :class="[n.color, 'w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0']">{{ n.icon }}</div>
                 <div class="flex-1 min-w-0">
                   <p class="text-xs font-semibold text-gray-800 truncate">{{ n.title }}</p>
@@ -764,6 +805,11 @@ const activeNotifications = computed(() => {
                 </div>
                 <span class="text-xs text-gray-400 whitespace-nowrap shrink-0">{{ n.time }}</span>
               </div>
+            </div>
+            <div v-if="pageCount(activeNotifications) > 1" class="flex items-center justify-between px-3 py-2 border-t border-gray-50 text-xs">
+              <button :disabled="notifPage <= 1" @click="notifPage--" class="px-2 py-1 rounded border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">‹</button>
+              <span class="text-gray-400">{{ notifPage }} / {{ pageCount(activeNotifications) }}</span>
+              <button :disabled="notifPage >= pageCount(activeNotifications)" @click="notifPage++" class="px-2 py-1 rounded border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">›</button>
             </div>
           </div>
 
