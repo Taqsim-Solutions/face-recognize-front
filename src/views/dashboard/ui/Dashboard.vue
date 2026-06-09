@@ -668,7 +668,7 @@ watch(() => activeAbsents.value.length,       () => { absentPage.value = 1 })
                     <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full shrink-0">{{ st.lateCount }}x</span>
                     <div class="flex flex-col gap-0.5">
                       <span v-for="entry in st.lateEntries?.slice(0, 2)" :key="entry.date" class="text-xs text-gray-500 whitespace-nowrap">
-                        {{ formatTime(entry.comingTime) }} <span class="text-red-400">+{{ entry.lateMinutes }}м</span>
+                        {{ formatTime(entry.comingTime) }}
                       </span>
                     </div>
                   </div>
