@@ -717,7 +717,12 @@ const getPageNumbers = () => {
 
                 <!-- Class -->
                 <TableCell class="border p-3 text-gray-800 font-semibold text-sm">
-                  {{ row.degree }}-{{ row.symbol }}
+                  <div class="flex flex-col leading-tight">
+                    <span>{{ row.degree }}-{{ row.symbol }}</span>
+                    <span v-if="row.schoolName" class="text-xs font-normal text-gray-400 truncate max-w-[160px]">
+                      {{ row.schoolName }}
+                    </span>
+                  </div>
                 </TableCell>
 
                 <!-- Present -->
