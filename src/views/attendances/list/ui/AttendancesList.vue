@@ -249,21 +249,35 @@ const { data: rangeData, isLoading, isError, refetch } = useQuery({
   staleTime: 5000
 })
 
-// Flat list of class-day rows across all days in range
+// Flat list of class-day rows across all days in range, grouped so that
+// classes with the same date + school + degree + symbol merge into one row
+// (e.g. two "1-A" classes in the same school on the same day are summed).
 const attendanceRows = computed(() => {
   const raw = rangeData.value as any
   const days: any[] = raw?.data?.result || raw?.result || []
   if (!Array.isArray(days) || !days.length) return []
 
-  // Flatten: each row = { date, classId, degree, symbol, studentsCount, absentStudentsCount, isStudyDay }
-  const rows: any[] = []
+  const map = new Map<string, any>()
   for (const day of days) {
     const date = day.date
     for (const cls of (day.classes || [])) {
-      rows.push({ ...cls, date })
+      const key = `${date}|${cls.schoolId ?? ''}|${cls.degree}|${cls.symbol}`
+      const existing = map.get(key)
+      if (existing) {
+        // Merge counts and remember every underlying classId for the detail modal.
+        existing.studentsCount += cls.studentsCount || 0
+        existing.absentStudentsCount += cls.absentStudentsCount || 0
+        existing.classIds.push(cls.id)
+      } else {
+        map.set(key, {
+          ...cls,
+          date,
+          classIds: [cls.id]
+        })
+      }
     }
   }
-  return rows
+  return Array.from(map.values())
 })
 
 // Cascading Filter Options Fetch
@@ -323,14 +337,22 @@ const selectedClassRow = ref<any | null>(null)
 const isStudentModalOpen = ref(false)
 
 const { data: studentData, isLoading: studentLoading } = useQuery({
-  queryKey: ['class-students-att', computed(() => selectedClassRow.value?.date), computed(() => selectedClassRow.value?.id)],
-  queryFn: () => {
+  queryKey: ['class-students-att', computed(() => selectedClassRow.value?.date), computed(() => (selectedClassRow.value?.classIds || []).join(','))],
+  queryFn: async () => {
     const row = selectedClassRow.value
-    if (!row) return Promise.resolve(null)
-    // Use the date from the row (range data), formatted as ISO UTC
+    if (!row) return null
     const d = new Date(row.date)
     const dateStr = d.toISOString().split('T')[0] + 'Z'
-    return fetchClassStudentAttendances(dateStr, row.id)
+    // A grouped row can cover several underlying class IDs (same name/school).
+    const ids: number[] = row.classIds?.length ? row.classIds : [row.id]
+    const responses = await Promise.all(ids.map((cid) => fetchClassStudentAttendances(dateStr, cid)))
+    // Merge the student lists from every class into one.
+    const merged: any[] = []
+    for (const res of responses) {
+      const list = (res as any)?.data?.result || (res as any)?.result || []
+      if (Array.isArray(list)) merged.push(...list)
+    }
+    return { data: { result: merged } }
   },
   enabled: computed(() => !!selectedClassRow.value),
   staleTime: 0
