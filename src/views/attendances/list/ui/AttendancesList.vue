@@ -258,10 +258,23 @@ const attendanceRows = computed(() => {
   if (!Array.isArray(days) || !days.length) return []
 
   const map = new Map<string, any>()
+
+  // Some classes were created with a Cyrillic symbol (e.g. "А" U+0410) and
+  // others with the visually identical Latin "A" (U+0041). Normalize common
+  // look-alikes so "1-A" and "1-А" group together.
+  const normSymbol = (s: any) => {
+    const cyrToLat: Record<string, string> = {
+      'А': 'A', 'В': 'B', 'Е': 'E', 'К': 'K', 'М': 'M', 'Н': 'H',
+      'О': 'O', 'Р': 'P', 'С': 'C', 'Т': 'T', 'У': 'Y', 'Х': 'X'
+    }
+    const ch = String(s ?? '').toUpperCase()
+    return cyrToLat[ch] || ch
+  }
+
   for (const day of days) {
     const date = day.date
     for (const cls of (day.classes || [])) {
-      const key = `${date}|${cls.schoolId ?? ''}|${cls.degree}|${cls.symbol}`
+      const key = `${date}|${cls.schoolId ?? ''}|${cls.degree}|${normSymbol(cls.symbol)}`
       const existing = map.get(key)
       if (existing) {
         // Merge counts and remember every underlying classId for the detail modal.
