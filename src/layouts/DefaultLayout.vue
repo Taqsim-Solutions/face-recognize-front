@@ -14,13 +14,19 @@ onMounted(() => {
 </script>
 
 <template>
-  
   <!-- Main Application Layout -->
   <div class="lg:flex relative text-base">
+    <!-- Mobile backdrop — tap to close the sidebar -->
+    <div
+      v-if="sidebarState === 'expanded'"
+      class="fixed inset-0 z-30 bg-black/40 lg:hidden"
+      @click="sidebarState = 'collapsed'"
+    />
+
     <Sidebar class="row-span-full" :state="sidebarState" />
-    <main class="antialiased grid grid-rows-[auto_1fr] flex-1">
+    <main class="antialiased grid grid-rows-[auto_1fr] flex-1 min-w-0">
       <Header :sidebar-state="sidebarState" />
-      
+
       <!-- Main Content View -->
       <div class="overflow-x-auto py-3">
         <router-view v-slot="{ Component }">

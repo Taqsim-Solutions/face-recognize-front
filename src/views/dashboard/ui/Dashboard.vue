@@ -335,7 +335,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
   <div class="min-h-screen bg-[#f4f5f7] pb-10">
 
     <!-- ── Header ──────────────────────────────────────────────── -->
-    <header class="flex justify-between items-center px-6 py-3.5 border-b bg-white sticky top-0 z-20 shadow-sm">
+    <header class="flex justify-between items-center gap-2 px-4 sm:px-6 py-3.5 border-b bg-white sticky top-0 z-20 shadow-sm">
       <div>
         <h1 class="text-[18px] font-bold text-gray-900">{{ t('dashboard.statistics', 'Bosh panel') }}</h1>
         <p class="text-xs text-gray-400">{{ todayLabel }}</p>
@@ -367,7 +367,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
       <button @click="isDemoMode = false" class="ml-auto text-xs text-violet-500 hover:text-violet-700 underline shrink-0">O'chirish</button>
     </div>
 
-    <div class="px-6 pt-4 space-y-4">
+    <div class="px-4 sm:px-6 pt-4 space-y-4">
 
       <!-- ── Filter Bar ───────────────────────────────────────── -->
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-3" :class="{ 'opacity-50 pointer-events-none': isDemoMode }">
@@ -483,7 +483,7 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
       </div>
 
       <!-- ── Today 5 attendance cards ─────────────────────────── -->
-      <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <div v-for="card in todayCards" :key="card.label" :class="['bg-white rounded-xl border border-gray-200 p-3.5 shadow-sm']">
           <div class="flex items-center justify-between mb-2">
             <p class="text-xs text-gray-500 font-medium leading-tight">{{ card.label }}</p>

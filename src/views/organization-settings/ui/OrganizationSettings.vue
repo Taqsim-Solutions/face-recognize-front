@@ -551,7 +551,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
   <div>
     <!-- Title Header -->
     <header
-      class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
+      class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 py-4 pt-0 px-4 sm:px-6 border-b border-gray-200 bg-white"
     >
       <div>
       <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight flex items-center gap-2">
@@ -560,7 +560,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
         <UserContextBadges />
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <Button
           @click="handleSyncAll"
           :disabled="syncAllMutation.isPending.value"
@@ -1247,7 +1247,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
         </div>
 
         <!-- Rows -->
-        <div class="flex-1 overflow-y-auto px-5 py-3">
+        <div class="flex-1 overflow-y-auto overflow-x-auto px-5 py-3">
           <div v-if="importLoading" class="flex items-center justify-center py-12 text-gray-400">
             <Loader2Icon class="w-6 h-6 animate-spin" />
           </div>
@@ -1255,7 +1255,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
             <CameraIcon class="w-8 h-8 opacity-40" />
             <p class="text-sm">{{ t('load-camera-users-hint', "Kameradan foydalanuvchilarni yuklang") }}</p>
           </div>
-          <table v-else class="w-full text-sm">
+          <table v-else class="w-full text-sm min-w-[480px]">
             <thead>
               <tr class="bg-gray-50 text-xs text-gray-500 uppercase">
                 <th class="px-2 py-2 w-8"></th>

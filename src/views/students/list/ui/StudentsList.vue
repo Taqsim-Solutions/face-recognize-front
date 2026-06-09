@@ -419,7 +419,7 @@ const handleExcelFileSelect = async (event: Event) => {
   <div>
     <!-- Header Title & Add Button -->
     <header
-      class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
+      class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 py-4 pt-0 px-4 sm:px-6 border-b border-gray-200 bg-white"
     >
       <div>
         <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
@@ -510,7 +510,7 @@ const handleExcelFileSelect = async (event: Event) => {
     </header>
 
     <!-- Filters Row -->
-    <div class="flex flex-wrap items-center gap-3 px-6 pt-5 bg-white">
+    <div class="flex flex-wrap items-center gap-3 px-4 sm:px-6 pt-5 bg-white">
       <!-- Search Input -->
       <div
         class="flex items-center h-10 w-full sm:w-[420px] border border-gray-200 rounded-xl bg-white px-3 focus-within:ring-1 focus-within:ring-[#ff792d]/20 focus-within:border-[#ff792d]/50 transition-all"
@@ -602,7 +602,7 @@ const handleExcelFileSelect = async (event: Event) => {
         <ServerError />
       </template>
       <template v-else>
-        <div class="mt-5 w-full px-6">
+        <div class="mt-5 w-full px-4 sm:px-6">
           <DataTable
             :data="tableData"
             :columns="columns"

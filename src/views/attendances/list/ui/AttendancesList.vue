@@ -417,7 +417,7 @@ const getPageNumbers = () => {
   <div>
     <!-- Header Title -->
     <header
-      class="flex justify-between items-center py-4 pt-0 px-6 border-b border-gray-200 bg-white"
+      class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 py-4 pt-0 px-4 sm:px-6 border-b border-gray-200 bg-white"
     >
       <div>
       <h1 class="text-[20px] font-bold text-[#1b1b1b] tracking-tight">
@@ -436,7 +436,7 @@ const getPageNumbers = () => {
     </header>
 
     <!-- Filters Row -->
-    <div class="flex flex-wrap items-center gap-3 px-6 pt-5 bg-white pb-5">
+    <div class="flex flex-wrap items-center gap-3 px-4 sm:px-6 pt-5 bg-white pb-5">
       <!-- Date Range Selector Popover -->
       <Popover v-model:open="isCalendarOpen">
         <PopoverTrigger as-child>
@@ -606,7 +606,7 @@ const getPageNumbers = () => {
     </div>
 
     <!-- Table Section with Standard Style -->
-    <div class="mt-1 w-full px-6">
+    <div class="mt-1 w-full px-4 sm:px-6">
       <div
         class="relative border border-gray-200 rounded-t-lg w-full overflow-auto lg:max-h-[calc(100vh-260px)]"
       >
