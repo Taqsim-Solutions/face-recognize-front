@@ -652,6 +652,15 @@ const getPageNumbers = () => {
                 {{ t('date', 'Sana') }}
               </TableHead>
               <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('region-col', 'Viloyat') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('city-col', 'Tuman/shahar') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('school-col', 'Maktab') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
                 {{ t('dashboard.absents.class', 'Sinf') }}
               </TableHead>
               <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
@@ -680,6 +689,15 @@ const getPageNumbers = () => {
                   ><div class="h-4 bg-gray-100 rounded w-24"></div
                 ></TableCell>
                 <TableCell class="border p-3"
+                  ><div class="h-4 bg-gray-100 rounded w-24"></div
+                ></TableCell>
+                <TableCell class="border p-3"
+                  ><div class="h-4 bg-gray-100 rounded w-24"></div
+                ></TableCell>
+                <TableCell class="border p-3"
+                  ><div class="h-4 bg-gray-100 rounded w-24"></div
+                ></TableCell>
+                <TableCell class="border p-3"
                   ><div class="h-4 bg-gray-100 rounded w-16"></div
                 ></TableCell>
                 <TableCell class="border p-3"
@@ -694,7 +712,7 @@ const getPageNumbers = () => {
             <!-- Error -->
             <template v-else-if="isError">
               <TableRow>
-                <TableCell colspan="5" class="h-64 text-center border-none">
+                <TableCell colspan="8" class="h-64 text-center border-none">
                   <div class="flex flex-col items-center justify-center py-10">
                     <AlertCircle class="w-12 h-12 text-red-500 mb-2" />
                     <h3 class="text-lg font-bold text-gray-800">
@@ -718,7 +736,7 @@ const getPageNumbers = () => {
             <!-- Empty Data -->
             <template v-else-if="filteredAttendanceRows.length === 0">
               <TableRow>
-                <TableCell colspan="5" class="h-64 text-center border-none">
+                <TableCell colspan="8" class="h-64 text-center border-none">
                   <div class="flex flex-col items-center justify-center py-10">
                     <div
                       class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-3"
@@ -750,14 +768,24 @@ const getPageNumbers = () => {
                   {{ new Date(row.date).toLocaleDateString(calendarLocale, { day:'2-digit', month:'short', year:'numeric' }) }}
                 </TableCell>
 
+                <!-- Region -->
+                <TableCell class="border p-3 text-gray-700 text-sm">
+                  {{ row.regionName || '—' }}
+                </TableCell>
+
+                <!-- City / district -->
+                <TableCell class="border p-3 text-gray-700 text-sm">
+                  {{ row.cityName || '—' }}
+                </TableCell>
+
+                <!-- School -->
+                <TableCell class="border p-3 text-gray-700 text-sm">
+                  {{ row.schoolName || '—' }}
+                </TableCell>
+
                 <!-- Class -->
                 <TableCell class="border p-3 text-gray-800 font-semibold text-sm">
-                  <div class="flex flex-col leading-tight">
-                    <span>{{ row.degree }}-{{ row.symbol }}</span>
-                    <span v-if="row.schoolName" class="text-xs font-normal text-gray-400 truncate max-w-[160px]">
-                      {{ row.schoolName }}
-                    </span>
-                  </div>
+                  {{ row.degree }}-{{ row.symbol }}
                 </TableCell>
 
                 <!-- Present -->
