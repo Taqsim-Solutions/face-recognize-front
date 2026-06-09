@@ -145,11 +145,9 @@ const fetchLiveEvents = async () => {
   if (isDemoMode.value) { liveEvents.value = mockLiveEvents; return }
   try {
     liveLoading.value = true
-    const res = await api.get('/api/Attendances/date/' + today)
-    const data: any[] = res?.data?.result || []
+    const res = await api.get('/api/Attendances/live?limit=15')
+    const data: any[] = (res as any)?.data?.result || []
     liveEvents.value = data
-      .sort((a: any, b: any) => new Date(b.attendanceTime || b.comingTime || 0).getTime() - new Date(a.attendanceTime || a.comingTime || 0).getTime())
-      .slice(0, 5)
   } catch { } finally { liveLoading.value = false }
 }
 watch(isDemoMode, () => fetchLiveEvents())
@@ -314,13 +312,6 @@ const formatTime = (raw: any) => {
   return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-const liveStatusColor = (type: string) =>
-  (!type || !['exit','out','ket'].some(k => type.toLowerCase().includes(k)))
-    ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
-const liveStatusLabel = (type: string) =>
-  (!type || !['exit','out','ket'].some(k => type.toLowerCase().includes(k)))
-    ? t('entered', 'Kirdi') : t('exited', 'Chiqdi')
-
 // Mock notifications for demo
 const mockNotifications = [
   { icon: '🔴', color: 'bg-red-100', title: '12-kamera tarmoqda yo\'q', sub: '3-maktab • Kirish • Kamera 12', time: '5 дақ олд' },
@@ -328,7 +319,37 @@ const mockNotifications = [
   { icon: '⚠️', color: 'bg-orange-100', title: "O'qituvchi kech qoldi", sub: 'Ibragimov S. • Tarix • 1-dars', time: '20 дақ олд' },
   { icon: '✅', color: 'bg-green-100', title: 'Tizim normal ishlayapti', sub: 'Barcha kameralar aktiv', time: '30 дақ олд' },
 ]
-const activeNotifications = computed(() => isDemoMode.value ? mockNotifications : [])
+const activeNotifications = computed(() => {
+  if (isDemoMode.value) return mockNotifications
+
+  const notes: any[] = []
+
+  // Unknown faces from the live feed → notifications
+  for (const ev of liveEvents.value) {
+    if (ev.kind === 'unknown') {
+      notes.push({
+        icon: '⚠️',
+        color: 'bg-red-100',
+        title: t('unknown-face-detected', "Noma'lum yuz aniqlandi"),
+        sub: ev.schoolName || '',
+        time: formatTime(ev.time)
+      })
+    }
+  }
+
+  // Late students (if loaded) → notifications
+  for (const ls of activeLateStudents.value.slice(0, 4)) {
+    notes.push({
+      icon: '🟡',
+      color: 'bg-amber-100',
+      title: t('late-arrival', 'Kech qoldi') + ': ' + ((ls.lastName || '') + ' ' + (ls.firstName || '')).trim(),
+      sub: (ls.className || '') + (ls.schoolName ? ' • ' + ls.schoolName : ''),
+      time: ''
+    })
+  }
+
+  return notes.slice(0, 8)
+})
 </script>
 
 <template>
@@ -681,23 +702,40 @@ const activeNotifications = computed(() => isDemoMode.value ? mockNotifications 
             <div v-else class="divide-y divide-gray-50">
               <div v-for="(ev, i) in liveEvents" :key="i" class="flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition">
                 <!-- Photo (big) -->
-                <div class="shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shadow ring-2 ring-white">
-                  <img v-if="ev.photoUrl || ev.image || ev.faceImage || ev.photo"
-                    :src="ev.photoUrl || ev.image || ev.faceImage || ev.photo"
+                <div
+                  class="shrink-0 w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shadow ring-2"
+                  :class="ev.kind === 'unknown' ? 'ring-red-100' : 'ring-white'"
+                >
+                  <img v-if="ev.imageName"
+                    :src="`/api/images?filename=${ev.imageName}`"
                     class="w-full h-full object-cover"
                     @error="($event.target as HTMLImageElement).style.display='none'" />
                   <div v-else class="w-full h-full flex items-center justify-center text-sm font-bold text-gray-400 bg-gray-200">
-                    {{ (ev.firstName?.[0] || '?').toUpperCase() }}
+                    {{ ev.kind === 'unknown' ? '?' : (ev.fullName?.[0] || '?').toUpperCase() }}
                   </div>
                 </div>
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-semibold text-gray-800 truncate">{{ ev.lastName }} {{ ev.firstName || ev.fullName || "Noma'lum" }}</p>
-                  <p class="text-xs text-gray-400 truncate">{{ ev.schoolName || '' }}{{ ev.className ? ' • ' + ev.className : '' }}</p>
+                  <p class="text-sm font-semibold text-gray-800 truncate">
+                    {{ ev.kind === 'unknown' ? t('unknown-face', "Noma'lum yuz") : ev.fullName }}
+                  </p>
+                  <p class="text-xs text-gray-400 truncate">
+                    {{ ev.schoolName || '' }}{{ ev.className ? ' • ' + ev.className : '' }}
+                  </p>
                   <div class="flex items-center gap-2 mt-1">
-                    <span class="text-xs text-gray-500 font-medium">{{ formatTime(ev.attendanceTime || ev.comingTime) }}</span>
-                    <span :class="['text-xs px-2 py-0.5 rounded-full font-semibold', liveStatusColor(ev.type || ev.status)]">
-                      {{ liveStatusLabel(ev.type || ev.status) }}
+                    <span class="text-xs text-gray-500 font-medium">{{ formatTime(ev.time) }}</span>
+                    <span
+                      v-if="ev.kind === 'unknown'"
+                      class="text-xs px-2 py-0.5 rounded-full font-semibold bg-red-50 text-red-600"
+                    >
+                      {{ t('unknown-face', "Noma'lum") }}
+                    </span>
+                    <span
+                      v-else
+                      class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                      :class="ev.direction === 'departure' ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600'"
+                    >
+                      {{ ev.direction === 'departure' ? t('left', 'Ketdi') : t('arrived', 'Keldi') }}
                     </span>
                   </div>
                 </div>
