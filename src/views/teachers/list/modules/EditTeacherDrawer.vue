@@ -82,7 +82,8 @@ const formSchema = toTypedSchema(
     regionId: z.number({ required_error: 'validation.required-field' }),
     cityId: z.number({ required_error: 'validation.required-field' }),
     schoolId: z.number({ required_error: 'validation.required-field' }),
-    classId: z.number().nullable().optional()
+    classId: z.number().nullable().optional(),
+    isTeacher: z.boolean().optional()
   })
 )
 
@@ -96,7 +97,8 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
     regionId: undefined as any,
     cityId: undefined as any,
     schoolId: undefined as any,
-    classId: undefined as any
+    classId: undefined as any,
+    isTeacher: true
   }
 })
 
@@ -123,7 +125,8 @@ watch(
           regionId: matchedRegionId,
           cityId: matchedCityId,
           schoolId: matchedSchoolId,
-          classId: matchedClassId
+          classId: matchedClassId,
+          isTeacher: props.teacher.isTeacher !== false
         }
       })
 
@@ -424,7 +427,8 @@ const { isPending: isSubmitPending, mutate } = useMutation({
         login: formValues.login,
         isDirectorOrAssistandDirector: false,
         schoolId: formValues.schoolId,
-        classId: formValues.classId || 0
+        classId: formValues.isTeacher ? (formValues.classId || null) : null,
+        isTeacher: formValues.isTeacher ?? true
       }
     })
 
@@ -620,8 +624,37 @@ const handleCancel = () => {
             </FormItem>
           </FormField>
 
+          <!-- Is Teacher toggle -->
+          <FormField v-slot="{ value, handleChange }" name="isTeacher">
+            <FormItem>
+              <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
+                <div>
+                  <FormLabel class="text-sm font-semibold text-gray-700">
+                    {{ t('is-teacher', "O'qituvchimi?") }}
+                  </FormLabel>
+                  <p class="text-xs text-gray-400 mt-0.5">
+                    {{ t('is-teacher-hint', "O'chirilsa — xodim (qorovul, oshpaz va h.k.)") }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  :aria-checked="value !== false"
+                  @click="handleChange(value === false)"
+                  class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors"
+                  :class="value !== false ? 'bg-[#ff792d]' : 'bg-gray-300'"
+                >
+                  <span
+                    class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                    :class="value !== false ? 'translate-x-6' : 'translate-x-1'"
+                  />
+                </button>
+              </div>
+            </FormItem>
+          </FormField>
+
           <!-- Class Dropdown -->
-          <FormField v-slot="{ componentField }" name="classId">
+          <FormField v-if="values.isTeacher !== false" v-slot="{ componentField }" name="classId">
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('sinf') }}</FormLabel>
               <FormControl>

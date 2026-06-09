@@ -5,6 +5,7 @@ export type TeacherModel = {
   email: string
   login?: string
   level?: number
+  isTeacher?: boolean
   schoolId?: number | null
   schoolName?: string | null
   mainImageName?: string | null
@@ -76,7 +77,8 @@ export type CreateTeacherPayload = {
   password?: string
   isDirectorOrAssistandDirector: boolean
   schoolId: number
-  classId: number
+  classId: number | null
+  isTeacher: boolean
 }
 
 export type UpdateTeacherPayload = {
@@ -86,5 +88,6 @@ export type UpdateTeacherPayload = {
   login: string
   isDirectorOrAssistandDirector: boolean
   schoolId: number
-  classId: number
+  classId: number | null
+  isTeacher: boolean
 }
