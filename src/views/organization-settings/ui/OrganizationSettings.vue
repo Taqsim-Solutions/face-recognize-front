@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UserContextBadges from '@/components/UserContextBadges.vue'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
@@ -70,6 +70,7 @@ const formExternalPort = ref<number | undefined>(9001)
 const formRegionId = ref('all')
 const formCityId = ref('all')
 const formSchoolId = ref('all')
+const isPrefilling = ref(false)
 
 // Fetch Regions
 const { data: regionsRes } = useQuery({
@@ -109,11 +110,13 @@ const formCities = computed(() => {
 })
 
 watch(formRegionId, () => {
+  if (isPrefilling.value) return
   formCityId.value = 'all'
   formSchoolId.value = 'all'
 })
 
 watch(formCityId, () => {
+  if (isPrefilling.value) return
   formSchoolId.value = 'all'
 })
 
@@ -393,22 +396,23 @@ const openEditDrawer = (camera: any) => {
   formDdnsHost.value = camera.ddnsHost || ''
   formExternalPort.value = camera.externalPort ?? 9001
 
-  // Support both nested school object and flat regionId/cityId fields
-  if (camera.school) {
-    const schoolObj = camera.school
-    formRegionId.value = schoolObj.region?.id ? String(schoolObj.region.id) : 'all'
-    formCityId.value = schoolObj.city?.id ? String(schoolObj.city.id) : 'all'
-    formSchoolId.value = String(schoolObj.id)
-  } else if (camera.regionId) {
-    formRegionId.value = String(camera.regionId)
-    formCityId.value = camera.cityId ? String(camera.cityId) : 'all'
-    formSchoolId.value = camera.schoolId ? String(camera.schoolId) : 'all'
-  } else {
-    formRegionId.value = 'all'
-    formCityId.value = 'all'
-    formSchoolId.value = camera.schoolId ? String(camera.schoolId) : 'all'
-  }
+  // Prefill location WITHOUT triggering the cascade watches (which would
+  // reset city/school back to 'all'). CameraResultDto returns flat fields
+  // (regionId/cityId/schoolId); also support a nested school object.
+  isPrefilling.value = true
+
+  const regionId = camera.regionId ?? camera.school?.region?.id ?? camera.school?.regionId
+  const cityId   = camera.cityId   ?? camera.school?.city?.id   ?? camera.school?.cityId
+  const schoolId = camera.schoolId ?? camera.school?.id
+
+  formRegionId.value = regionId ? String(regionId) : 'all'
+  formCityId.value   = cityId   ? String(cityId)   : 'all'
+  formSchoolId.value = schoolId ? String(schoolId) : 'all'
+
   isDrawerOpen.value = true
+
+  // Release the guard after the reactive watches have flushed.
+  nextTick(() => { isPrefilling.value = false })
 }
 
 const closeDrawer = () => {
