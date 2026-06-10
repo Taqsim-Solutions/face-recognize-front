@@ -410,7 +410,13 @@ const handleExcelFileSelect = async (event: Event) => {
     }
 
     const displayMsg = te(firstMsg) ? t(firstMsg) : firstMsg
-    toast.error(displayMsg, { id: 'excel-upload' })
+    // Excel errors can list several rows; show them for longer and preserve line breaks.
+    const isMultiline = typeof displayMsg === 'string' && displayMsg.includes('\n')
+    toast.error(displayMsg, {
+      id: 'excel-upload',
+      duration: isMultiline ? 15000 : 5000,
+      style: isMultiline ? { whiteSpace: 'pre-line', maxWidth: '520px', textAlign: 'left' } : undefined
+    })
   }
 }
 </script>
