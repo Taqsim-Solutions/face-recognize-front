@@ -46,6 +46,9 @@ const schoolFilter = ref<string>('all')
 const classFilter = ref<string>('all')
 const searchQuery = ref<string>('')
 const isCreateDrawerOpen = ref(false)
+// Excel import error popup (for multi-row error lists that don't fit a toast)
+const excelErrorOpen = ref(false)
+const excelErrorLines = ref<string[]>([])
 
 const sorting = ref<{
   orderBy: string | null
@@ -410,13 +413,19 @@ const handleExcelFileSelect = async (event: Event) => {
     }
 
     const displayMsg = te(firstMsg) ? t(firstMsg) : firstMsg
-    // Excel errors can list several rows; show them for longer and preserve line breaks.
+    // Excel errors can list many rows. A toast would overflow the screen, so
+    // show them in a scrollable popup; keep short single errors as a toast.
     const isMultiline = typeof displayMsg === 'string' && displayMsg.includes('\n')
-    toast.error(displayMsg, {
-      id: 'excel-upload',
-      duration: isMultiline ? 15000 : 5000,
-      style: isMultiline ? { whiteSpace: 'pre-line', maxWidth: '520px', textAlign: 'left' } : undefined
-    })
+    if (isMultiline) {
+      toast.dismiss('excel-upload')
+      excelErrorLines.value = displayMsg
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((l) => l.length > 0 && !l.toLowerCase().startsWith('excel xato'))
+      excelErrorOpen.value = true
+    } else {
+      toast.error(displayMsg, { id: 'excel-upload', duration: 5000 })
+    }
   }
 }
 </script>
@@ -627,5 +636,48 @@ const handleExcelFileSelect = async (event: Event) => {
 
     <!-- Create Student Drawer -->
     <CreateStudentDrawer v-model:open="isCreateDrawerOpen" />
+
+    <!-- Excel import error popup -->
+    <div
+      v-if="excelErrorOpen"
+      class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4"
+      @click.self="excelErrorOpen = false"
+    >
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <h3 class="text-base font-bold text-red-600">
+            {{ t('import-error', 'Import xatosi') }} ({{ excelErrorLines.length }})
+          </h3>
+          <button
+            @click="excelErrorOpen = false"
+            class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="px-5 py-3 overflow-y-auto">
+          <p class="text-xs text-gray-500 mb-3">
+            {{ t('fix-excel-hint', "Quyidagi qatorlarni Excel faylda tuzating va qayta yuklang:") }}
+          </p>
+          <ul class="space-y-2">
+            <li
+              v-for="(line, idx) in excelErrorLines"
+              :key="idx"
+              class="text-sm text-gray-700 bg-red-50 border border-red-100 rounded-lg px-3 py-2 leading-snug"
+            >
+              {{ line }}
+            </li>
+          </ul>
+        </div>
+        <div class="px-5 py-3 border-t border-gray-100 flex justify-end">
+          <button
+            @click="excelErrorOpen = false"
+            class="h-10 px-5 rounded-lg bg-gray-900 text-white font-semibold text-sm hover:bg-gray-800"
+          >
+            {{ t('close', 'Yopish') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

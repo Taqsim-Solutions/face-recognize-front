@@ -416,6 +416,7 @@ export default {
     'no-file': 'Fayl yoq',
     'no-reason': 'Sabab keltirilmagan',
     'start-end-date': 'Bosh.-yakun sanasi',
+    'fix-excel-hint': 'Quyidagi qatorlarni Excel faylda tuzating va qayta yuklang:',
   },
   uzc: {
     auth: {
@@ -820,6 +821,7 @@ export default {
     'teachers-present': 'Келган ўқитувчилар',
     'use-ddns': 'Ташқи кириш (DDNS)',
     'view-all': 'Ҳаммасини кўриш →',
+    'fix-excel-hint': 'Қуйидаги қаторларни Excel файлда тузатинг ва қайта юкланг:',
   },
   ru: {
     auth: {
@@ -1244,6 +1246,7 @@ export default {
     'advance-percent-max': 'Аванс не более 100%',
     'advance-percent-min': 'Аванс не менее 0%',
     'password-min-length': 'Пароль должен содержать минимум 8 символов',
+    'fix-excel-hint': 'Исправьте следующие строки в Excel-файле и загрузите заново:',
   },
   en: {
     auth: {
@@ -1644,6 +1647,7 @@ export default {
     'teachers-present': 'Present teachers',
     'use-ddns': 'External access (DDNS)',
     'view-all': 'View all →',
+    'fix-excel-hint': 'Fix the following rows in the Excel file and re-upload:',
   },
   fa: {
     auth: {
@@ -2044,6 +2048,7 @@ export default {
     'teachers-present': 'معلمان حاضر',
     'use-ddns': 'دسترسی خارجی (DDNS)',
     'view-all': 'مشاهده همه ←',
+    'fix-excel-hint': 'ردیف‌های زیر را در فایل اکسل اصلاح کرده و دوباره بارگذاری کنید:',
   },
   ps: {
     auth: {
@@ -2444,6 +2449,7 @@ export default {
     'teachers-present': 'حاضر ښوونکي',
     'use-ddns': 'بهرنی لاسرسی (DDNS)',
     'view-all': 'ټول وګورئ ←',
+    'fix-excel-hint': 'لاندې کرښې په اکسل فایل کې سم کړئ او بیا یې پورته کړئ:',
   },
   ur: {
     auth: {
@@ -2844,5 +2850,6 @@ export default {
     'teachers-present': 'حاضر اساتذہ',
     'use-ddns': 'بیرونی رسائی (DDNS)',
     'view-all': 'سب دیکھیں ←',
+    'fix-excel-hint': 'ایکسل فائل میں درج ذیل قطاریں درست کریں اور دوبارہ اپ لوڈ کریں:',
   }
 }
