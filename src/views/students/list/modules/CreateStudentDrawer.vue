@@ -85,8 +85,12 @@ const formSchema = toTypedSchema(
     phoneNumber: z
       .string({ required_error: 'validation.required-field' })
       .min(9, { message: 'validation.required-field' }), // Ota yoki Ona tel raqami
-    fatherFullName: z.string().optional().nullable(),
-    motherFullName: z.string().optional().nullable(),
+    fatherFullName: z
+      .string({ required_error: 'validation.required-field' })
+      .min(3, { message: 'validation.required-field' }),
+    motherFullName: z
+      .string({ required_error: 'validation.required-field' })
+      .min(3, { message: 'validation.required-field' }),
     additionalPhoneNumber: z.string().optional().nullable()
   })
 )
@@ -570,7 +574,7 @@ const handleCancel = () => {
           <!-- Familiya -->
           <FormField v-slot="{ componentField }" name="lastName">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('lastName', 'Familiya') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('lastName', 'Familiya') }} <span class="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   type="text"
@@ -586,7 +590,7 @@ const handleCancel = () => {
           <!-- Ism -->
           <FormField v-slot="{ componentField }" name="firstName">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('firstName', 'Ism') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('firstName', 'Ism') }} <span class="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   type="text"
@@ -618,7 +622,7 @@ const handleCancel = () => {
           <!-- Ota yoki Ona tel raqami -->
           <FormField v-slot="{ componentField }" name="phoneNumber">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('parent_phone', 'Ota yoki Ona telefon raqami') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('parent_phone', 'Ota yoki Ona telefon raqami') }} <span class="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   type="text"
@@ -634,7 +638,7 @@ const handleCancel = () => {
           <!-- Otasining F.I.Sh -->
           <FormField v-slot="{ componentField }" name="fatherFullName">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('father_fullname', 'Otasining F.I.Sh') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('father_fullname', 'Otasining F.I.Sh') }} <span class="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   type="text"
@@ -650,7 +654,7 @@ const handleCancel = () => {
           <!-- Onasining F.I.O -->
           <FormField v-slot="{ componentField }" name="motherFullName">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('mother_fullname', 'Onasining F.I.O') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('mother_fullname', 'Onasining F.I.O') }} <span class="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   type="text"
