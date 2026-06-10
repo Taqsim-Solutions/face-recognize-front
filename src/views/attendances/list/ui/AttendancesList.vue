@@ -539,10 +539,10 @@ const getPageNumbers = () => {
       </div>
 
       <Button
-        @click="() => refetch()"
+        @click="() => (mode === 'teachers' ? refetchTeachers() : refetch())"
         class="h-10 px-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm flex items-center gap-2 transition-all shadow-none cursor-pointer"
       >
-        <RefreshCw class="w-4 h-4 text-gray-500" :class="{ 'animate-spin': isLoading }" />
+        <RefreshCw class="w-4 h-4 text-gray-500" :class="{ 'animate-spin': displayLoading }" />
         <span>{{ t('dashboard.retry', 'Yangilash') }}</span>
       </Button>
     </header>
