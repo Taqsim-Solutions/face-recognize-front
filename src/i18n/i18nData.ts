@@ -419,6 +419,9 @@ export default {
     'teacher-fio': 'F.I.Sh',
     'arrival-time': 'Kelgan vaqti',
     'leaving-time': 'Ketgan vaqti',
+    'cleanup-empty-classes': 'Bo\'sh sinflarni o\'chirish',
+    'cleanup-empty-classes-hint': 'O\'quvchisi va o\'qituvchisi yo\'q barcha bo\'sh sinflar o\'chiriladi. Bu amalni ortga qaytarib bo\'lmaydi.',
+    'cleanup-done': 'Bo\'sh sinflar o\'chirildi',
   },
   uzc: {
     auth: {
@@ -827,6 +830,9 @@ export default {
     'teacher-fio': 'Ф.И.Ш',
     'arrival-time': 'Келган вақти',
     'leaving-time': 'Кетган вақти',
+    'cleanup-empty-classes': 'Бўш синфларни ўчириш',
+    'cleanup-empty-classes-hint': 'Ўқувчиси ва ўқитувчиси йўқ барча бўш синфлар ўчирилади. Бу амални ортга қайтариб бўлмайди.',
+    'cleanup-done': 'Бўш синфлар ўчирилди',
   },
   ru: {
     auth: {
@@ -1254,6 +1260,9 @@ export default {
     'teacher-fio': 'Ф.И.О',
     'arrival-time': 'Время прибытия',
     'leaving-time': 'Время ухода',
+    'cleanup-empty-classes': 'Удалить пустые классы',
+    'cleanup-empty-classes-hint': 'Все классы без учеников и учителя будут удалены. Это действие необратимо.',
+    'cleanup-done': 'Пустые классы удалены',
   },
   en: {
     auth: {
@@ -1657,6 +1666,9 @@ export default {
     'teacher-fio': 'Full name',
     'arrival-time': 'Arrival time',
     'leaving-time': 'Leaving time',
+    'cleanup-empty-classes': 'Delete empty classes',
+    'cleanup-empty-classes-hint': 'All classes with no students and no teacher will be deleted. This cannot be undone.',
+    'cleanup-done': 'Empty classes deleted',
   },
   fa: {
     auth: {
@@ -2060,6 +2072,9 @@ export default {
     'teacher-fio': 'نام کامل',
     'arrival-time': 'زمان ورود',
     'leaving-time': 'زمان خروج',
+    'cleanup-empty-classes': 'حذف کلاس‌های خالی',
+    'cleanup-empty-classes-hint': 'همه کلاس‌های بدون دانش‌آموز و معلم حذف می‌شوند. این عمل قابل بازگشت نیست.',
+    'cleanup-done': 'کلاس‌های خالی حذف شدند',
   },
   ps: {
     auth: {
@@ -2463,6 +2478,9 @@ export default {
     'teacher-fio': 'بشپړ نوم',
     'arrival-time': 'د راتګ وخت',
     'leaving-time': 'د تګ وخت',
+    'cleanup-empty-classes': 'تش ټولګي ړنګول',
+    'cleanup-empty-classes-hint': 'ټول هغه ټولګي چې زده‌کوونکی او ښوونکی نه لري ړنګ کیږي. دا بیرته نشي اپ کیدای.',
+    'cleanup-done': 'تش ټولګي ړنګ شول',
   },
   ur: {
     auth: {
@@ -2866,5 +2884,8 @@ export default {
     'teacher-fio': 'پورا نام',
     'arrival-time': 'آمد کا وقت',
     'leaving-time': 'جانے کا وقت',
+    'cleanup-empty-classes': 'خالی کلاسیں حذف کریں',
+    'cleanup-empty-classes-hint': 'بغیر طلبہ اور استاد والے تمام کلاسیں حذف ہو جائیں گی۔ یہ واپس نہیں ہو سکتا۔',
+    'cleanup-done': 'خالی کلاسیں حذف ہو گئیں',
   }
 }

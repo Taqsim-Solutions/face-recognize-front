@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import UserContextBadges from '@/components/UserContextBadges.vue'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
-import { fetchCameras, createCamera, updateCamera, deleteCamera, resyncSchool, syncAllCameras, fetchSyncPreview, fetchCameraUsers, importCameraUsers, fetchClassesBySchool } from '../api'
+import { fetchCameras, createCamera, updateCamera, deleteCamera, resyncSchool, syncAllCameras, fetchSyncPreview, fetchCameraUsers, importCameraUsers, fetchClassesBySchool, cleanupEmptyClasses } from '../api'
 import { fetchRegions, fetchSchoolsByCity } from '@/views/students/list/api'
 import {
   Table,
@@ -35,11 +36,13 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   DownloadIcon,
+  Trash2Icon,
   XIcon
 } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const queryClient = useQueryClient()
+const { isAdmin } = useCurrentUser()
 
 // List Filters & Pagination
 const searchQuery = ref('')
@@ -249,6 +252,23 @@ const handleSyncAll = async () => {
 const confirmSyncAll = () => {
   syncAllMutation.mutate()
 }
+
+// ── Admin: cleanup empty classes (no students, no teacher) ──────
+const isCleanupOpen = ref(false)
+const cleanupMutation = useMutation({
+  mutationFn: () => cleanupEmptyClasses(),
+  onSuccess: (res: any) => {
+    isCleanupOpen.value = false
+    const removed = res?.data?.result?.removed ?? res?.result?.removed ?? 0
+    toast.success(
+      t('cleanup-done', "Bo'sh sinflar o'chirildi") + `: ${removed}`
+    )
+    queryClient.invalidateQueries({ queryKey: ['classes'] })
+  },
+  onError: (error: any) => {
+    toast.error(error?.response?.data?.message || t('resync-error', 'Xatolik yuz berdi'))
+  }
+})
 
 // ── Import FROM camera (camera → system) ────────────────────────
 const isImportOpen = ref(false)
@@ -579,6 +599,15 @@ const getHeartbeatTimeOnly = (cam: any) => {
         >
           <DownloadIcon class="w-4 h-4" />
           <span>{{ t('import-from-camera', 'Kameradan import') }}</span>
+        </Button>
+        <Button
+          v-if="isAdmin"
+          @click="isCleanupOpen = true"
+          :disabled="cleanupMutation.isPending.value"
+          class="h-10 px-4 rounded-xl bg-white hover:bg-red-50 text-red-600 font-semibold text-sm flex items-center gap-2 border border-red-200 transition-all cursor-pointer"
+        >
+          <Trash2Icon class="w-4 h-4" />
+          <span>{{ t('cleanup-empty-classes', "Bo'sh sinflarni o'chirish") }}</span>
         </Button>
         <Button
           @click="openAddDrawer"
@@ -1349,6 +1378,43 @@ const getHeartbeatTimeOnly = (cam: any) => {
               {{ t('import', 'Import qilish') }}
             </Button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Cleanup empty classes confirmation modal (admin) ──────── -->
+    <div
+      v-if="isCleanupOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      @click.self="isCleanupOpen = false"
+    >
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div class="flex items-center gap-2">
+            <Trash2Icon class="w-5 h-5 text-red-600" />
+            <h3 class="text-base font-bold text-gray-800">{{ t('cleanup-empty-classes', "Bo'sh sinflarni o'chirish") }}</h3>
+          </div>
+          <button @click="isCleanupOpen = false" class="text-gray-400 hover:text-gray-600">
+            <XIcon class="w-5 h-5" />
+          </button>
+        </div>
+        <div class="px-5 py-4">
+          <p class="text-sm text-gray-600">
+            {{ t('cleanup-empty-classes-hint', "O'quvchisi va o'qituvchisi yo'q barcha bo'sh sinflar o'chiriladi. Bu amalni ortga qaytarib bo'lmaydi.") }}
+          </p>
+        </div>
+        <div class="px-5 py-3 border-t border-gray-100 flex justify-end gap-2">
+          <Button @click="isCleanupOpen = false" class="h-9 px-4 rounded-lg bg-white border border-gray-200 text-gray-600 text-sm hover:bg-gray-50">
+            {{ t('cancel', 'Bekor') }}
+          </Button>
+          <Button
+            @click="cleanupMutation.mutate()"
+            :disabled="cleanupMutation.isPending.value"
+            class="h-9 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold flex items-center gap-2"
+          >
+            <Loader2Icon v-if="cleanupMutation.isPending.value" class="w-4 h-4 animate-spin" />
+            {{ t('delete', "O'chirish") }}
+          </Button>
         </div>
       </div>
     </div>

@@ -63,3 +63,10 @@ export const fetchClassesBySchool = async (schoolId: number) => {
     params: { SchoolId: schoolId, PageSize: 999 }
   })
 }
+
+// Admin: delete all empty classes (no students, no teacher) across the system.
+export const cleanupEmptyClasses = async () => {
+  return await api.delete<{ code: number; message: string; result: { removed: number } }>(
+    '/api/classes/cleanup-empty'
+  )
+}
