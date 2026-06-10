@@ -422,6 +422,9 @@ export default {
     'cleanup-empty-classes': 'Bo\'sh sinflarni o\'chirish',
     'cleanup-empty-classes-hint': 'O\'quvchisi va o\'qituvchisi yo\'q barcha bo\'sh sinflar o\'chiriladi. Bu amalni ortga qaytarib bo\'lmaydi.',
     'cleanup-done': 'Bo\'sh sinflar o\'chirildi',
+    'select-or-type-class': 'Sinfni tanlang yoki yangi sinf nomini kiriting',
+    'or-new-class': 'yoki yangi sinf nomi (masalan 3-A, Yulduzcha)',
+    'new-class-placeholder': '3-A',
   },
   uzc: {
     auth: {
@@ -833,6 +836,9 @@ export default {
     'cleanup-empty-classes': 'Бўш синфларни ўчириш',
     'cleanup-empty-classes-hint': 'Ўқувчиси ва ўқитувчиси йўқ барча бўш синфлар ўчирилади. Бу амални ортга қайтариб бўлмайди.',
     'cleanup-done': 'Бўш синфлар ўчирилди',
+    'select-or-type-class': 'Синфни танланг ёки янги синф номини киритинг',
+    'or-new-class': 'ёки янги синф номи (масалан 3-A, Юлдузча)',
+    'new-class-placeholder': '3-A',
   },
   ru: {
     auth: {
@@ -1263,6 +1269,9 @@ export default {
     'cleanup-empty-classes': 'Удалить пустые классы',
     'cleanup-empty-classes-hint': 'Все классы без учеников и учителя будут удалены. Это действие необратимо.',
     'cleanup-done': 'Пустые классы удалены',
+    'select-or-type-class': 'Выберите класс или введите название нового',
+    'or-new-class': 'или название нового класса (например 3-A)',
+    'new-class-placeholder': '3-A',
   },
   en: {
     auth: {
@@ -1669,6 +1678,9 @@ export default {
     'cleanup-empty-classes': 'Delete empty classes',
     'cleanup-empty-classes-hint': 'All classes with no students and no teacher will be deleted. This cannot be undone.',
     'cleanup-done': 'Empty classes deleted',
+    'select-or-type-class': 'Select a class or enter a new class name',
+    'or-new-class': 'or a new class name (e.g. 3-A, Yulduzcha)',
+    'new-class-placeholder': '3-A',
   },
   fa: {
     auth: {
@@ -2075,6 +2087,9 @@ export default {
     'cleanup-empty-classes': 'حذف کلاس‌های خالی',
     'cleanup-empty-classes-hint': 'همه کلاس‌های بدون دانش‌آموز و معلم حذف می‌شوند. این عمل قابل بازگشت نیست.',
     'cleanup-done': 'کلاس‌های خالی حذف شدند',
+    'select-or-type-class': 'یک کلاس انتخاب کنید یا نام کلاس جدید را وارد کنید',
+    'or-new-class': 'یا نام کلاس جدید (مثلاً 3-A)',
+    'new-class-placeholder': '3-A',
   },
   ps: {
     auth: {
@@ -2481,6 +2496,9 @@ export default {
     'cleanup-empty-classes': 'تش ټولګي ړنګول',
     'cleanup-empty-classes-hint': 'ټول هغه ټولګي چې زده‌کوونکی او ښوونکی نه لري ړنګ کیږي. دا بیرته نشي اپ کیدای.',
     'cleanup-done': 'تش ټولګي ړنګ شول',
+    'select-or-type-class': 'یو ټولګی وټاکئ یا د نوي ټولګي نوم ولیکئ',
+    'or-new-class': 'یا د نوي ټولګي نوم (لکه 3-A)',
+    'new-class-placeholder': '3-A',
   },
   ur: {
     auth: {
@@ -2887,5 +2905,8 @@ export default {
     'cleanup-empty-classes': 'خالی کلاسیں حذف کریں',
     'cleanup-empty-classes-hint': 'بغیر طلبہ اور استاد والے تمام کلاسیں حذف ہو جائیں گی۔ یہ واپس نہیں ہو سکتا۔',
     'cleanup-done': 'خالی کلاسیں حذف ہو گئیں',
+    'select-or-type-class': 'کلاس منتخب کریں یا نیا کلاس نام درج کریں',
+    'or-new-class': 'یا نیا کلاس نام (مثلاً 3-A)',
+    'new-class-placeholder': '3-A',
   }
 }

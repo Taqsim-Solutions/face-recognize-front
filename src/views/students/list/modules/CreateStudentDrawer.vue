@@ -72,7 +72,8 @@ const formSchema = toTypedSchema(
     regionId: z.number({ required_error: 'validation.required-field' }),
     cityId: z.number({ required_error: 'validation.required-field' }),
     schoolId: z.number({ required_error: 'validation.required-field' }),
-    classId: z.number({ required_error: 'validation.required-field' }),
+    classId: z.number().optional().nullable(),
+    className: z.string().optional().nullable(),
     lastName: z
       .string({ required_error: 'validation.required-field' })
       .min(1, { message: 'validation.required-field' }),
@@ -102,6 +103,7 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
     cityId: undefined as any,
     schoolId: undefined as any,
     classId: undefined as any,
+    className: '',
     lastName: '',
     firstName: '',
     fatherName: '',
@@ -218,7 +220,9 @@ const { isPending: isSubmitPending, mutate } = useMutation({
 
     // 1. Create Student first
     const createPayload: any = {
-      classId: payload.classId,
+      classId: payload.classId || 0,
+      className: payload.className || undefined,
+      schoolId: payload.schoolId,
       firstName: payload.firstName,
       lastName: payload.lastName,
       fatherName: payload.fatherName,
@@ -290,6 +294,11 @@ const { isPending: isSubmitPending, mutate } = useMutation({
 })
 
 const onSubmit = handleSubmit((formValues) => {
+  // Require either an existing class or a typed class name.
+  if (!formValues.classId && !(formValues.className && formValues.className.trim())) {
+    toast.error(t('select-or-type-class', 'Sinfni tanlang yoki yangi sinf nomini kiriting'))
+    return
+  }
   mutate(formValues)
 })
 
@@ -459,7 +468,7 @@ const handleCancel = () => {
                     componentField.modelValue ? String(componentField.modelValue) : undefined
                   "
                   @update:model-value="
-                    (val) => componentField['onUpdate:modelValue']?.(Number(val))
+                    (val) => { componentField['onUpdate:modelValue']?.(Number(val)); setFieldValue('className', '') }
                   "
                   name="classId"
                 >
@@ -485,6 +494,24 @@ const handleCancel = () => {
                 </Select>
               </FormControl>
               <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- Or create a new class by typing its name -->
+          <FormField v-slot="{ componentField }" name="className">
+            <FormItem>
+              <FormLabel class="text-xs font-medium text-gray-500">
+                {{ t('or-new-class', "yoki yangi sinf nomi (masalan 3-A, Yulduzcha)") }}
+              </FormLabel>
+              <FormControl>
+                <Input
+                  v-bind="componentField"
+                  :placeholder="t('new-class-placeholder', '3-A')"
+                  :disabled="!values.schoolId"
+                  class="h-11 border border-gray-300 rounded-lg bg-white"
+                  @input="setFieldValue('classId', undefined as any)"
+                />
+              </FormControl>
             </FormItem>
           </FormField>
 
