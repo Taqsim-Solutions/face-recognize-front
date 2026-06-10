@@ -2,7 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
-import { fetchAttendanceRange, fetchClassStudentAttendances } from '../api'
+import { fetchAttendanceRange, fetchTeacherAttendanceRange, fetchClassStudentAttendances } from '../api'
 import {
   fetchRegions,
   fetchSchoolsByCity,
@@ -40,6 +40,8 @@ import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const { t, locale } = useI18n()
 const { hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
+// View mode: students vs teachers attendance
+const mode = ref<'students' | 'teachers'>('students')
 // Filters
 const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
@@ -170,6 +172,14 @@ const formatRowDate = (raw: any) => {
   return `${day} ${names[m]}`
 }
 
+// Format a UTC timestamp as local HH:mm for the teacher attendance table.
+const formatTime = (raw: any) => {
+  if (!raw) return ''
+  const d = new Date(raw)
+  if (isNaN(d.getTime())) return ''
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
 // Pagination
 const currentPage = ref(1)
 const pageSize = ref(20)
@@ -263,7 +273,41 @@ const { data: rangeData, isLoading, isError, refetch } = useQuery({
     regionFilter.value !== 'all' ? Number(regionFilter.value) : undefined,
     classFilter.value  !== 'all' ? Number(classFilter.value)  : undefined
   ),
+  enabled: computed(() => mode.value === 'students'),
   staleTime: 5000
+})
+
+// Teacher attendance range (only fetched in teachers mode)
+const {
+  data: teacherRangeData,
+  isLoading: isTeacherLoading,
+  isError: isTeacherError,
+  refetch: refetchTeachers
+} = useQuery({
+  queryKey: ['teachers-attendances-range', dateFrom, dateTo, regionFilter, cityFilter, schoolFilter],
+  queryFn: () => fetchTeacherAttendanceRange(
+    `${dateFrom.value}Z`,
+    `${dateTo.value}Z`,
+    schoolFilter.value !== 'all' ? Number(schoolFilter.value) : undefined,
+    cityFilter.value   !== 'all' ? Number(cityFilter.value)   : undefined,
+    regionFilter.value !== 'all' ? Number(regionFilter.value) : undefined
+  ),
+  enabled: computed(() => mode.value === 'teachers'),
+  staleTime: 5000
+})
+
+// Flat list of teacher-day rows across all days in range.
+const teacherRows = computed(() => {
+  const raw = teacherRangeData.value as any
+  const days: any[] = raw?.data?.result || raw?.result || []
+  if (!Array.isArray(days) || !days.length) return []
+  const rows: any[] = []
+  for (const day of days) {
+    for (const tch of (day.teachers || [])) {
+      rows.push({ ...tch, date: day.date })
+    }
+  }
+  return rows
 })
 
 // Flat list of class-day rows across all days in range, grouped so that
@@ -435,14 +479,30 @@ const filteredAttendanceRows = computed(() => {
 })
 
 // Local Client-side Pagination
+// Rows to paginate depend on the current mode (students vs teachers).
+// Mode-aware loading / error so the table reflects the active query.
+const displayLoading = computed(() =>
+  mode.value === 'teachers' ? isTeacherLoading.value : isLoading.value
+)
+const displayError = computed(() =>
+  mode.value === 'teachers' ? isTeacherError.value : isError.value
+)
+
+// Reset to first page whenever the mode changes.
+watch(mode, () => { currentPage.value = 1 })
+
+const activeRows = computed(() =>
+  mode.value === 'teachers' ? teacherRows.value : filteredAttendanceRows.value
+)
+
 const paginatedAttendanceRows = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   const end = start + pageSize.value
-  return filteredAttendanceRows.value.slice(start, end)
+  return activeRows.value.slice(start, end)
 })
 
 const totalPagesCount = computed(() => {
-  return Math.ceil(filteredAttendanceRows.value.length / pageSize.value) || 1
+  return Math.ceil(activeRows.value.length / pageSize.value) || 1
 })
 
 const getPageNumbers = () => {
@@ -486,6 +546,32 @@ const getPageNumbers = () => {
         <span>{{ t('dashboard.retry', 'Yangilash') }}</span>
       </Button>
     </header>
+
+    <!-- Mode tabs: students vs teachers -->
+    <div class="flex items-center gap-2 px-4 sm:px-6 pt-4 bg-white">
+      <button
+        @click="mode = 'students'"
+        :class="[
+          'h-9 px-4 rounded-lg text-sm font-semibold transition-all',
+          mode === 'students'
+            ? 'bg-primary text-white shadow-sm'
+            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+        ]"
+      >
+        {{ t('students', "O'quvchilar") }}
+      </button>
+      <button
+        @click="mode = 'teachers'"
+        :class="[
+          'h-9 px-4 rounded-lg text-sm font-semibold transition-all',
+          mode === 'teachers'
+            ? 'bg-primary text-white shadow-sm'
+            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+        ]"
+      >
+        {{ t('teachers', "O'qituvchilar") }}
+      </button>
+    </div>
 
     <!-- Filters Row -->
     <div class="flex flex-wrap items-center gap-3 px-4 sm:px-6 pt-5 bg-white pb-5">
@@ -587,8 +673,8 @@ const getPageNumbers = () => {
         </SelectContent>
       </Select>
 
-      <!-- Class searchable select -->
-      <div class="relative" data-class-dropdown>
+      <!-- Class searchable select (students mode only) -->
+      <div v-if="mode === 'students'" class="relative" data-class-dropdown>
         <button
           type="button"
           :disabled="schoolFilter === 'all' || isClassesLoading"
@@ -664,7 +750,8 @@ const getPageNumbers = () => {
       >
         <Table class="text-nowrap">
           <TableHeader class="sticky top-0 bg-white drop-shadow-sm z-20">
-            <TableRow>
+            <!-- Students header -->
+            <TableRow v-if="mode === 'students'">
               <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 first:pl-3 relative border-l-0 font-semibold bg-[#f2f5f4]">
                 {{ t('date', 'Sana') }}
               </TableHead>
@@ -690,11 +777,41 @@ const getPageNumbers = () => {
                 {{ t('jami', 'Jami') }}
               </TableHead>
             </TableRow>
+            <!-- Teachers header -->
+            <TableRow v-else>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 first:pl-3 relative border-l-0 font-semibold bg-[#f2f5f4]">
+                {{ t('date', 'Sana') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('region-col', 'Viloyat') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('city-col', 'Tuman/shahar') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('school-col', 'Maktab') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('teacher-fio', 'F.I.Sh') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('dashboard.absents.class', 'Sinf') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('arrival-time', 'Kelgan vaqti') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
+                {{ t('leaving-time', 'Ketgan vaqti') }}
+              </TableHead>
+              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative border-r-0 font-semibold bg-[#f2f5f4]">
+                {{ t('status', 'Holat') }}
+              </TableHead>
+            </TableRow>
           </TableHeader>
 
           <TableBody>
             <!-- Loading Skeleton -->
-            <template v-if="isLoading">
+            <template v-if="displayLoading">
               <TableRow v-for="i in 5" :key="i" class="animate-pulse">
                 <TableCell class="border p-3 pl-4 border-l-0">
                   <div class="flex items-center">
@@ -727,9 +844,9 @@ const getPageNumbers = () => {
             </template>
 
             <!-- Error -->
-            <template v-else-if="isError">
+            <template v-else-if="displayError">
               <TableRow>
-                <TableCell colspan="8" class="h-64 text-center border-none">
+                <TableCell colspan="9" class="h-64 text-center border-none">
                   <div class="flex flex-col items-center justify-center py-10">
                     <AlertCircle class="w-12 h-12 text-red-500 mb-2" />
                     <h3 class="text-lg font-bold text-gray-800">
@@ -739,7 +856,7 @@ const getPageNumbers = () => {
                       Statistika ma'lumotlarini yuklashda xatolik yuz berdi.
                     </p>
                     <Button
-                      @click="() => refetch()"
+                      @click="() => (mode === 'teachers' ? refetchTeachers() : refetch())"
                       size="sm"
                       class="bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-none"
                     >
@@ -751,9 +868,9 @@ const getPageNumbers = () => {
             </template>
 
             <!-- Empty Data -->
-            <template v-else-if="filteredAttendanceRows.length === 0">
+            <template v-else-if="activeRows.length === 0">
               <TableRow>
-                <TableCell colspan="8" class="h-64 text-center border-none">
+                <TableCell colspan="9" class="h-64 text-center border-none">
                   <div class="flex flex-col items-center justify-center py-10">
                     <div
                       class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-3"
@@ -773,9 +890,11 @@ const getPageNumbers = () => {
 
             <!-- Data Rows -->
             <template v-else>
+              <!-- Students -->
+              <template v-if="mode === 'students'">
               <TableRow
                 v-for="(row, idx) in paginatedAttendanceRows"
-                :key="idx"
+                :key="'s' + idx"
                 class="hover:bg-orange-50/60 transition-colors cursor-pointer"
                 :class="{ 'opacity-50': !row.isStudyDay }"
                 @click="openStudentModal(row)"
@@ -826,6 +945,52 @@ const getPageNumbers = () => {
                   {{ row.studentsCount }}
                 </TableCell>
               </TableRow>
+              </template>
+
+              <!-- Teachers -->
+              <template v-else>
+              <TableRow
+                v-for="(row, idx) in paginatedAttendanceRows"
+                :key="'t' + idx"
+                class="hover:bg-orange-50/60 transition-colors"
+              >
+                <TableCell class="border p-3 pl-4 border-l-0 text-gray-700 text-sm font-medium">
+                  {{ formatRowDate(row.date) }}
+                </TableCell>
+                <TableCell class="border p-3 text-gray-700 text-sm">
+                  {{ row.regionName || '—' }}
+                </TableCell>
+                <TableCell class="border p-3 text-gray-700 text-sm">
+                  {{ row.cityName || '—' }}
+                </TableCell>
+                <TableCell class="border p-3 text-gray-700 text-sm">
+                  {{ row.schoolName || '—' }}
+                </TableCell>
+                <TableCell class="border p-3 text-gray-800 font-semibold text-sm">
+                  {{ row.fullName }}
+                  <span v-if="!row.isTeacher" class="ml-1 text-xs font-normal text-gray-400">({{ t('staff', 'Xodim') }})</span>
+                </TableCell>
+                <TableCell class="border p-3 text-gray-700 text-sm">
+                  {{ row.className || '—' }}
+                </TableCell>
+                <TableCell class="border p-3 text-sm">
+                  <span v-if="row.comingTime" class="font-semibold text-green-600">{{ formatTime(row.comingTime) }}</span>
+                  <span v-else class="text-gray-400">—</span>
+                </TableCell>
+                <TableCell class="border p-3 text-sm">
+                  <span v-if="row.leavingTime" class="font-semibold text-amber-600">{{ formatTime(row.leavingTime) }}</span>
+                  <span v-else class="text-gray-400">—</span>
+                </TableCell>
+                <TableCell class="border p-3 border-r-0 text-sm">
+                  <span
+                    class="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full text-xs"
+                    :class="row.attended ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'"
+                  >
+                    {{ row.attended ? t('arrived', 'Keldi') : t('not-attended', 'Kelmagan') }}
+                  </span>
+                </TableCell>
+              </TableRow>
+              </template>
             </template>
           </TableBody>
         </Table>
@@ -833,7 +998,7 @@ const getPageNumbers = () => {
 
       <!-- Pagination Footer -->
       <div
-        v-if="filteredAttendanceRows.length > 0"
+        v-if="activeRows.length > 0"
         class="flex items-center justify-between border border-t-0 rounded-b-lg px-4 py-2.5 text-xs text-gray-600 bg-white shrink-0"
       >
         <span class="font-semibold text-[#596881] text-xs">

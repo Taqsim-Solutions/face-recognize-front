@@ -61,7 +61,6 @@ export default {
       'pinfl-must-contain': "PINFL 14 ta raqamdan iborat bo'lishi kerak.",
       'identifiers-cannot-contain-duplicate-values':
         "Identifikatorlar ikki nusxadagi qiymatlarni o'z ichiga olmaydi.",
-      'invalid-otp': 'Tasdiqlash kodi notoʻgʻri kiritilgan',
       'password-min-length': 'Parol kamida 8 ta belgidan iborat boʻlishi kerak',
       'mfo-should-be-valid': "MFO uzunligi 5 bo'lgan son bo'lishi kerak",
       'advance-percent-min': "Avans foizi kamida 10% bo'lishi kerak",
@@ -417,6 +416,9 @@ export default {
     'no-reason': 'Sabab keltirilmagan',
     'start-end-date': 'Bosh.-yakun sanasi',
     'fix-excel-hint': 'Quyidagi qatorlarni Excel faylda tuzating va qayta yuklang:',
+    'teacher-fio': 'F.I.Sh',
+    'arrival-time': 'Kelgan vaqti',
+    'leaving-time': 'Ketgan vaqti',
   },
   uzc: {
     auth: {
@@ -822,6 +824,9 @@ export default {
     'use-ddns': 'Ташқи кириш (DDNS)',
     'view-all': 'Ҳаммасини кўриш →',
     'fix-excel-hint': 'Қуйидаги қаторларни Excel файлда тузатинг ва қайта юкланг:',
+    'teacher-fio': 'Ф.И.Ш',
+    'arrival-time': 'Келган вақти',
+    'leaving-time': 'Кетган вақти',
   },
   ru: {
     auth: {
@@ -1214,7 +1219,6 @@ export default {
     'all-roles': 'Выберите роль',
     'all-schools-filter': 'Школа',
     'attended': 'Присутствовал',
-    'not-attended': 'Отсутствовал',
     'search-placeholder': 'Поиск по имени и фамилии',
     'select-role': 'Выберите роль',
     'resync-success': 'Камера успешно синхронизирована',
@@ -1247,6 +1251,9 @@ export default {
     'advance-percent-min': 'Аванс не менее 0%',
     'password-min-length': 'Пароль должен содержать минимум 8 символов',
     'fix-excel-hint': 'Исправьте следующие строки в Excel-файле и загрузите заново:',
+    'teacher-fio': 'Ф.И.О',
+    'arrival-time': 'Время прибытия',
+    'leaving-time': 'Время ухода',
   },
   en: {
     auth: {
@@ -1305,7 +1312,6 @@ export default {
       'tin-must-contain': 'TIN must be 7 digits',
       'pinfl-must-contain': 'PINFL must be 14 digits',
       'identifiers-cannot-contain-duplicate-values': 'Identifiers cannot contain duplicate values',
-      'invalid-otp': 'Invalid verification code',
       'password-min-length': 'Password must be at least 8 characters',
       'mfo-should-be-valid': 'MFO must be a 5-digit number',
       'advance-percent-min': 'Advance percentage must be at least 10%',
@@ -1648,6 +1654,9 @@ export default {
     'use-ddns': 'External access (DDNS)',
     'view-all': 'View all →',
     'fix-excel-hint': 'Fix the following rows in the Excel file and re-upload:',
+    'teacher-fio': 'Full name',
+    'arrival-time': 'Arrival time',
+    'leaving-time': 'Leaving time',
   },
   fa: {
     auth: {
@@ -1706,7 +1715,6 @@ export default {
       'tin-must-contain': 'TIN باید ۷ رقم باشد',
       'pinfl-must-contain': 'PINFL باید ۱۴ رقم باشد',
       'identifiers-cannot-contain-duplicate-values': 'شناسه‌ها نمی‌توانند مقادیر تکراری داشته باشند',
-      'invalid-otp': 'کد تأیید نادرست است',
       'password-min-length': 'رمز عبور باید حداقل ۸ کاراکتر باشد',
       'mfo-should-be-valid': 'MFO باید یک عدد ۵ رقمی باشد',
       'advance-percent-min': 'درصد پیش‌پرداخت باید حداقل ۱۰٪ باشد',
@@ -2049,6 +2057,9 @@ export default {
     'use-ddns': 'دسترسی خارجی (DDNS)',
     'view-all': 'مشاهده همه ←',
     'fix-excel-hint': 'ردیف‌های زیر را در فایل اکسل اصلاح کرده و دوباره بارگذاری کنید:',
+    'teacher-fio': 'نام کامل',
+    'arrival-time': 'زمان ورود',
+    'leaving-time': 'زمان خروج',
   },
   ps: {
     auth: {
@@ -2107,7 +2118,6 @@ export default {
       'tin-must-contain': 'TIN باید ۷ عدده وي',
       'pinfl-must-contain': 'PINFL باید ۱۴ عدده وي',
       'identifiers-cannot-contain-duplicate-values': 'پیژندونکي نه شي کولای د نقل شوو ارزښتونو لرل',
-      'invalid-otp': 'تصدیق کوډ غلط دی',
       'password-min-length': 'پاسورډ باید لږترلږه ۸ توري ولري',
       'mfo-should-be-valid': 'MFO باید ۵ عدده شمیره وي',
       'advance-percent-min': 'د پیش پیسو سلنه باید لږترلږه ۱۰٪ وي',
@@ -2450,6 +2460,9 @@ export default {
     'use-ddns': 'بهرنی لاسرسی (DDNS)',
     'view-all': 'ټول وګورئ ←',
     'fix-excel-hint': 'لاندې کرښې په اکسل فایل کې سم کړئ او بیا یې پورته کړئ:',
+    'teacher-fio': 'بشپړ نوم',
+    'arrival-time': 'د راتګ وخت',
+    'leaving-time': 'د تګ وخت',
   },
   ur: {
     auth: {
@@ -2508,7 +2521,6 @@ export default {
       'tin-must-contain': 'TIN 7 ہندسوں کا ہونا چاہیے',
       'pinfl-must-contain': 'PINFL 14 ہندسوں کا ہونا چاہیے',
       'identifiers-cannot-contain-duplicate-values': 'شناخت کنندگان میں ڈپلیکیٹ اقدار نہیں ہوسکتیں',
-      'invalid-otp': 'تصدیقی کوڈ غلط ہے',
       'password-min-length': 'پاس ورڈ کم از کم 8 حروف کا ہونا چاہیے',
       'mfo-should-be-valid': 'MFO 5 ہندسوں کا نمبر ہونا چاہیے',
       'advance-percent-min': 'پیشگی فیصد کم از کم 10٪ ہونا چاہیے',
@@ -2851,5 +2863,8 @@ export default {
     'use-ddns': 'بیرونی رسائی (DDNS)',
     'view-all': 'سب دیکھیں ←',
     'fix-excel-hint': 'ایکسل فائل میں درج ذیل قطاریں درست کریں اور دوبارہ اپ لوڈ کریں:',
+    'teacher-fio': 'پورا نام',
+    'arrival-time': 'آمد کا وقت',
+    'leaving-time': 'جانے کا وقت',
   }
 }
