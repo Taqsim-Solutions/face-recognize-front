@@ -49,9 +49,10 @@ const formSchema = toTypedSchema(
     lastName: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }),
     firstName: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }),
     email: z
-      .string({ required_error: 'validation.required-field' })
-      .min(1, { message: 'validation.required-field' })
-      .email('validation.email-should-be-valid'),
+      .string()
+      .email('validation.email-should-be-valid')
+      .optional()
+      .or(z.literal('')),
     login: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' })
   })
 )
