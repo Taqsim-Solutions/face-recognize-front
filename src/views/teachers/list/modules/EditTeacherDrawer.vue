@@ -73,12 +73,9 @@ const formSchema = toTypedSchema(
     lastName: z
       .string({ required_error: 'validation.required-field' })
       .min(1, { message: 'validation.required-field' }),
-    email: z
-      .string({ required_error: 'validation.required-field' })
-      .email({ message: 'validation.email-should-be-valid' }),
     login: z
       .string({ required_error: 'validation.required-field' })
-      .min(3, { message: 'validation.required-field' }),
+      .min(7, { message: 'validation.required-field' }),
     regionId: z.number({ required_error: 'validation.required-field' }),
     cityId: z.number({ required_error: 'validation.required-field' }),
     schoolId: z.number({ required_error: 'validation.required-field' }),
@@ -92,7 +89,6 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
   initialValues: {
     firstName: '',
     lastName: '',
-    email: '',
     login: '',
     regionId: undefined as any,
     cityId: undefined as any,
@@ -120,7 +116,6 @@ watch(
         values: {
           firstName: props.teacher.firstName || '',
           lastName: props.teacher.lastName || '',
-          email: props.teacher.email || '',
           login: props.teacher.login || '',
           regionId: matchedRegionId,
           cityId: matchedCityId,
@@ -423,7 +418,6 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       payload: {
         firstName: formValues.firstName,
         lastName: formValues.lastName,
-        email: formValues.email,
         login: formValues.login,
         isDirectorOrAssistandDirector: false,
         schoolId: formValues.schoolId,
@@ -840,31 +834,15 @@ const handleCancel = () => {
             </FormItem>
           </FormField>
 
-          <!-- Email -->
-          <FormField v-slot="{ componentField }" name="email">
-            <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('email') }}</FormLabel>
-              <FormControl>
-                <Input
-                  type="email"
-                  v-bind="componentField"
-                  :placeholder="t('email_placeholder')"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          </FormField>
-
-          <!-- Login -->
+          <!-- Login (phone number) -->
           <FormField v-slot="{ componentField }" name="login">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('login') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('phone-login', 'Telefon raqam (login)') }}</FormLabel>
               <FormControl>
                 <Input
-                  type="text"
+                  type="tel"
                   v-bind="componentField"
-                  :placeholder="t('login_placeholder')"
+                  :placeholder="t('phone-login-placeholder', '+998 90 123 45 67')"
                   class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
                 />
               </FormControl>

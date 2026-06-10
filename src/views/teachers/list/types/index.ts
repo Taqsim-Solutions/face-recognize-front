@@ -2,7 +2,7 @@ export type TeacherModel = {
   id: number
   firstName: string
   lastName: string
-  email: string
+  email?: string
   login?: string
   level?: number
   isTeacher?: boolean
@@ -72,7 +72,7 @@ export type TeacherModelIEnumerableResult = {
 export type CreateTeacherPayload = {
   firstName: string
   lastName: string
-  email: string
+  email?: string
   login: string
   password?: string
   isDirectorOrAssistandDirector: boolean
@@ -84,7 +84,7 @@ export type CreateTeacherPayload = {
 export type UpdateTeacherPayload = {
   firstName: string
   lastName: string
-  email: string
+  email?: string
   login: string
   isDirectorOrAssistandDirector: boolean
   schoolId: number
