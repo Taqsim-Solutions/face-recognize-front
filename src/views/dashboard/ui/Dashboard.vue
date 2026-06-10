@@ -324,14 +324,20 @@ const activeNotifications = computed(() => {
 
   const notes: any[] = []
 
+  // Build a "Region • City • School" location string, skipping empty parts.
+  const locationOf = (ev: any) =>
+    [ev.regionName, ev.cityName, ev.schoolName].filter(Boolean).join(' • ')
+
   // Unknown faces from the live feed → notifications
   for (const ev of liveEvents.value) {
     if (ev.kind === 'unknown') {
+      const parts = [locationOf(ev)]
+      if (ev.cameraName) parts.push(`📷 ${ev.cameraName}`)
       notes.push({
         icon: '⚠️',
         color: 'bg-red-100',
         title: t('unknown-face-detected', "Noma'lum yuz aniqlandi"),
-        sub: ev.schoolName || '',
+        sub: parts.filter(Boolean).join('  •  '),
         time: formatTime(ev.time)
       })
     }
@@ -339,11 +345,12 @@ const activeNotifications = computed(() => {
 
   // Late students → notifications
   for (const ls of activeLateStudents.value) {
+    const loc = [ls.regionName, ls.cityName, ls.schoolName, ls.className].filter(Boolean).join(' • ')
     notes.push({
       icon: '🟡',
       color: 'bg-amber-100',
       title: t('late-arrival', 'Kech qoldi') + ': ' + ((ls.lastName || '') + ' ' + (ls.firstName || '')).trim(),
-      sub: (ls.className || '') + (ls.schoolName ? ' • ' + ls.schoolName : ''),
+      sub: loc,
       time: ''
     })
   }
@@ -800,8 +807,8 @@ watch(() => activeAbsents.value.length,       () => { absentPage.value = 1 })
               <div v-for="(n, i) in pagedNotifications" :key="i" class="flex items-start gap-3 px-3 py-2.5 hover:bg-gray-50 transition">
                 <div :class="[n.color, 'w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0']">{{ n.icon }}</div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-xs font-semibold text-gray-800 truncate">{{ n.title }}</p>
-                  <p class="text-xs text-gray-400 truncate">{{ n.sub }}</p>
+                  <p class="text-xs font-semibold text-gray-800 break-words">{{ n.title }}</p>
+                  <p class="text-xs text-gray-400 break-words leading-snug">{{ n.sub }}</p>
                 </div>
                 <span class="text-xs text-gray-400 whitespace-nowrap shrink-0">{{ n.time }}</span>
               </div>
