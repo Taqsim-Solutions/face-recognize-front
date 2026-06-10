@@ -506,7 +506,7 @@ const handleCancel = () => {
                       :key="cls.id"
                       :value="String(cls.id)"
                     >
-                      {{ cls.degree }}-{{ cls.symbol }}
+                      {{ cls.name || (cls.degree + '-' + cls.symbol) }}
                     </SelectItem>
                   </SelectContent>
                 </Select>
