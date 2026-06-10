@@ -94,6 +94,7 @@ const formSchema = toTypedSchema(
     cityId: z.number({ required_error: 'validation.required-field' }),
     schoolId: z.number({ required_error: 'validation.required-field' }),
     classId: z.number().nullable().optional(),
+    className: z.string().optional().nullable(),
     isTeacher: z.boolean().optional()
   })
 )
@@ -109,6 +110,7 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
     cityId: undefined as any,
     schoolId: undefined as any,
     classId: undefined as any,
+    className: '',
     isTeacher: true
   }
 })
@@ -230,6 +232,7 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       isDirectorOrAssistandDirector: false,
       schoolId: payload.schoolId,
       classId: payload.isTeacher ? (payload.classId || null) : null,
+      className: payload.isTeacher ? (payload.className || undefined) : undefined,
       isTeacher: payload.isTeacher ?? true
     })
 
@@ -278,6 +281,13 @@ const { isPending: isSubmitPending, mutate } = useMutation({
 })
 
 const onSubmit = handleSubmit((formValues) => {
+  // A class teacher must have either an existing class or a typed class name.
+  if (formValues.isTeacher !== false
+    && !formValues.classId
+    && !(formValues.className && formValues.className.trim())) {
+    toast.error(t('select-or-type-class', 'Sinfni tanlang yoki yangi sinf nomini kiriting'))
+    return
+  }
   mutate(formValues)
 })
 
@@ -476,7 +486,7 @@ const handleCancel = () => {
                     componentField.modelValue ? String(componentField.modelValue) : undefined
                   "
                   @update:model-value="
-                    (val) => componentField['onUpdate:modelValue']?.(Number(val))
+                    (val) => { componentField['onUpdate:modelValue']?.(Number(val)); setFieldValue('className', '') }
                   "
                   name="classId"
                 >
@@ -502,6 +512,24 @@ const handleCancel = () => {
                 </Select>
               </FormControl>
               <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- Or create a new class by typing its name (class teachers only) -->
+          <FormField v-if="values.isTeacher !== false" v-slot="{ componentField }" name="className">
+            <FormItem>
+              <FormLabel class="text-xs font-medium text-gray-500">
+                {{ t('or-new-class', 'yoki yangi sinf nomi (masalan 3-A, Yulduzcha)') }}
+              </FormLabel>
+              <FormControl>
+                <Input
+                  v-bind="componentField"
+                  :placeholder="t('new-class-placeholder', '3-A')"
+                  :disabled="!values.schoolId"
+                  class="h-11 border border-gray-300 rounded-lg bg-white"
+                  @input="setFieldValue('classId', undefined as any)"
+                />
+              </FormControl>
             </FormItem>
           </FormField>
 

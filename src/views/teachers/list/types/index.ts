@@ -78,6 +78,7 @@ export type CreateTeacherPayload = {
   isDirectorOrAssistandDirector: boolean
   schoolId: number
   classId: number | null
+  className?: string
   isTeacher: boolean
 }
 
