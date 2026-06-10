@@ -153,6 +153,23 @@ const calendarLocale = computed(() => {
   return 'uz-UZ'
 })
 
+// Short "day month" date for the table, e.g. "5 iyun" / "24 may".
+// toLocaleDateString doesn't reliably localize Uzbek month names, so map them.
+const formatRowDate = (raw: any) => {
+  const d = new Date(raw)
+  if (isNaN(d.getTime())) return ''
+  const day = d.getDate()
+  const m = d.getMonth() // 0-11
+  const lang = locale.value
+  const months: Record<string, string[]> = {
+    uz: ['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentyabr','oktyabr','noyabr','dekabr'],
+    uzc: ['январ','феврал','март','апрел','май','июн','июл','август','сентябр','октябр','ноябр','декабр'],
+    ru: ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']
+  }
+  const names = months[lang] || months.uz
+  return `${day} ${names[m]}`
+}
+
 // Pagination
 const currentPage = ref(1)
 const pageSize = ref(20)
@@ -765,7 +782,7 @@ const getPageNumbers = () => {
               >
                 <!-- Date -->
                 <TableCell class="border p-3 pl-4 border-l-0 text-gray-700 text-sm font-medium">
-                  {{ new Date(row.date).toLocaleDateString(calendarLocale, { day:'2-digit', month:'short', year:'numeric' }) }}
+                  {{ formatRowDate(row.date) }}
                 </TableCell>
 
                 <!-- Region -->
