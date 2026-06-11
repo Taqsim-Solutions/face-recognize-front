@@ -1324,7 +1324,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
                   >
                     <option :value="null">— {{ t('select', 'tanlang') }} —</option>
                     <option v-for="c in importClasses" :key="c.id" :value="c.id">
-                      {{ c.degree }}-{{ c.symbol }}
+                      {{ c.name || (c.degree + '-' + c.symbol) }}
                     </option>
                   </select>
                   <span v-else-if="row.kind === 2" class="text-xs text-gray-400">{{ importSchoolName }}</span>

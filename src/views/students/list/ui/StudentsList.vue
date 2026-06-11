@@ -605,7 +605,7 @@ const handleExcelFileSelect = async (event: Event) => {
         <SelectContent class="bg-white">
           <SelectItem value="all">{{ t('sinf', 'Sinf') }}</SelectItem>
           <SelectItem v-for="cls in classes" :key="cls.id" :value="String(cls.id)">
-            {{ cls.degree }}-{{ cls.symbol }}
+            {{ cls.name || (cls.degree + '-' + cls.symbol) }}
           </SelectItem>
         </SelectContent>
       </Select>

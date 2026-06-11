@@ -188,21 +188,41 @@ const classSearch = ref<string>('')  // search text inside the class dropdown
 const classDropdownOpen = ref(false)
 const classSearchInput = ref<HTMLInputElement | null>(null)
 
+// Canonical label for a class: prefer Name, fall back to degree-symbol.
+const classLabel = (c: any) =>
+  (c?.name && String(c.name).trim()) ? String(c.name) : `${c?.degree}-${c?.symbol}`
+
+// Normalize a class string for fuzzy matching: lowercase, drop spaces/dashes/quotes,
+// and fold common Cyrillic look-alike letters to Latin so "3-А" matches "3-a".
+const normalizeClassSearch = (s: string) => {
+  const cyr: Record<string, string> = {
+    'а': 'a', 'в': 'b', 'е': 'e', 'к': 'k', 'м': 'm', 'н': 'h',
+    'о': 'o', 'р': 'p', 'с': 'c', 'т': 't', 'у': 'y', 'х': 'x'
+  }
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[\s\-_"'“”«»]/g, '')
+    .split('')
+    .map((ch) => cyr[ch] || ch)
+    .join('')
+    .trim()
+}
+
 // Options shown in the dropdown, filtered by the search text
 const filteredClassOptions = computed(() => {
   const list = classes.value || []
-  const q = classSearch.value.toLowerCase().replace(/[\s-]/g, '').trim()
+  const q = normalizeClassSearch(classSearch.value)
   if (!q) return list
   return list.filter((c: any) => {
-    const full = `${c.degree}${String(c.symbol || '').toLowerCase()}`
-    return full.includes(q) || String(c.degree).startsWith(classSearch.value.trim())
+    const label = normalizeClassSearch(classLabel(c))
+    return label.includes(q)
   })
 })
 
 const selectedClassLabel = computed(() => {
   if (classFilter.value === 'all') return t('sinf', 'Sinf')
   const c = (classes.value || []).find((x: any) => String(x.id) === classFilter.value)
-  return c ? `${c.degree}-${c.symbol}` : t('sinf', 'Sinf')
+  return c ? classLabel(c) : t('sinf', 'Sinf')
 })
 
 const selectClass = (id: string) => {
@@ -721,7 +741,7 @@ const getPageNumbers = () => {
               class="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors"
               :class="classFilter === String(cls.id) ? 'text-[#ff792d] font-semibold bg-orange-50' : 'text-gray-700'"
             >
-              {{ cls.degree }}-{{ cls.symbol }}
+              {{ classLabel(cls) }}
             </button>
             <div v-if="!filteredClassOptions.length" class="px-3 py-3 text-sm text-gray-400 text-center">
               {{ t('no-data', "Ma'lumot yo'q") }}

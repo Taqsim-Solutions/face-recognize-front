@@ -162,6 +162,8 @@ const classes = computed(() => {
   return rawList
     .filter((cls: any) => {
       if (!cls) return false
+      // Keep named classes (e.g. "Yulduzcha") that have a Name but no numeric grade.
+      if (cls.name && String(cls.name).trim() && (!cls.degree || Number(cls.degree) < 1)) return true
       const deg = Number(cls.degree)
       if (isNaN(deg) || deg < 1 || deg > 11) return false
       return true

@@ -31,6 +31,7 @@ export type TeacherModel = {
     id: number
     degree: number | string
     symbol: string
+    name?: string | null
     studyDays?: any
   } | null
 }

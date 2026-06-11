@@ -189,32 +189,14 @@ const classes = computed(() => {
   const res = classesRes.value as any
   const rawList = res?.data?.result?.data || res?.data?.result || res?.result?.data || []
 
-  const allowedSymbols = new Set([
-    // Latin common class letters
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    // Cyrillic common class letters
-    'А',
-    'Б',
-    'В',
-    'Г',
-    'Д',
-    'Е'
-  ])
-
   return rawList
     .filter((cls: any) => {
       if (!cls) return false
+      // Keep named classes (e.g. "Yulduzcha") that have a Name but no numeric grade.
+      if (cls.name && String(cls.name).trim() && (!cls.degree || Number(cls.degree) < 1)) return true
       const deg = Number(cls.degree)
       if (isNaN(deg) || deg < 1 || deg > 11) return false
-
-      const sym = (cls.symbol || '').trim().toUpperCase()
-      return allowedSymbols.has(sym)
+      return true
     })
     .sort((a: any, b: any) => {
       const degA = Number(a.degree) || 0

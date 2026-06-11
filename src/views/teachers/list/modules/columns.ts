@@ -114,7 +114,10 @@ export const createColumns = (): ColumnDef<TeacherModel>[] => [
       }
 
       const cls = teacher.class
-      if (!cls || !cls.degree) {
+      const clsLabel = cls
+        ? (cls.name && String(cls.name).trim() ? String(cls.name) : (cls.degree ? `${cls.degree}-${cls.symbol}` : ''))
+        : ''
+      if (!cls || !clsLabel) {
         return h(
           'span',
           {
@@ -124,8 +127,7 @@ export const createColumns = (): ColumnDef<TeacherModel>[] => [
           i18n.global.t('unassigned-school')
         )
       }
-      const label = `${cls.degree}-${cls.symbol}`
-      return h('span', { class: 'font-medium text-slate-800' }, label)
+      return h('span', { class: 'font-medium text-slate-800' }, clsLabel)
     }
   },
   {
