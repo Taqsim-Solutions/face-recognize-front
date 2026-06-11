@@ -230,6 +230,8 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       classId: payload.classId || 0,
       className: payload.className || undefined,
       schoolId: payload.schoolId,
+      regionId: payload.regionId,
+      cityId: payload.cityId,
       firstName: payload.firstName,
       lastName: payload.lastName,
       fatherName: payload.fatherName,
