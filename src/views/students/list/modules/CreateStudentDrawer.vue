@@ -12,6 +12,7 @@ import { UploadCloud, X, Camera } from 'lucide-vue-next'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import ClassSearchSelect from '@/components/ClassSearchSelect.vue'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
   Select,
@@ -465,35 +466,15 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('sinf', 'Sinf') }}</FormLabel>
               <FormControl>
-                <Select
-                  :model-value="
-                    componentField.modelValue ? String(componentField.modelValue) : undefined
-                  "
-                  @update:model-value="
-                    (val) => { componentField['onUpdate:modelValue']?.(Number(val)); setFieldValue('className', '') }
-                  "
-                  name="classId"
-                >
-                  <SelectTrigger
-                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
-                    :disabled="!values.schoolId"
-                  >
-                    <SelectValue
-                      :placeholder="
-                        !values.schoolId ? t('select-school-first', 'Avval maktabni tanlang') : t('select-class')
-                      "
-                    />
-                  </SelectTrigger>
-                  <SelectContent class="bg-white">
-                    <SelectItem
-                      v-for="cls in classes"
-                      :key="cls.id"
-                      :value="String(cls.id)"
-                    >
-                      {{ cls.name || (cls.degree + '-' + cls.symbol) }}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <ClassSearchSelect
+                  :model-value="componentField.modelValue ? String(componentField.modelValue) : 'all'"
+                  @update:model-value="(val) => { componentField['onUpdate:modelValue']?.(val === 'all' ? undefined : Number(val)); if (val !== 'all') setFieldValue('className', '') }"
+                  :classes="classes || []"
+                  :disabled="!values.schoolId"
+                  :allow-all="false"
+                  width-class="w-full"
+                  :placeholder="!values.schoolId ? t('select-school-first', 'Avval maktabni tanlang') : t('select-class', 'Sinfni tanlang')"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

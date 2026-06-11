@@ -403,7 +403,7 @@ const schools = computed(() => {
 
 const { data: classesRes, isPending: isClassesLoading } = useQuery({
   queryKey: ['classes-by-school-attendances', schoolFilter],
-  queryFn: () => fetchClassesBySchool(Number(schoolFilter.value)),
+  queryFn: () => fetchClassesBySchool(Number(schoolFilter.value), true),
   enabled: computed(() => schoolFilter.value !== 'all'),
   staleTime: 60000
 })

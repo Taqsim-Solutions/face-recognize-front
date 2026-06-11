@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import { createColumns, DataTable, CreateStudentDrawer } from '../modules'
+import ClassSearchSelect from '@/components/ClassSearchSelect.vue'
 import Can from '@/components/can.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchStudentsParams, StudentModel } from '../types'
@@ -173,7 +174,7 @@ const schools = computed(() => {
 // Fetch classes list when school is selected
 const { data: classesRes, isPending: isClassesLoading } = useQuery({
   queryKey: ['classes-by-school-filter', schoolFilter],
-  queryFn: () => fetchClassesBySchool(Number(schoolFilter.value)),
+  queryFn: () => fetchClassesBySchool(Number(schoolFilter.value), true),
   enabled: computed(() => schoolFilter.value !== 'all'),
   staleTime: 60000
 })
@@ -591,24 +592,14 @@ const handleExcelFileSelect = async (event: Event) => {
         </SelectContent>
       </Select>
 
-      <!-- Class Filter Select -->
-      <Select
+      <!-- Class Filter (searchable) -->
+      <ClassSearchSelect
         v-model="classFilter"
-        name="classId"
-        :disabled="schoolFilter === 'all' || isClassesLoading"
-      >
-        <SelectTrigger
-          class="h-10 w-full sm:w-[200px] border border-gray-200 rounded-xl focus:ring-0 text-gray-600 bg-white text-left font-medium disabled:opacity-60"
-        >
-          <SelectValue :placeholder="isClassesLoading ? t('loading') + '...' : t('sinf', 'Sinf')" />
-        </SelectTrigger>
-        <SelectContent class="bg-white">
-          <SelectItem value="all">{{ t('sinf', 'Sinf') }}</SelectItem>
-          <SelectItem v-for="cls in classes" :key="cls.id" :value="String(cls.id)">
-            {{ cls.name || (cls.degree + '-' + cls.symbol) }}
-          </SelectItem>
-        </SelectContent>
-      </Select>
+        :classes="classes || []"
+        :disabled="schoolFilter === 'all'"
+        :loading="isClassesLoading"
+        :placeholder="t('sinf', 'Sinf')"
+      />
     </div>
 
     <!-- Table Section -->

@@ -25,11 +25,12 @@ export const fetchStudents = async (params: FetchStudentsParams) => {
   return await api<StudentModelIEnumerableResult>(url, { params: mappedParams })
 }
 
-export const fetchClassesBySchool = async (schoolId: number) => {
+export const fetchClassesBySchool = async (schoolId: number, withStudents = false) => {
   return await api.get<{ code: number; message: string; result: any }>('/api/classes', {
     params: {
       SchoolId: schoolId,
-      PageSize: 999
+      PageSize: 999,
+      WithStudents: withStudents
     }
   })
 }
