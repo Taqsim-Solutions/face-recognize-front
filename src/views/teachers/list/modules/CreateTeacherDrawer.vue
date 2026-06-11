@@ -154,7 +154,7 @@ watch(
 // 4. Classes list based on selected school
 const { data: classesRes, isPending: isClassesLoading } = useQuery({
   queryKey: ['classes-by-school', values.schoolId],
-  queryFn: () => fetchClassesBySchool(values.schoolId as number),
+  queryFn: () => fetchClassesBySchool(values.schoolId as number, true),
   enabled: () => !!values.schoolId
 })
 const classes = computed(() => {

@@ -82,17 +82,18 @@ const formSchema = toTypedSchema(
       .string({ required_error: 'validation.required-field' })
       .min(1, { message: 'validation.required-field' }),
     fatherName: z
-      .string({ required_error: 'validation.required-field' })
-      .min(1, { message: 'validation.required-field' }),
+      .string()
+      .optional()
+      .nullable(),
     phoneNumber: z
       .string({ required_error: 'validation.required-field' })
       .min(9, { message: 'validation.required-field' }), // Ota yoki Ona tel raqami
     fatherFullName: z
       .string({ required_error: 'validation.required-field' })
-      .min(3, { message: 'validation.required-field' }),
+      .min(1, { message: 'validation.required-field' }),
     motherFullName: z
       .string({ required_error: 'validation.required-field' })
-      .min(3, { message: 'validation.required-field' }),
+      .min(1, { message: 'validation.required-field' }),
     additionalPhoneNumber: z.string().optional().nullable()
   })
 )
@@ -153,7 +154,7 @@ watch(
 // 4. Classes list based on selected school
 const { data: classesRes } = useQuery({
   queryKey: ['classes-by-school', values.schoolId],
-  queryFn: () => fetchClassesBySchool(values.schoolId as number),
+  queryFn: () => fetchClassesBySchool(values.schoolId as number, true),
   enabled: () => !!values.schoolId
 })
 const classes = computed(() => {
@@ -202,9 +203,12 @@ watch(
 
 
 
-// Helper to split parent F.I.Sh
+// Helper to split parent F.I.Sh. Accepts any text: a single word is used as
+// both last and first name so the backend's name requirement is satisfied.
 const parseParentFullName = (fullName: string) => {
-  const parts = (fullName || '').trim().split(/\s+/)
+  const parts = (fullName || '').trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return { lastName: '', firstName: '', fatherName: '' }
+  if (parts.length === 1) return { lastName: parts[0], firstName: parts[0], fatherName: '' }
   return {
     lastName: parts[0] || '',
     firstName: parts[1] || '',
