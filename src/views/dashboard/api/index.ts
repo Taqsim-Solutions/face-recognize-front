@@ -130,3 +130,8 @@ export const fetchLateStudents = async (params: {
   p.PageSize = params.pageSize || 20
   return await api.get('/api/dashboard/late-students', { params: p })
 }
+
+// Cameras whose last sync to the device failed (connection problems).
+export const fetchCameraAlerts = async () => {
+  return await api.get('/api/dashboard/camera-alerts')
+}
