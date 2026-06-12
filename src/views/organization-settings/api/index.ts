@@ -70,3 +70,32 @@ export const cleanupEmptyClasses = async () => {
     '/api/classes/cleanup-empty'
   )
 }
+
+// ── Rest periods (days off / holidays / summer break) ───────────────
+export const fetchRestPeriods = async () => {
+  return await api.get<{ code: number; message: string; result: any }>('/api/rest-periods', {
+    params: { PageSize: 999, PageIndex: 1 }
+  })
+}
+
+export const createRestPeriod = async (payload: {
+  dateFrom: string
+  dateTo: string
+  name: string
+  comment?: string
+}) => {
+  return await api.post('/api/rest-periods', payload)
+}
+
+export const updateRestPeriod = async (id: number, payload: {
+  dateFrom: string
+  dateTo: string
+  name: string
+  comment?: string
+}) => {
+  return await api.put(`/api/rest-periods/${id}`, payload)
+}
+
+export const deleteRestPeriod = async (id: number) => {
+  return await api.delete(`/api/rest-periods/${id}`)
+}
