@@ -14,7 +14,7 @@ export const fetchStudents = async (params: FetchStudentsParams) => {
 
   if (page !== undefined) mappedParams.PageIndex = page
   if (size !== undefined) mappedParams.PageSize = size
-  if (search !== undefined && search !== '') mappedParams.Search = search
+  if (search !== undefined && search !== '') mappedParams.SearchText = search
   if (regionId) mappedParams.RegionId = regionId
   if (cityId) mappedParams.CityId = cityId
   if (schoolId) mappedParams.SchoolId = schoolId
@@ -111,7 +111,7 @@ export const downloadExcelExample = async () => {
 
 export const exportStudentsExcel = async (params: Partial<FetchStudentsParams>) => {
   const mappedParams: Record<string, any> = {}
-  if (params.search) mappedParams.Search = params.search
+  if (params.search) mappedParams.SearchText = params.search
   if (params.regionId) mappedParams.RegionId = params.regionId
   if (params.cityId) mappedParams.CityId = params.cityId
   if (params.schoolId) mappedParams.SchoolId = params.schoolId

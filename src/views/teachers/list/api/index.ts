@@ -120,7 +120,7 @@ export const uploadExcelFile = async (file: File) => {
 
 export const exportTeachersExcel = async (params: Record<string, any> = {}) => {
   const mappedParams: Record<string, any> = {}
-  if (params.search) mappedParams.Search = params.search
+  if (params.search) mappedParams.SearchText = params.search
   if (params.regionId) mappedParams.RegionId = params.regionId
   if (params.cityId) mappedParams.CityId = params.cityId
   if (params.schoolId) mappedParams.SchoolId = params.schoolId
