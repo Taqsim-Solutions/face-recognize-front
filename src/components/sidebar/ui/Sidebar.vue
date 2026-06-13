@@ -223,10 +223,10 @@ onMounted(() => {
                 />
                 <div class="flex-col text-start">
                   <p class="text-xs truncate max-w-[150px] mt-[1px] block">
-                    {{ account.firstName }} {{ account.lastName }}
+                    {{ account?.firstName }} {{ account?.lastName }}
                   </p>
                   <p class="text-foreground/50 text-xs capitalize">
-                    {{ account.email }}
+                    {{ account?.email }}
                   </p>
                 </div>
               </div>
@@ -270,9 +270,9 @@ onMounted(() => {
               />
               <div class="flex-col text-start">
                 <p class="text-sm truncate max-w-[150px]">
-                  {{ account.firstName }} {{ account.lastName }}
+                  {{ account?.firstName }} {{ account?.lastName }}
                 </p>
-                <p class="text-foreground/50 text-sm capitalize">{{ account.email }}</p>
+                <p class="text-foreground/50 text-sm capitalize">{{ account?.email }}</p>
               </div>
             </div>
             <DropdownMenuSeparator />
