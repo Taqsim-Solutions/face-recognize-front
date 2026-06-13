@@ -13,8 +13,7 @@ import {
 import {
   fetchSchoolsNumber, fetchWeeklyPerformance,
   fetchSchoolDetails, fetchAbsents,
-  fetchLateStudents, fetchRegions, fetchSchoolsByCity,
-  fetchCameraAlerts
+  fetchLateStudents, fetchRegions, fetchSchoolsByCity
 } from '../api'
 import { fetchTodayStats } from '../api/todayStats'
 import api from '@/api'
@@ -92,17 +91,6 @@ const { data: absentsRaw,       refetch: refetchAbsents } = useQuery({ queryKey:
 const { data: lateStudentsRaw,  refetch: refetchLate    } = useQuery({ queryKey: computed(() => ['late-dash', selectedSchoolId.value, lateFrom.value, lateTo.value, activeRegionId.value, activeCityId.value, activeSchoolId.value]), queryFn: () => fetchLateStudents({ dateFrom: lateFrom.value, dateTo: lateTo.value, regionId: activeRegionId.value, cityId: activeCityId.value, schoolId: selectedSchoolId.value ?? activeSchoolId.value, pageSize: 20 }), select: (r: any) => r?.data?.result?.data || [], enabled: computed(() => !isDemoMode.value) })
 const { data: classAttendanceRaw } = useQuery({ queryKey: computed(() => ['class-att', selectedSchoolId.value, activeDateFrom.value, activeDateTo.value]), queryFn: () => fetchSchoolDetails({ RegionId: activeRegionId.value, CityId: activeCityId.value, DateFrom: activeDateFrom.value, DateTo: activeDateTo.value, PageIndex: 1 }), select: (r: any) => r?.data?.result?.data || [], enabled: computed(() => !!selectedSchoolId.value && !isDemoMode.value) })
 
-// Camera connection alerts — cameras whose last sync to the device failed.
-// Polls periodically so newly-failed cameras surface without a manual refresh.
-const { data: cameraAlertsRaw } = useQuery({
-  queryKey: ['camera-alerts'],
-  queryFn: () => fetchCameraAlerts(),
-  select: (r: any) => r?.data?.result || [],
-  enabled: computed(() => !isDemoMode.value),
-  refetchInterval: 60000
-})
-const cameraAlerts = computed<any[]>(() => isDemoMode.value ? [] : ((cameraAlertsRaw.value as any) || []))
-const dismissedCameraAlerts = ref(false)
 
 // ── Active data (real or mock) ────────────────────────────────────
 const activeToday          = computed(() => isDemoMode.value ? mockTodayStats        : ((todayRaw.value         as any) || {}))
@@ -431,49 +419,6 @@ watch(() => activeAbsents.value.length,       () => { absentPage.value = 1 })
     </div>
 
     <div class="px-4 sm:px-6 pt-4 space-y-4">
-      <!-- Camera connection alerts -->
-      <div
-        v-if="cameraAlerts.length && !dismissedCameraAlerts"
-        class="bg-red-50 border border-red-200 rounded-xl px-4 py-3"
-      >
-        <div class="flex items-start gap-3">
-          <div class="mt-0.5 shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-            <XCircleIcon class="w-5 h-5 text-red-600" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2">
-              <BellIcon class="w-4 h-4 text-red-600" />
-              <p class="font-semibold text-red-800">
-                {{ t('camera-alert-title', 'Kameraga ulanishda muammo') }}
-                ({{ cameraAlerts.length }})
-              </p>
-            </div>
-            <p class="text-sm text-red-700 mt-0.5">
-              {{ t('camera-alert-hint', 'Quyidagi kameralarga oxirgi sinxronizatsiya muvaffaqiyatsiz tugadi:') }}
-            </p>
-            <ul class="mt-2 space-y-1.5">
-              <li
-                v-for="cam in cameraAlerts"
-                :key="cam.cameraId"
-                class="text-sm text-red-800 bg-white/60 rounded-lg px-3 py-2 border border-red-100"
-              >
-                <span class="font-medium">{{ cam.cameraName || ('#' + cam.cameraId) }}</span>
-                <span v-if="cam.schoolName" class="text-red-600"> — {{ cam.schoolName }}</span>
-                <span v-if="cam.error" class="block text-xs text-red-500 mt-0.5 truncate">{{ cam.error }}</span>
-              </li>
-            </ul>
-          </div>
-          <button
-            class="shrink-0 text-red-400 hover:text-red-600 transition-colors"
-            :title="t('cancel', 'Yopish')"
-            @click="dismissedCameraAlerts = true"
-          >
-            <XIcon class="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-
       <!-- ── Filter Bar ───────────────────────────────────────── -->
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-3" :class="{ 'opacity-50 pointer-events-none': isDemoMode }">
         <div class="flex flex-wrap items-end gap-3">
