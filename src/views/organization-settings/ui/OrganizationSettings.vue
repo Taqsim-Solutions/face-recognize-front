@@ -69,6 +69,8 @@ const formType = ref(1)
 const formUseDdns = ref(false)
 const formDdnsHost = ref('')
 const formExternalPort = ref<number | undefined>(9001)
+// How often the server polls this camera's event log (minutes)
+const formPollInterval = ref<number>(5)
 
 // Cascading selectors in Drawer
 const formRegionId = ref('all')
@@ -398,6 +400,7 @@ const openAddDrawer = () => {
   formUseDdns.value = false
   formDdnsHost.value = ''
   formExternalPort.value = 9001
+  formPollInterval.value = 5
   formRegionId.value = 'all'
   formCityId.value = 'all'
   formSchoolId.value = 'all'
@@ -416,6 +419,7 @@ const openEditDrawer = (camera: any) => {
   formUseDdns.value = camera.useDdns || false
   formDdnsHost.value = camera.ddnsHost || ''
   formExternalPort.value = camera.externalPort ?? 9001
+  formPollInterval.value = camera.pollIntervalMinutes ?? 5
 
   // Prefill location WITHOUT triggering the cascade watches (which would
   // reset city/school back to 'all'). CameraResultDto returns flat fields
@@ -455,7 +459,8 @@ const saveCameraForm = () => {
     schoolId: Number(formSchoolId.value),
     useDdns: formUseDdns.value,
     ddnsHost: formUseDdns.value ? formDdnsHost.value.trim() : null,
-    externalPort: formUseDdns.value ? Number(formExternalPort.value) || undefined : undefined
+    externalPort: formUseDdns.value ? Number(formExternalPort.value) || undefined : undefined,
+    pollIntervalMinutes: Number(formPollInterval.value) > 0 ? Number(formPollInterval.value) : 5
   }
 
   if (isEditing.value && currentCameraId.value !== null) {
@@ -542,7 +547,8 @@ const getSchoolName = (cam: any) => {
 
 // Precise Heartbeat formatting separating date and time values
 const getHeartbeatDate = (cam: any) => {
-  const timeVal = cam.updatedAt || cam.createdAt
+  // Prefer the real polling "last check" time, then last push, then row times.
+  const timeVal = cam.lastCheckAt || cam.lastSyncAt || cam.updatedAt || cam.createdAt
   const dateObj = timeVal ? new Date(timeVal) : new Date('2026-05-23T12:23:23')
   const day = dateObj.getDate()
   const months = [
@@ -565,7 +571,7 @@ const getHeartbeatDate = (cam: any) => {
 }
 
 const getHeartbeatTimeOnly = (cam: any) => {
-  const timeVal = cam.updatedAt || cam.createdAt
+  const timeVal = cam.lastCheckAt || cam.lastSyncAt || cam.updatedAt || cam.createdAt
   const dateObj = timeVal ? new Date(timeVal) : new Date('2026-05-23T12:23:23')
   const pad = (n: number) => n.toString().padStart(2, '0')
   return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`
@@ -1092,6 +1098,21 @@ const getHeartbeatTimeOnly = (cam: any) => {
                   />
                 </div>
               </template>
+            </div>
+
+            <!-- Poll interval (how often the server pulls events from this camera) -->
+            <div class="space-y-1.5">
+              <Label class="text-sm font-semibold text-gray-700">{{ t('poll-interval', 'Tekshiruv oraligi (daqiqa)') }}</Label>
+              <Input
+                v-model.number="formPollInterval"
+                type="number"
+                min="1"
+                placeholder="5"
+                class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white"
+              />
+              <p class="text-xs text-gray-400 leading-snug">
+                {{ t('poll-interval-hint', "Server shu oraliqda kameradan yangi hodisalarni tortib oladi (kameraga ulana olsa).") }}
+              </p>
             </div>
 
             <!-- Username -->
