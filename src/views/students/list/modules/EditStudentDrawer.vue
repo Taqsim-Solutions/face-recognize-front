@@ -388,10 +388,10 @@ const handleCancel = () => {
                     (val) => componentField['onUpdate:modelValue']?.(Number(val))
                   "
                   name="regionId"
-                  :disabled="true"
+                  
                 >
                   <SelectTrigger
-                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-gray-50 cursor-not-allowed"
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
                   >
                     <SelectValue :placeholder="t('select-region')" />
                   </SelectTrigger>
@@ -425,10 +425,10 @@ const handleCancel = () => {
                     (val) => componentField['onUpdate:modelValue']?.(Number(val))
                   "
                   name="cityId"
-                  :disabled="true"
+                  
                 >
                   <SelectTrigger
-                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-gray-50 cursor-not-allowed"
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
                   >
                     <SelectValue :placeholder="t('select-city')" />
                   </SelectTrigger>
@@ -460,10 +460,10 @@ const handleCancel = () => {
                     (val) => componentField['onUpdate:modelValue']?.(Number(val))
                   "
                   name="schoolId"
-                  :disabled="true"
+                  
                 >
                   <SelectTrigger
-                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-gray-50 cursor-not-allowed"
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
                   >
                     <SelectValue :placeholder="t('select-school')" />
                   </SelectTrigger>
@@ -495,10 +495,10 @@ const handleCancel = () => {
                     (val) => componentField['onUpdate:modelValue']?.(Number(val))
                   "
                   name="classId"
-                  :disabled="true"
+                  
                 >
                   <SelectTrigger
-                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-gray-50 cursor-not-allowed"
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
                   >
                     <SelectValue :placeholder="t('select-class')" />
                   </SelectTrigger>
