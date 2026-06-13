@@ -576,6 +576,30 @@ const getHeartbeatTimeOnly = (cam: any) => {
   const pad = (n: number) => n.toString().padStart(2, '0')
   return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`
 }
+
+// Camera connection status: lastSyncStatus 1=Success, 2=Failed, 0=Unknown.
+const getCameraStatus = (cam: any): { label: string; cls: string; error: string } => {
+  const s = cam.lastSyncStatus
+  if (s === 2) {
+    return {
+      label: t('camera-status-failed', 'Ulanmadi'),
+      cls: 'bg-[#FDECEA] text-[#C62828]',
+      error: cam.lastSyncError || ''
+    }
+  }
+  if (s === 1) {
+    return {
+      label: t('camera-status-ok', 'Ulangan'),
+      cls: 'bg-[#E8F5E9] text-[#2E7D32]',
+      error: ''
+    }
+  }
+  return {
+    label: t('camera-status-unknown', 'Tekshirilmagan'),
+    cls: 'bg-gray-100 text-gray-500',
+    error: ''
+  }
+}
 </script>
 
 <template>
@@ -693,6 +717,11 @@ const getHeartbeatTimeOnly = (cam: any) => {
               <TableHead
                 class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative"
               >
+                {{ t('camera-status', 'Holat') }}
+              </TableHead>
+              <TableHead
+                class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative"
+              >
                 {{ t('region_city') }}
               </TableHead>
               <TableHead
@@ -722,6 +751,9 @@ const getHeartbeatTimeOnly = (cam: any) => {
                   ><div class="h-4 bg-gray-100 rounded w-20"></div
                 ></TableCell>
                 <TableCell class="border p-2 font-medium pl-3"
+                  ><div class="h-4 bg-gray-100 rounded w-20"></div
+                ></TableCell>
+                <TableCell class="border p-2 font-medium pl-3"
                   ><div class="h-4 bg-gray-100 rounded w-48"></div
                 ></TableCell>
                 <TableCell class="border p-2 font-medium pl-3 border-r-0 text-center"
@@ -733,7 +765,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
             <!-- Error -->
             <template v-else-if="isError">
               <TableRow>
-                <TableCell colspan="5" class="h-64 text-center border-none bg-white">
+                <TableCell colspan="6" class="h-64 text-center border-none bg-white">
                   <div class="flex flex-col items-center justify-center py-10">
                     <AlertCircle class="w-12 h-12 text-red-500 mb-2" />
                     <h3 class="text-lg font-bold text-gray-800">
@@ -757,7 +789,7 @@ const getHeartbeatTimeOnly = (cam: any) => {
             <!-- Empty Data -->
             <template v-else-if="filteredCameras.length === 0">
               <TableRow>
-                <TableCell colspan="5" class="h-64 text-center border-none bg-white">
+                <TableCell colspan="6" class="h-64 text-center border-none bg-white">
                   <div class="flex flex-col items-center justify-center py-10">
                     <div
                       class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-3"
@@ -797,6 +829,27 @@ const getHeartbeatTimeOnly = (cam: any) => {
                 >
                   <span class="font-semibold">{{ getHeartbeatDate(cam) }}</span>
                   <span class="ml-2 font-normal">{{ getHeartbeatTimeOnly(cam) }}</span>
+                </TableCell>
+
+                <!-- Connection status -->
+                <TableCell
+                  class="border p-2 font-medium pl-3"
+                  :class="{ 'border-b-0': idx === paginatedCameras.length - 1 }"
+                >
+                  <span
+                    class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+                    :class="getCameraStatus(cam).cls"
+                    :title="getCameraStatus(cam).error"
+                  >
+                    {{ getCameraStatus(cam).label }}
+                  </span>
+                  <p
+                    v-if="getCameraStatus(cam).error"
+                    class="mt-1 text-xs text-[#C62828] leading-snug max-w-[220px] truncate"
+                    :title="getCameraStatus(cam).error"
+                  >
+                    {{ getCameraStatus(cam).error }}
+                  </p>
                 </TableCell>
 
                 <!-- Region / City -->
