@@ -3,14 +3,13 @@ name: Dockerize and Deploy Face Recognize Frontend
 on:
   push:
     branches:
-      - 'main'
-      - 'redesign'
+      - 'feature/entity-status'
       
   workflow_dispatch:
 env:
   # Image tag: branch nomiga qarab
   IMAGE_TAG: >-
-    ${{ github.ref_name == '34' && '34'
+    ${{ github.ref_name == 'feature/entity-status' && 'test'
      || github.ref_name == 'redesign' && 'redesign'
      || 'latest' }}
 
@@ -18,7 +17,7 @@ env:
   # (double /api/api/ muammosini hal qiladi)
   # Har bir branch uchun FAQAT domen, /api YO'Q!
   VITE_BASE_URL: >-
-    ${{ github.ref_name == '34' && 'https://face34.taqsim.uz'
+    ${{ github.ref_name == 'feature/entity-status' && 'https://face-test.taqsim.uz'
      || github.ref_name == 'itacademy' && 'https://faceita.taqsim.uz'
      || github.ref_name == 'redesign' && 'https://face.taqsim.uz'
      || '' }}
@@ -56,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: dockerize
     # Faqat main branchda deploy qiladi
-    if: github.ref_name == 'redesign'
+    if: github.ref_name == 'feature/entity-status'
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -68,6 +67,6 @@ jobs:
           port: ${{ secrets.MAIN_SSH_PORT }}
           script: |
             cd ~/traefik
-            docker rm --force /face-front
-            docker pull taqsim/face_front:redesign
-            docker compose up -d face-front
+            docker rm --force /face-test-front
+            docker pull taqsim/face_front:test
+            docker compose up -d face-test-front
