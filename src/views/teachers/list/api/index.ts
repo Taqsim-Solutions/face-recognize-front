@@ -9,7 +9,7 @@ import type {
 const url = '/api/teachers'
 
 export const fetchTeachers = async (params: FetchTeachersParams) => {
-  const { page, size, SearchText, regionId, cityId, schoolId, classId, orderBy, order } = params
+  const { page, size, SearchText, regionId, cityId, schoolId, classId, status, orderBy, order } = params
   const mappedParams: Record<string, any> = {}
 
   if (page !== undefined) mappedParams.PageIndex = page
@@ -19,6 +19,7 @@ export const fetchTeachers = async (params: FetchTeachersParams) => {
   if (cityId) mappedParams.CityId = cityId
   if (schoolId) mappedParams.SchoolId = schoolId
   if (classId) mappedParams.ClassId = classId
+  if (status !== undefined && status !== null) mappedParams.Status = status
   if (orderBy) mappedParams.OrderBy = orderBy
   if (order) mappedParams.Order = order
 
