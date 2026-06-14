@@ -59,6 +59,20 @@ export const changeTeacherStatus = async (id: number | string, status: number) =
   return await api.patch(`${url}/${id}/status`, null, { params: { status } })
 }
 
+// PATCH /api/teachers/{id}/class — assign teacher to a class in their school
+export const changeTeacherClass = async (id: number | string, toClassId: number | null) => {
+  return await api.patch(`${url}/${id}/class`, { teacherIds: [id], toClassId })
+}
+
+// Bulk
+export const bulkChangeTeacherStatus = async (teacherIds: (number | string)[], status: number) => {
+  return await api.patch(`${url}/bulk/status`, { teacherIds, status })
+}
+
+export const bulkChangeTeacherClass = async (teacherIds: (number | string)[], toClassId: number | null) => {
+  return await api.patch(`${url}/bulk/class`, { teacherIds, toClassId })
+}
+
 export const updateTeacherPassword = async ({
   id,
   newPassword

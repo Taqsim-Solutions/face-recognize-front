@@ -4,9 +4,11 @@ import { h } from 'vue'
 import DataTableColumnHeader from '@/views/users/list/modules/DataTableColumnHeader.vue'
 import RowActions from './RowActions.vue'
 import EntityStatusBadge from '@/components/EntityStatusBadge.vue'
+import { selectionColumn } from '@/components/table/selectionColumn'
 import type { TeacherModel } from '../types'
 
 export const createColumns = (): ColumnDef<TeacherModel>[] => [
+  selectionColumn<TeacherModel>(),
   {
     accessorKey: 'lastName',
     header: ({ column }) => {

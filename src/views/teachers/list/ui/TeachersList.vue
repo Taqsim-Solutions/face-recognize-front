@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import { createColumns, DataTable, CreateTeacherDrawer } from '../modules'
+import BulkActionsBar from '../modules/BulkActionsBar.vue'
 import Can from '@/components/can.vue'
 import StatusFilterSelect from '@/components/StatusFilterSelect.vue'
 import ServerError from '@/components/error/ServerError.vue'
@@ -58,6 +59,12 @@ const sorting = ref<{
 })
 
 const rowSelection = ref<Record<string, boolean>>({})
+const selectedIds = computed(() =>
+  Object.keys(rowSelection.value).filter((k) => rowSelection.value[k])
+)
+const clearSelection = () => {
+  rowSelection.value = {}
+}
 
 // Query Params
 const params = ref<FetchTeachersParams>({
@@ -569,6 +576,7 @@ const handleExcelFileSelect = async (event: Event) => {
       </template>
       <template v-else>
         <div class="mt-5 w-full px-4 sm:px-6">
+          <BulkActionsBar :selected-ids="selectedIds" @done="clearSelection" />
           <DataTable
             :data="tableData"
             :columns="columns"
