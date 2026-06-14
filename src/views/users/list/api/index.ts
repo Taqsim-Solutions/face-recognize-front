@@ -38,6 +38,10 @@ export const changeUserStatus = async (id: string | number, status: number) => {
   return await api.patch(`${url}/${id}/status`, null, { params: { status } })
 }
 
+export const bulkChangeUserStatus = async (ids: (string | number)[], status: number) => {
+  return await api.patch(`${url}/bulk/status`, { ids, status })
+}
+
 export const getUserById = async (id: string) => {
   const res = await api.get(`${url}/${id}`)
   return res.data

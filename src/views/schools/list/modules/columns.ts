@@ -4,8 +4,10 @@ import { h } from 'vue'
 import DataTableColumnHeader from '@/views/users/list/modules/DataTableColumnHeader.vue'
 import RowActions from './RowActions.vue'
 import EntityStatusBadge from '@/components/EntityStatusBadge.vue'
+import { selectionColumn } from '@/components/table/selectionColumn'
 
 export const createColumns = (directors: any[] = []): ColumnDef<any>[] => [
+  selectionColumn<any>(),
   {
     accessorKey: 'name',
     header: ({ column }) => {

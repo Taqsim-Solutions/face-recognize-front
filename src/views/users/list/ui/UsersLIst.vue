@@ -8,7 +8,8 @@ import Can from '@/components/can.vue'
 import StatusFilterSelect from '@/components/StatusFilterSelect.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchEmployeesParams } from '../types'
-import { fetchEmployees } from '../api'
+import { fetchEmployees, bulkChangeUserStatus } from '../api'
+import SimpleBulkStatusBar from '@/components/table/SimpleBulkStatusBar.vue'
 import { SearchIcon } from 'lucide-vue-next'
 
 // Export the flattened data type for use in DataTable
@@ -37,6 +38,8 @@ const sorting = ref<{
 })
 
 const rowSelection = ref<Record<string, boolean>>({})
+const selectedIds = computed(() => Object.keys(rowSelection.value).filter((k) => rowSelection.value[k]))
+const clearSelection = () => { rowSelection.value = {} }
 
 const selectedDepartmentId = ref<string>(props.departmentId || 'all')
 
@@ -279,6 +282,7 @@ const handleRowClick = () => {
       </template>
       <template v-else>
         <div class="mt-5 w-full px-6">
+          <SimpleBulkStatusBar :selected-ids="selectedIds" :apply="bulkChangeUserStatus" @done="clearSelection" />
           <DataTable
             :data="tableData"
             :columns="columns"

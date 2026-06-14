@@ -30,6 +30,10 @@ export const changeSchoolStatus = async (id: string | number, status: number) =>
   return await api.patch(`${url}/${id}/status`, null, { params: { status } })
 }
 
+export const bulkChangeSchoolStatus = async (ids: (string | number)[], status: number) => {
+  return await api.patch(`${url}/bulk/status`, { ids, status })
+}
+
 export const updateSchoolDirector = async ({ id, directorId }: { id: string | number; directorId: number }) => {
   return await api.put(`${url}/${id}/director`, { directorId })
 }

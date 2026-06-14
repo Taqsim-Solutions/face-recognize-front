@@ -8,7 +8,8 @@ import Can from '@/components/can.vue'
 import StatusFilterSelect from '@/components/StatusFilterSelect.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchGovernmentsParams } from '../types'
-import { fetchGovernments, fetchRegions } from '../api'
+import { fetchGovernments, fetchRegions, bulkChangeGovernmentStatus } from '../api'
+import SimpleBulkStatusBar from '@/components/table/SimpleBulkStatusBar.vue'
 
 const { t } = useI18n()
 
@@ -24,6 +25,8 @@ const sorting = ref<{
 })
 
 const rowSelection = ref<Record<string, boolean>>({})
+const selectedIds = computed(() => Object.keys(rowSelection.value).filter((k) => rowSelection.value[k]))
+const clearSelection = () => { rowSelection.value = {} }
 
 // Query Params
 const params = ref<FetchGovernmentsParams>({
@@ -230,6 +233,7 @@ const handleRowClick = () => {
       </template>
       <template v-else>
         <div class="mt-5 w-full px-6">
+          <SimpleBulkStatusBar :selected-ids="selectedIds" :apply="bulkChangeGovernmentStatus" @done="clearSelection" />
           <DataTable
             :data="tableData"
             :columns="columns"

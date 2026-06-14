@@ -36,6 +36,11 @@ export const changeGovernmentStatus = async (id: string | number, status: number
   return await api.patch(`/api/users/${id}/status`, null, { params: { status } })
 }
 
+// Governments are users; reuse the users bulk endpoint.
+export const bulkChangeGovernmentStatus = async (ids: (string | number)[], status: number) => {
+  return await api.patch(`/api/users/bulk/status`, { ids, status })
+}
+
 export const updateGovernmentPassword = async ({
   id,
   newPassword

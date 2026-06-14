@@ -5,8 +5,10 @@ import { h } from 'vue'
 import DataTableColumnHeader from './DataTableColumnHeader.vue'
 import RowActions from './RowActions.vue'
 import EntityStatusBadge from '@/components/EntityStatusBadge.vue'
+import { selectionColumn } from '@/components/table/selectionColumn'
 
 export const createColumns = (): ColumnDef<FlattenedData>[] => [
+  selectionColumn<FlattenedData>(),
   {
     id: 'full_name',
     header: ({ column }) => {
