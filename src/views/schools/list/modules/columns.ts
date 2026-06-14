@@ -3,6 +3,7 @@ import i18n from '@/i18n'
 import { h } from 'vue'
 import DataTableColumnHeader from '@/views/users/list/modules/DataTableColumnHeader.vue'
 import RowActions from './RowActions.vue'
+import EntityStatusBadge from '@/components/EntityStatusBadge.vue'
 
 export const createColumns = (directors: any[] = []): ColumnDef<any>[] => [
   {
@@ -76,6 +77,18 @@ export const createColumns = (directors: any[] = []): ColumnDef<any>[] => [
       }
 
       return h('div', { class: 'font-medium text-slate-800 text-left leading-normal' }, children)
+    }
+  },
+  {
+    accessorKey: 'status',
+    header: ({ column }) =>
+      h(DataTableColumnHeader, {
+        column: column as any,
+        title: i18n.global.t('status', 'Holat'),
+        notSortable: true
+      }),
+    cell: ({ row }) => {
+      return h(EntityStatusBadge, { status: (row.original as any).status })
     }
   },
   {

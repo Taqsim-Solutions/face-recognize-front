@@ -18,6 +18,7 @@ export type SchoolModel = {
   createdAt: string
   updatedAt: string | null
   isDeleted: boolean
+  status?: number | null
 }
 
 export type CityModel = {
@@ -40,6 +41,7 @@ export type FetchSchoolsParams = {
   order?: 'asc' | 'desc'
   regionId?: number | null
   cityId?: number | null
+  status?: number | null
 }
 
 export type ApiError = {

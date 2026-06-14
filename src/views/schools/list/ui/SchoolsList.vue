@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { createColumns, DataTable, CreateSchoolDrawer } from '../modules'
 import Can from '@/components/can.vue'
+import StatusFilterSelect from '@/components/StatusFilterSelect.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchSchoolsParams } from '../types'
 import { fetchSchools, fetchRegions, fetchDirectors } from '../api'
@@ -23,6 +24,7 @@ const { hideRegionFilter, hideCityFilter } = useCurrentUser()
 
 const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
+const statusFilter = ref<string>('all')
 const searchQuery = ref<string>('')
 
 const sorting = ref<{
@@ -66,6 +68,14 @@ watch([cityFilter], () => {
   params.value = {
     ...params.value,
     cityId: cityFilter.value === 'all' ? undefined : Number(cityFilter.value),
+    page: 1
+  }
+})
+
+watch([statusFilter], () => {
+  params.value = {
+    ...params.value,
+    status: statusFilter.value === 'all' ? undefined : Number(statusFilter.value),
     page: 1
   }
 })
@@ -231,6 +241,8 @@ const handleRowClick = () => {
           </SelectItem>
         </SelectContent>
       </Select>
+
+      <StatusFilterSelect v-model="statusFilter" />
     </div>
 
     <Can i="employees.list">
