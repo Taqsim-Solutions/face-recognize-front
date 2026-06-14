@@ -53,6 +53,11 @@ export const deleteStudent = async (id: number | string) => {
   return await api.delete(`${url}/${id}`)
 }
 
+// PATCH /api/students/{id}/status?status=1|2|3  (1=Active, 2=Inactive, 3=Deleted)
+export const changeStudentStatus = async (id: number | string, status: number) => {
+  return await api.patch(`${url}/${id}/status`, null, { params: { status } })
+}
+
 export const uploadStudentPhoto = async (imageName: string, file: File) => {
   const formData = new FormData()
   formData.append('file', file)

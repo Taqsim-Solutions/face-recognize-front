@@ -37,6 +37,7 @@ export type StudentModel = {
   createdAt?: string
   updatedAt?: string | null
   isDeleted?: boolean
+  status?: number | null
   region?: {
     id: number
     name: string
@@ -55,6 +56,7 @@ export type FetchStudentsParams = {
   cityId?: number | null
   schoolId?: number | null
   classId?: number | null
+  status?: number | null
   orderBy?: string
   order?: 'asc' | 'desc'
 }

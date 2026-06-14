@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { deleteStudent } from '../api'
+import { deleteStudent, changeStudentStatus } from '../api'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { EntityStatus } from '@/constants/entityStatus'
 import {
   Dialog,
   DialogContent,
@@ -47,6 +48,26 @@ const { isPending: isDeletePending, mutate: performDelete } = useMutation({
 const handleDeleteClick = () => {
   performDelete()
 }
+
+// Status toggle: Active <-> Inactive (Deleted is terminal, handled by delete).
+const isActive = computed(() => (props.student.status ?? EntityStatus.Active) === EntityStatus.Active)
+const isDeletedStatus = computed(() => (props.student.status ?? EntityStatus.Active) === EntityStatus.Deleted)
+
+const { isPending: isStatusPending, mutate: performStatusChange } = useMutation({
+  mutationFn: (next: number) => changeStudentStatus(props.student.id, next),
+  onSuccess: () => {
+    toast.success(t('status-updated', 'Holat yangilandi'))
+    queryClient.invalidateQueries({ queryKey: ['students'] })
+  },
+  onError: (error: any) => {
+    console.error('changeStudentStatus failed:', error)
+    toast.error(t('error_occurred'))
+  }
+})
+
+const toggleStatus = () => {
+  performStatusChange(isActive.value ? EntityStatus.Inactive : EntityStatus.Active)
+}
 </script>
 
 <template>
@@ -60,6 +81,20 @@ const handleDeleteClick = () => {
           stroke="#006F1F" stroke-linecap="round" stroke-linejoin="round" />
         <path d="M8.66699 3.99834L12.0017 7.33306" stroke="#006F1F" stroke-linecap="round" stroke-linejoin="round" />
         <path d="M5.99915 10.0008L7.99998 8" stroke="#006F1F" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <!-- Status Toggle (activate / deactivate) -->
+    <button v-if="!isDeletedStatus" @click="toggleStatus" :disabled="isStatusPending"
+      :title="isActive ? t('deactivate', 'Vaqtincha ochirish') : t('activate', 'Faollashtirish')"
+      class="w-8 h-8 rounded-full flex items-center justify-center transition-colors border-none shadow-none cursor-pointer"
+      :class="isActive ? 'bg-[#FFF4E5] hover:bg-[#FFE0B2] text-[#B26A00]' : 'bg-[#E8F5E9] hover:bg-[#C8E6C9] text-[#2E7D32]'">
+      <svg v-if="isActive" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <rect x="4.5" y="3" width="2.4" height="10" rx="1" fill="currentColor" />
+        <rect x="9.1" y="3" width="2.4" height="10" rx="1" fill="currentColor" />
+      </svg>
+      <svg v-else xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <path d="M5 3.5L12 8L5 12.5V3.5Z" fill="currentColor" />
       </svg>
     </button>
 

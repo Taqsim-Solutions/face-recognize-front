@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { toast } from 'vue-sonner'
 import { createColumns, DataTable, CreateStudentDrawer } from '../modules'
 import ClassSearchSelect from '@/components/ClassSearchSelect.vue'
+import StatusFilterSelect from '@/components/StatusFilterSelect.vue'
 import Can from '@/components/can.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchStudentsParams, StudentModel } from '../types'
@@ -45,6 +46,7 @@ const regionFilter = ref<string>('all')
 const cityFilter = ref<string>('all')
 const schoolFilter = ref<string>('all')
 const classFilter = ref<string>('all')
+const statusFilter = ref<string>('all')
 const searchQuery = ref<string>('')
 const isCreateDrawerOpen = ref(false)
 // Excel import error popup (for multi-row error lists that don't fit a toast)
@@ -118,6 +120,14 @@ watch([classFilter], () => {
   params.value = {
     ...params.value,
     classId: classFilter.value === 'all' ? undefined : Number(classFilter.value),
+    page: 1
+  }
+})
+
+watch([statusFilter], () => {
+  params.value = {
+    ...params.value,
+    status: statusFilter.value === 'all' ? undefined : Number(statusFilter.value),
     page: 1
   }
 })
@@ -600,6 +610,8 @@ const handleExcelFileSelect = async (event: Event) => {
         :loading="isClassesLoading"
         :placeholder="t('sinf', 'Sinf')"
       />
+
+      <StatusFilterSelect v-model="statusFilter" />
     </div>
 
     <!-- Table Section -->
