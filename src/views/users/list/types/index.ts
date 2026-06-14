@@ -12,6 +12,7 @@ export type FetchEmployeesParams = {
   order?: 'asc' | 'desc'
   search?: string
   status?: string | null
+  entityStatus?: number | null
   departmentId?: string
   level?: number | null
 }

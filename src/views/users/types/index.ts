@@ -7,6 +7,7 @@ export type EmployeeModel = {
   createdAt: string
   updatedAt: string
   status: EmployeeStatus
+  entityStatus?: number | null
   comment?: string
   salary: number
   grossSalary: number

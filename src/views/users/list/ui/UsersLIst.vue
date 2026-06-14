@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { createColumns, DataTable, CreateUserDrawer } from '../modules'
 import Can from '@/components/can.vue'
+import StatusFilterSelect from '@/components/StatusFilterSelect.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchEmployeesParams } from '../types'
 import { fetchEmployees } from '../api'
@@ -26,6 +27,7 @@ fiveYearsAgo.setFullYear(fiveYearsAgo.getFullYear() - 5)
 const search = ref('')
 const debouncedSearch = ref('')
 const levelFilter = ref<string>('all')
+const statusFilter = ref<string>('all')
 const sorting = ref<{
   orderBy: string | null
   order: 'asc' | 'desc' | null
@@ -72,6 +74,14 @@ watch([levelFilter], () => {
   params.value = {
     ...params.value,
     level: levelFilter.value === 'all' ? undefined : Number(levelFilter.value),
+    page: 1
+  }
+})
+
+watch([statusFilter], () => {
+  params.value = {
+    ...params.value,
+    entityStatus: statusFilter.value === 'all' ? undefined : Number(statusFilter.value),
     page: 1
   }
 })
@@ -259,6 +269,8 @@ const handleRowClick = () => {
           <SelectItem value="5">{{ t('roles.admin') }}</SelectItem>
         </SelectContent>
       </Select>
+
+      <StatusFilterSelect v-model="statusFilter" />
     </div>
 
     <Can i="employees.list">

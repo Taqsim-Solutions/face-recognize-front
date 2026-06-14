@@ -4,6 +4,7 @@ import i18n from '@/i18n'
 import { h } from 'vue'
 import DataTableColumnHeader from './DataTableColumnHeader.vue'
 import RowActions from './RowActions.vue'
+import EntityStatusBadge from '@/components/EntityStatusBadge.vue'
 
 export const createColumns = (): ColumnDef<FlattenedData>[] => [
   {
@@ -83,6 +84,18 @@ export const createColumns = (): ColumnDef<FlattenedData>[] => [
         { class: 'font-medium' },
         row.getValue('login') || h('span', { class: 'text-gray-400' }, i18n.global.t('no-data'))
       )
+  },
+  {
+    accessorKey: 'status',
+    header: ({ column }) =>
+      h(DataTableColumnHeader, {
+        column,
+        title: i18n.global.t('status', 'Holat'),
+        notSortable: true
+      }),
+    cell: ({ row }) => {
+      return h(EntityStatusBadge, { status: (row.original as any).status })
+    }
   },
   {
     id: 'actions',
