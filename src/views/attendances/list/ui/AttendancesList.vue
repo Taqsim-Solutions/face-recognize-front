@@ -2,7 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
-import { fetchAttendanceRange, fetchTeacherAttendanceRange, fetchClassStudentAttendances } from '../api'
+import { fetchAttendanceRange, fetchTeacherAttendanceRange, fetchClassStudentAttendances, fetchStudentScans, fetchTeacherScans } from '../api'
 import {
   fetchRegions,
   fetchSchoolsByCity,
@@ -460,6 +460,65 @@ const studentRows = computed(() => {
 const openStudentModal = (row: any) => {
   selectedClassRow.value = row
   isStudentModalOpen.value = true
+}
+
+// ---- "All scans" popup (raw comings/goings for one person on a day) ----
+const isScansOpen = ref(false)
+const scanTarget = ref<{ id: number; name: string; date: string; kind: 'student' | 'teacher' } | null>(null)
+
+const { data: scansData, isLoading: scansLoading } = useQuery({
+  queryKey: [
+    'attendance-scans',
+    computed(() => scanTarget.value?.kind),
+    computed(() => scanTarget.value?.id),
+    computed(() => scanTarget.value?.date)
+  ],
+  queryFn: async () => {
+    const t = scanTarget.value
+    if (!t) return []
+    const res =
+      t.kind === 'student'
+        ? await fetchStudentScans(t.id, t.date)
+        : await fetchTeacherScans(t.id, t.date)
+    return (res as any)?.data?.result || (res as any)?.result || []
+  },
+  enabled: computed(() => !!scanTarget.value && isScansOpen.value),
+  staleTime: 0
+})
+
+const scanRows = computed<any[]>(() => (scansData.value as any) || [])
+
+// Build the YYYY-MM-DDZ date string the scan endpoints expect.
+const toScanDate = (raw: any): string => {
+  const d = new Date(raw)
+  return d.toISOString().split('T')[0] + 'Z'
+}
+
+const openStudentScans = (s: any) => {
+  scanTarget.value = {
+    id: s.id ?? s.studentId,
+    name: `${s.lastName || ''} ${s.firstName || ''}`.trim(),
+    date: toScanDate(selectedClassRow.value?.date),
+    kind: 'student'
+  }
+  isScansOpen.value = true
+}
+
+const openTeacherScans = (row: any) => {
+  scanTarget.value = {
+    id: row.teacherId ?? row.id,
+    name: row.fullName || '',
+    date: toScanDate(row.date),
+    kind: 'teacher'
+  }
+  isScansOpen.value = true
+}
+
+const cameraTypeLabel = (ct: number | null | undefined) => {
+  if (ct === 1) return t('entrance', 'Kirish')
+  if (ct === 2) return t('exit', 'Chiqish')
+  if (ct === 3) return t('entrance-exit', 'Kirish/Chiqish')
+  return '—'
 }
 
 const formatStudentTime = (dt: string | null | undefined) => {
@@ -1008,6 +1067,13 @@ const getPageNumbers = () => {
                   >
                     {{ row.attended ? t('arrived', 'Keldi') : t('not-attended', 'Kelmagan') }}
                   </span>
+                  <button
+                    type="button"
+                    @click="openTeacherScans(row)"
+                    class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                  >
+                    {{ t('all-scans', 'Hammasi') }}
+                  </button>
                 </TableCell>
               </TableRow>
               </template>
@@ -1116,6 +1182,7 @@ const getPageNumbers = () => {
               <th class="px-4 py-2 text-left">{{ t('kelgan-vaqti', 'Kelgan vaqti') }}</th>
               <th class="px-4 py-2 text-left">{{ t('ketgan-vaqti', 'Ketgan vaqti') }}</th>
               <th class="px-4 py-2 text-left">{{ t('status', 'Status') }}</th>
+              <th class="px-4 py-2 text-left">{{ t('scans', 'Skanlar') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50">
@@ -1143,9 +1210,65 @@ const getPageNumbers = () => {
                   {{ s.attended ? t('attended', 'Kelgan') : t('not-attended', 'Kelmagan') }}
                 </span>
               </td>
+              <td class="px-4 py-2.5">
+                <button
+                  type="button"
+                  @click="openStudentScans(s)"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" />
+                    <path d="M2 6.5h12" stroke="currentColor" stroke-width="1.3" />
+                  </svg>
+                  {{ t('all-scans', 'Hammasi') }}
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- All scans popup (raw comings/goings for one person on a day) -->
+  <div
+    v-if="isScansOpen"
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+    @click.self="isScansOpen = false"
+  >
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div>
+          <h3 class="font-semibold text-gray-800">{{ t('all-scans', 'Barcha skanlar') }}</h3>
+          <p class="text-xs text-gray-400 mt-0.5">{{ scanTarget?.name }}</p>
+        </div>
+        <button @click="isScansOpen = false" class="text-gray-400 hover:text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="overflow-y-auto p-2">
+        <div v-if="scansLoading" class="flex items-center justify-center py-12 text-gray-400 text-sm">
+          {{ t('loading', 'Yuklanmoqda...') }}
+        </div>
+        <div v-else-if="!scanRows.length" class="flex items-center justify-center py-12 text-gray-400 text-sm">
+          {{ t('no-scans', 'Skanlar yo\'q') }}
+        </div>
+        <ol v-else class="relative">
+          <li
+            v-for="(scan, i) in scanRows"
+            :key="scan.id"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50"
+          >
+            <span class="w-6 h-6 shrink-0 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold flex items-center justify-center">
+              {{ i + 1 }}
+            </span>
+            <span class="font-semibold text-gray-800 tabular-nums">{{ formatStudentTime(scan.scannedAt) }}</span>
+            <span class="ml-auto text-xs text-gray-500">{{ cameraTypeLabel(scan.cameraType) }}</span>
+          </li>
+        </ol>
       </div>
     </div>
   </div>
