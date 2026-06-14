@@ -53,6 +53,11 @@ export const deleteTeacher = async (id: number | string) => {
   return await api.delete(`${url}/${id}`)
 }
 
+// PATCH /api/teachers/{id}/status?status=1|2|3
+export const changeTeacherStatus = async (id: number | string, status: number) => {
+  return await api.patch(`${url}/${id}/status`, null, { params: { status } })
+}
+
 export const updateTeacherPassword = async ({
   id,
   newPassword

@@ -27,6 +27,7 @@ export type TeacherModel = {
   createdAt?: string
   updatedAt?: string | null
   isDeleted?: boolean
+  status?: number | null
   class?: {
     id: number
     degree: number | string
@@ -44,6 +45,7 @@ export type FetchTeachersParams = {
   cityId?: number | null
   schoolId?: number | null
   classId?: number | null
+  status?: number | null
   orderBy?: string
   order?: 'asc' | 'desc'
 }
