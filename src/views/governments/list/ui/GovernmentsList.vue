@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { createColumns, DataTable, CreateGovernmentDrawer } from '../modules'
 import Can from '@/components/can.vue'
+import StatusFilterSelect from '@/components/StatusFilterSelect.vue'
 import ServerError from '@/components/error/ServerError.vue'
 import type { FetchGovernmentsParams } from '../types'
 import { fetchGovernments, fetchRegions } from '../api'
@@ -13,6 +14,7 @@ const { t } = useI18n()
 
 const levelFilter = ref<string>('all')
 const regionFilter = ref<string>('all')
+const statusFilter = ref<string>('all')
 const sorting = ref<{
   orderBy: string | null
   order: 'asc' | 'desc' | null
@@ -53,6 +55,14 @@ watch([regionFilter], () => {
   params.value = {
     ...params.value,
     regionId: regionFilter.value === 'all' ? undefined : Number(regionFilter.value),
+    page: 1
+  }
+})
+
+watch([statusFilter], () => {
+  params.value = {
+    ...params.value,
+    entityStatus: statusFilter.value === 'all' ? undefined : Number(statusFilter.value),
     page: 1
   }
 })
@@ -210,6 +220,8 @@ const handleRowClick = () => {
           </SelectItem>
         </SelectContent>
       </Select>
+
+      <StatusFilterSelect v-model="statusFilter" />
     </div>
 
     <Can i="employees.list">

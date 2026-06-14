@@ -4,7 +4,7 @@ import type { FetchGovernmentsParams, GovernmentModelIEnumerableResult, RegionMo
 const url = '/api/governments'
 
 export const fetchGovernments = async (params: FetchGovernmentsParams) => {
-  const { page, size, search, isRegion, ...rest } = params
+  const { page, size, search, isRegion, entityStatus, ...rest } = params
   const mappedParams: Record<string, any> = {
     ...rest
   }
@@ -14,6 +14,7 @@ export const fetchGovernments = async (params: FetchGovernmentsParams) => {
   if (isRegion !== undefined && isRegion !== null) {
     mappedParams.IsRegion = isRegion
   }
+  if (entityStatus !== undefined && entityStatus !== null) mappedParams.Status = entityStatus
 
   return await api<GovernmentModelIEnumerableResult>(url, { params: mappedParams })
 }
@@ -28,6 +29,11 @@ export const updateGovernment = async ({ id, payload }: { id: string | number; p
 
 export const deleteGovernment = async (id: string | number) => {
   return await api.delete(`${url}/${id}`)
+}
+
+// Government rows are users (Level3/4); reuse the user status endpoint.
+export const changeGovernmentStatus = async (id: string | number, status: number) => {
+  return await api.patch(`/api/users/${id}/status`, null, { params: { status } })
 }
 
 export const updateGovernmentPassword = async ({

@@ -7,6 +7,7 @@ export type GovernmentModel = {
   level: number
   regionId: number
   cityId: number
+  status?: number | null
 }
 
 export type CityModel = {
@@ -31,6 +32,7 @@ export type FetchGovernmentsParams = {
   regionId?: number | null
   cityId?: number | null
   isRegion?: boolean | null
+  entityStatus?: number | null
 }
 
 export type ApiError = {

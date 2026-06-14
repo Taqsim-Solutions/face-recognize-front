@@ -3,6 +3,7 @@ import i18n from '@/i18n'
 import { h } from 'vue'
 import DataTableColumnHeader from '@/views/users/list/modules/DataTableColumnHeader.vue'
 import RowActions from './RowActions.vue'
+import EntityStatusBadge from '@/components/EntityStatusBadge.vue'
 
 export const createColumns = (_regions: any[]): ColumnDef<any>[] => [
   {
@@ -122,6 +123,18 @@ export const createColumns = (_regions: any[]): ColumnDef<any>[] => [
       }
 
       return h('span', { class: 'text-gray-400 font-medium' }, '-')
+    }
+  },
+  {
+    accessorKey: 'status',
+    header: ({ column }) =>
+      h(DataTableColumnHeader, {
+        column,
+        title: i18n.global.t('status', 'Holat'),
+        notSortable: true
+      }),
+    cell: ({ row }) => {
+      return h(EntityStatusBadge, { status: (row.original as any).status })
     }
   },
   {
