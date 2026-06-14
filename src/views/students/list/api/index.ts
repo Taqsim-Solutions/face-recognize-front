@@ -58,6 +58,19 @@ export const changeStudentStatus = async (id: number | string, status: number) =
   return await api.patch(`${url}/${id}/status`, null, { params: { status } })
 }
 
+// POST /api/students/{id}/transfer — move a student to another school/class
+export const transferStudent = async (
+  id: number | string,
+  payload: { toSchoolId: number; toClassId?: number | null; toClassName?: string | null; note?: string | null }
+) => {
+  return await api.post(`${url}/${id}/transfer`, payload)
+}
+
+// GET /api/students/{id}/transfers — transfer history (newest first)
+export const fetchStudentTransfers = async (id: number | string) => {
+  return await api.get(`${url}/${id}/transfers`)
+}
+
 export const uploadStudentPhoto = async (imageName: string, file: File) => {
   const formData = new FormData()
   formData.append('file', file)

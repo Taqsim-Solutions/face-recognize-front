@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import EditStudentDrawer from './EditStudentDrawer.vue'
+import TransferStudentDrawer from './TransferStudentDrawer.vue'
 import type { StudentModel } from '../types'
 
 const props = defineProps<{
@@ -23,10 +24,15 @@ const { t } = useI18n()
 const queryClient = useQueryClient()
 const isDeleteDialogOpen = ref(false)
 const isEditOpen = ref(false)
+const isTransferOpen = ref(false)
 
 // Edit Action
 const handleEdit = () => {
   isEditOpen.value = true
+}
+
+const handleTransfer = () => {
+  isTransferOpen.value = true
 }
 
 // Delete Action
@@ -81,6 +87,15 @@ const toggleStatus = () => {
           stroke="#006F1F" stroke-linecap="round" stroke-linejoin="round" />
         <path d="M8.66699 3.99834L12.0017 7.33306" stroke="#006F1F" stroke-linecap="round" stroke-linejoin="round" />
         <path d="M5.99915 10.0008L7.99998 8" stroke="#006F1F" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <!-- Transfer Button (Blue) -->
+    <button @click="handleTransfer" :title="t('transfer-student', 'Boshqa maktabga kochirish')"
+      class="w-8 h-8 rounded-full flex items-center justify-center bg-[#E3F2FD] hover:bg-[#BBDEFB] text-[#1565C0] transition-colors border-none shadow-none cursor-pointer">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M2.5 5.5H11M11 5.5L8.5 3M11 5.5L8.5 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M13.5 10.5H5M5 10.5L7.5 8M5 10.5L7.5 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
     </button>
 
@@ -143,5 +158,8 @@ const toggleStatus = () => {
 
     <!-- Edit Student Drawer -->
     <EditStudentDrawer v-model:open="isEditOpen" :student="props.student" />
+
+    <!-- Transfer Student Drawer -->
+    <TransferStudentDrawer v-model:open="isTransferOpen" :student="props.student" />
   </div>
 </template>
