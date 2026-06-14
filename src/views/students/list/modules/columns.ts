@@ -4,12 +4,14 @@ import { h } from 'vue'
 import DataTableColumnHeader from '@/views/users/list/modules/DataTableColumnHeader.vue'
 import RowActions from './RowActions.vue'
 import EntityStatusBadge from '@/components/EntityStatusBadge.vue'
+import { selectionColumn } from '@/components/table/selectionColumn'
 import type { StudentModel } from '../types'
 
 export const createColumns = (callbacks: {
   onUploadPhoto: (student: StudentModel) => void
   onDeletePhoto: (student: StudentModel) => void
 }): ColumnDef<StudentModel>[] => [
+  selectionColumn<StudentModel>(),
   {
     accessorKey: 'lastName',
     header: ({ column }) => {

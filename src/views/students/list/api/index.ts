@@ -72,6 +72,33 @@ export const fetchStudentTransfers = async (id: number | string) => {
   return await api.get(`${url}/${id}/transfers`)
 }
 
+// PATCH /api/students/{id}/class — change class within the same school
+export const changeStudentClass = async (
+  id: number | string,
+  payload: { toClassId?: number | null; toClassName?: string | null }
+) => {
+  return await api.patch(`${url}/${id}/class`, payload)
+}
+
+// Bulk operations
+export const bulkChangeStudentStatus = async (studentIds: (number | string)[], status: number) => {
+  return await api.patch(`${url}/bulk/status`, { studentIds, status })
+}
+
+export const bulkChangeStudentClass = async (
+  studentIds: (number | string)[],
+  payload: { toClassId?: number | null; toClassName?: string | null }
+) => {
+  return await api.patch(`${url}/bulk/class`, { studentIds, ...payload })
+}
+
+export const bulkTransferStudents = async (
+  studentIds: (number | string)[],
+  payload: { toSchoolId: number; toClassId?: number | null; toClassName?: string | null; note?: string | null }
+) => {
+  return await api.post(`${url}/bulk/transfer`, { studentIds, ...payload })
+}
+
 export const uploadStudentPhoto = async (imageName: string, file: File) => {
   const formData = new FormData()
   formData.append('file', file)
