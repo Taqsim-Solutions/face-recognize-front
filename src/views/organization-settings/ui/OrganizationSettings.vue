@@ -577,6 +577,21 @@ const getHeartbeatTimeOnly = (cam: any) => {
   return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`
 }
 
+// Last real event (scan) the camera delivered — separate from heartbeat/poll.
+const getEventDate = (cam: any) => {
+  if (!cam.lastEventAt) return '—'
+  const dateObj = new Date(cam.lastEventAt)
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  return `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`
+}
+
+const getEventTimeOnly = (cam: any) => {
+  if (!cam.lastEventAt) return ''
+  const dateObj = new Date(cam.lastEventAt)
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`
+}
+
 // Camera connection status: lastSyncStatus 1=Success, 2=Failed, 0=Unknown.
 const getCameraStatus = (cam: any): { label: string; cls: string; error: string } => {
   const s = cam.lastSyncStatus
@@ -722,6 +737,11 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
               <TableHead
                 class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative"
               >
+                {{ t('event-time', 'Event Time') }}
+              </TableHead>
+              <TableHead
+                class="text-nowrap text-sm text-[#74757d] select-none bg-[#f2f5f4] border border-t-0 p-3 pl-4 first:pl-3 relative"
+              >
                 {{ t('region_city') }}
               </TableHead>
               <TableHead
@@ -765,7 +785,7 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
             <!-- Error -->
             <template v-else-if="isError">
               <TableRow>
-                <TableCell colspan="6" class="h-64 text-center border-none bg-white">
+                <TableCell colspan="7" class="h-64 text-center border-none bg-white">
                   <div class="flex flex-col items-center justify-center py-10">
                     <AlertCircle class="w-12 h-12 text-red-500 mb-2" />
                     <h3 class="text-lg font-bold text-gray-800">
@@ -789,7 +809,7 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
             <!-- Empty Data -->
             <template v-else-if="filteredCameras.length === 0">
               <TableRow>
-                <TableCell colspan="6" class="h-64 text-center border-none bg-white">
+                <TableCell colspan="7" class="h-64 text-center border-none bg-white">
                   <div class="flex flex-col items-center justify-center py-10">
                     <div
                       class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-3"
@@ -850,6 +870,18 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
                   >
                     {{ getCameraStatus(cam).error }}
                   </p>
+                </TableCell>
+
+                <!-- Last event time (last real scan the camera delivered) -->
+                <TableCell
+                  class="border p-2 font-medium pl-3 text-sm text-[#74757d]"
+                  :class="{ 'border-b-0': idx === paginatedCameras.length - 1 }"
+                >
+                  <template v-if="cam.lastEventAt">
+                    <span class="font-semibold text-[#1b1b1b]">{{ getEventDate(cam) }}</span>
+                    <span class="ml-2 font-normal">{{ getEventTimeOnly(cam) }}</span>
+                  </template>
+                  <span v-else class="text-gray-400">—</span>
                 </TableCell>
 
                 <!-- Region / City -->
