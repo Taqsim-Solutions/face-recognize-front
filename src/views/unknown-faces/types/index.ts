@@ -2,6 +2,10 @@ export interface UnknownFace {
   id: number
   imageName: string
   createdAt: string
+  cameraId?: number | null
+  cameraName?: string | null
+  schoolId?: number | null
+  schoolName?: string | null
 }
 
 export interface FetchUnknownFacesParams {

@@ -620,14 +620,24 @@ const handleImgError = (e: Event) => {
               class="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none"
             />
 
-            <!-- Bottom Left Overlay: Timestamp -->
-            <div class="absolute bottom-3 left-3 z-20 flex flex-col text-white select-none">
+            <!-- Bottom Left Overlay: Timestamp + Camera -->
+            <div class="absolute bottom-3 left-3 z-20 flex flex-col text-white select-none max-w-[85%]">
               <span class="text-[13px] font-bold text-white/90 -mb-1">{{
                 formatCardDate(face.createdAt)
               }}</span>
               <span class="text-[12px] font-medium text-white/70">{{
                 formatCardTime(face.createdAt)
               }}</span>
+              <!-- Which camera captured this face -->
+              <span class="mt-1 flex items-center gap-1 text-[11px] font-medium text-white/80 truncate">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+                <span class="truncate">{{ face.cameraName || t('unknown-camera') }}</span>
+              </span>
+              <span v-if="face.schoolName" class="text-[11px] font-normal text-white/60 truncate">
+                {{ face.schoolName }}
+              </span>
             </div>
 
             <!-- Bottom Right Overlay: Delete Button -->
@@ -834,6 +844,23 @@ const handleImgError = (e: Event) => {
           :alt="formatCardName(selectedFace.id)"
           class="w-full h-auto max-h-[90vh] object-contain select-none"
         />
+
+        <!-- Camera / time caption -->
+        <div
+          v-if="selectedFace"
+          class="absolute bottom-0 left-0 right-0 z-20 px-5 py-4 bg-gradient-to-t from-black/80 to-transparent text-white select-none"
+        >
+          <div class="flex items-center gap-1.5 text-sm font-semibold">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            <span>{{ selectedFace.cameraName || t('unknown-camera') }}</span>
+            <span v-if="selectedFace.schoolName" class="font-normal text-white/70">· {{ selectedFace.schoolName }}</span>
+          </div>
+          <div class="text-xs text-white/70 mt-0.5">
+            {{ formatCardDate(selectedFace.createdAt) }} · {{ formatCardTime(selectedFace.createdAt) }}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   </div>
