@@ -32,6 +32,20 @@ const TZ_TO_COUNTRY: Record<string, CountryCode> = {
 
 const DEFAULT_COUNTRY: CountryCode = 'UZ'
 
+/** Keep only digits and a single leading '+'. */
+export function sanitizePhone(raw: string | null | undefined): string {
+  if (!raw) return ''
+  let s = String(raw).replace(/[^\d+]/g, '')
+  const hasPlus = s.startsWith('+')
+  s = s.replace(/\+/g, '')
+  return hasPlus ? '+' + s : s
+}
+
+/** Calling code prefix for a country, e.g. 'UZ' -> '+998'. */
+export function callingCodeFor(country: CountryCode): string {
+  try { return '+' + getCountryCallingCode(country) } catch { return '+998' }
+}
+
 /** Standalone validity check usable in zod refinements. */
 export function isValidPhone(value: string | null | undefined, country?: CountryCode): boolean {
   const v = (value || '').trim()

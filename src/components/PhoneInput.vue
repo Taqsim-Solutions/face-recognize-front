@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Input } from '@/components/ui/input'
-import { usePhoneInput } from '@/composables/usePhoneInput'
+import { sanitizePhone, isValidPhone, detectCountry, callingCodeFor } from '@/composables/usePhoneInput'
 
 const props = defineProps<{
   modelValue?: string | null
@@ -14,31 +14,37 @@ const emit = defineEmits<{
   (e: 'validity', v: boolean): void
 }>()
 
-const { model, onInput, isValid, callingCode } = usePhoneInput(props.modelValue || '')
+// Local display value. Re-synced from the prop only when it differs from what
+// we already show (edit prefill / reset). We never write back into this from
+// our own emit, which is what caused the one-keystroke-behind ("press twice").
+const display = ref(sanitizePhone(props.modelValue || ''))
 
-// Keep the local model in sync if the parent sets the value externally
-// (e.g. resetForm, edit prefill).
 watch(
   () => props.modelValue,
-  (v) => { if ((v || '') !== model.value) model.value = v || '' }
+  (v) => {
+    const next = sanitizePhone(v || '')
+    if (next !== display.value) display.value = next
+  }
 )
 
-// Emit sanitized value + validity upward whenever the user types.
 const handle = (e: Event) => {
-  const raw = (e.target as HTMLInputElement).value
-  onInput(raw)
-  emit('update:modelValue', model.value)
-  emit('validity', isValid.value)
+  const sanitized = sanitizePhone((e.target as HTMLInputElement).value)
+  display.value = sanitized
+  // Keep the DOM input in sync immediately so typing a letter just shows
+  // nothing rather than waiting for a round-trip.
+  ;(e.target as HTMLInputElement).value = sanitized
+  emit('update:modelValue', sanitized)
+  emit('validity', isValidPhone(sanitized))
 }
 
-const ph = computed(() => props.placeholder || callingCode.value)
+const ph = computed(() => props.placeholder || callingCodeFor(detectCountry()))
 </script>
 
 <template>
   <Input
     type="tel"
     inputmode="tel"
-    :value="model"
+    :value="display"
     :placeholder="ph"
     :disabled="disabled"
     autocomplete="tel"
