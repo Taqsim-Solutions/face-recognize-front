@@ -3,6 +3,7 @@ import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { useCurrentUser } from '@/composables/useCurrentUser'
+import UserContextBadges from '@/components/UserContextBadges.vue'
 import VueApexCharts from 'vue3-apexcharts'
 import {
   Users2Icon, UserIcon, SchoolIcon, CameraIcon,
@@ -390,6 +391,7 @@ watch(() => activeAbsents.value.length,       () => { absentPage.value = 1 })
       <div>
         <h1 class="text-[18px] font-bold text-gray-900">{{ t('dashboard.statistics', 'Bosh panel') }}</h1>
         <p class="text-xs text-gray-400">{{ todayLabel }}</p>
+        <UserContextBadges />
       </div>
       <div class="flex items-center gap-2.5">
         <!-- Demo switch -->
