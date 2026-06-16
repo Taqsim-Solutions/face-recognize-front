@@ -6,12 +6,12 @@ import api from '@/api'
 import { useQuery } from '@tanstack/vue-query'
 
 const { t } = useI18n()
-const { user, isAdmin, isTeacher } = useCurrentUser()
+const { user, isAdmin, isTeacher, classId } = useCurrentUser()
 
 const { data: classData } = useQuery({
-  queryKey: ['class-info-badge', computed(() => user.value?.classId)],
-  queryFn: () => api.get(`/api/classes/${user.value?.classId}`),
-  enabled: computed(() => !!user.value?.classId),
+  queryKey: ['class-info-badge', classId],
+  queryFn: () => api.get(`/api/classes/${classId.value}`),
+  enabled: computed(() => !!classId.value),
   select: (res: any) => res?.data?.result
 })
 
@@ -38,10 +38,10 @@ const show = computed(() => !!user.value && !isAdmin.value)
       {{ user.city.name }}
     </span>
     <span
-      v-if="user?.schoolName"
+      v-if="user?.school?.name || user?.schoolName"
       class="text-xs text-gray-500 bg-gray-100 rounded-md px-2 py-0.5 font-medium"
     >
-      {{ user.schoolName }}
+      {{ user?.school?.name || user?.schoolName }}
     </span>
     <span
       v-if="isTeacher && userClass"

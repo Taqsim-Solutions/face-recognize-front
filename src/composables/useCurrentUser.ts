@@ -8,8 +8,9 @@ export const useCurrentUser = () => {
   const level      = computed(() => user.value?.level as number | undefined)
   const regionId   = computed(() => user.value?.region?.id as number | undefined)
   const cityId     = computed(() => user.value?.city?.id as number | undefined)
-  const schoolId   = computed(() => user.value?.schoolId as number | undefined)
-  const classId    = computed(() => user.value?.classId as number | undefined)
+  // Backend (UserGetMeDto) returns nested School/Class objects, not flat ids.
+  const schoolId   = computed(() => (user.value?.school?.id ?? user.value?.schoolId) as number | undefined)
+  const classId    = computed(() => (user.value?.class?.id ?? user.value?.classId) as number | undefined)
 
   const isAdmin    = computed(() => level.value === 5)
   const isRegion   = computed(() => level.value === 4)
