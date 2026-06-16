@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -128,6 +128,19 @@ const {
 const lockLocation = computed(() => !isAdmin.value)
 const lockClass = computed(() => isTeacher.value)
 
+// "Add a new class" mode. Off by default: the user picks an existing class from
+// the list. When turned on, the class picker is cleared/disabled and a name
+// input is used instead — so classId and className can never be sent together
+// (which previously caused the student to be saved under the wrong/"0-" class).
+const newClassMode = ref(false)
+watch(newClassMode, (on) => {
+  if (on) {
+    setFieldValue('classId', undefined as any)
+  } else {
+    setFieldValue('className', '')
+  }
+})
+
 function applyScopeLock() {
   if (lockLocation.value) {
     if (myRegionId.value) setFieldValue('regionId', myRegionId.value)
@@ -211,11 +224,14 @@ const classes = computed(() => {
     })
 })
 
-// Reset class when school changes (skip while locked to the teacher's class).
+// Reset class when school changes — but only on a genuine user change. When the
+// location is locked (director/teacher), schoolId is set by prefill, often AFTER
+// the user has already picked a class; resetting here would silently wipe that
+// pick and the student ends up with no class (saved as "0-").
 watch(
   () => values.schoolId,
   () => {
-    if (lockClass.value) return
+    if (lockClass.value || lockLocation.value) return
     setFieldValue('classId', undefined as any)
   }
 )
@@ -228,6 +244,7 @@ watch(
     if (val) {
       resetForm()
       removePhoto()
+      newClassMode.value = false
       applyScopeLock()
     }
   }
@@ -258,9 +275,11 @@ const { isPending: isSubmitPending, mutate } = useMutation({
     const dateOfBirthParent = new Date(Date.now() - 40 * 365 * 24 * 60 * 60 * 1000).toISOString()
 
     // 1. Create Student first
+    // Send classId XOR className depending on the mode — never both, so the
+    // backend can't mis-resolve the class.
     const createPayload: any = {
-      classId: payload.classId || 0,
-      className: payload.className || undefined,
+      classId: newClassMode.value ? 0 : (payload.classId || 0),
+      className: newClassMode.value ? (payload.className || undefined) : undefined,
       schoolId: payload.schoolId,
       regionId: payload.regionId,
       cityId: payload.cityId,
@@ -335,8 +354,10 @@ const { isPending: isSubmitPending, mutate } = useMutation({
 })
 
 const onSubmit = handleSubmit((formValues) => {
-  // Require either an existing class or a typed class name.
-  if (!formValues.classId && !(formValues.className && formValues.className.trim())) {
+  // Require an existing class (pick mode) or a typed name (new-class mode).
+  const hasPick = !newClassMode.value && !!formValues.classId
+  const hasName = newClassMode.value && !!(formValues.className && formValues.className.trim())
+  if (!hasPick && !hasName) {
     toast.error(t('select-or-type-class', 'Sinfni tanlang yoki yangi sinf nomini kiriting'))
     return
   }
@@ -500,14 +521,26 @@ const handleCancel = () => {
             </FormItem>
           </FormField>
 
-          <!-- Class Dropdown -->
+          <!-- Class: pick from list, or toggle "new class" to type a name -->
           <FormField v-slot="{ componentField }" name="classId">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('sinf', 'Sinf') }}</FormLabel>
+              <div class="flex items-center justify-between">
+                <FormLabel class="text-sm font-semibold text-gray-700">{{ t('sinf', 'Sinf') }}</FormLabel>
+                <label v-if="!lockClass" class="flex items-center gap-2 text-xs font-medium text-gray-600 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    v-model="newClassMode"
+                    :disabled="!values.schoolId"
+                    class="h-4 w-4 rounded border-gray-300 text-[#ff792d] focus:ring-[#ff792d] cursor-pointer"
+                  />
+                  {{ t('add-new-class', 'Yangi sinf qo\'shish') }}
+                </label>
+              </div>
               <FormControl>
                 <ClassSearchSelect
+                  v-if="!newClassMode"
                   :model-value="componentField.modelValue ? String(componentField.modelValue) : 'all'"
-                  @update:model-value="(val) => { componentField['onUpdate:modelValue']?.(val === 'all' ? undefined : Number(val)); if (val !== 'all') setFieldValue('className', '') }"
+                  @update:model-value="(val) => { componentField['onUpdate:modelValue']?.(val === 'all' ? undefined : Number(val)) }"
                   :classes="classes || []"
                   :disabled="lockClass || !values.schoolId"
                   :allow-all="false"
@@ -515,15 +548,15 @@ const handleCancel = () => {
                   :placeholder="!values.schoolId ? t('select-school-first', 'Avval maktabni tanlang') : t('select-class', 'Sinfni tanlang')"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage v-if="!newClassMode" />
             </FormItem>
           </FormField>
 
-          <!-- Or create a new class by typing its name (not for teachers) -->
-          <FormField v-if="!lockClass" v-slot="{ componentField }" name="className">
+          <!-- New class name input (only when newClassMode is on) -->
+          <FormField v-if="newClassMode && !lockClass" v-slot="{ componentField }" name="className">
             <FormItem>
               <FormLabel class="text-xs font-medium text-gray-500">
-                {{ t('or-new-class', "yoki yangi sinf nomi (masalan 3-A, Yulduzcha)") }}
+                {{ t('new-class-name', "Yangi sinf nomi (masalan 3-A, Yulduzcha)") }}
               </FormLabel>
               <FormControl>
                 <Input
@@ -531,9 +564,9 @@ const handleCancel = () => {
                   :placeholder="t('new-class-placeholder', '3-A')"
                   :disabled="!values.schoolId"
                   class="h-11 border border-gray-300 rounded-lg bg-white"
-                  @input="setFieldValue('classId', undefined as any)"
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           </FormField>
 

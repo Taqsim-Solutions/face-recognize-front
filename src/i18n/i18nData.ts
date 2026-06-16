@@ -431,6 +431,8 @@ export default {
     'cleanup-done': 'Bo\'sh sinflar o\'chirildi',
     'select-or-type-class': 'Sinfni tanlang yoki yangi sinf nomini kiriting',
     'or-new-class': 'yoki yangi sinf nomi (masalan 3-A, Yulduzcha)',
+    'add-new-class': "Yangi sinf qo'shish",
+    'new-class-name': "Yangi sinf nomi (masalan 3-A, Yulduzcha)",
     'new-class-placeholder': '3-A',
   },
   uzc: {
@@ -852,6 +854,8 @@ export default {
     'cleanup-done': 'Бўш синфлар ўчирилди',
     'select-or-type-class': 'Синфни танланг ёки янги синф номини киритинг',
     'or-new-class': 'ёки янги синф номи (масалан 3-A, Юлдузча)',
+    'add-new-class': "Янги синф қўшиш",
+    'new-class-name': "Янги синф номи (масалан 3-A, Юлдузча)",
     'new-class-placeholder': '3-A',
   },
   ru: {
@@ -1292,6 +1296,8 @@ export default {
     'cleanup-done': 'Пустые классы удалены',
     'select-or-type-class': 'Выберите класс или введите название нового',
     'or-new-class': 'или название нового класса (например 3-A)',
+    'add-new-class': "Добавить новый класс",
+    'new-class-name': "Название нового класса (например 3-A)",
     'new-class-placeholder': '3-A',
   },
   en: {
@@ -1708,6 +1714,8 @@ export default {
     'cleanup-done': 'Empty classes deleted',
     'select-or-type-class': 'Select a class or enter a new class name',
     'or-new-class': 'or a new class name (e.g. 3-A, Yulduzcha)',
+    'add-new-class': "Add a new class",
+    'new-class-name': "New class name (e.g. 3-A, Yulduzcha)",
     'new-class-placeholder': '3-A',
   },
   fa: {
@@ -2124,6 +2132,8 @@ export default {
     'cleanup-done': 'کلاس‌های خالی حذف شدند',
     'select-or-type-class': 'یک کلاس انتخاب کنید یا نام کلاس جدید را وارد کنید',
     'or-new-class': 'یا نام کلاس جدید (مثلاً 3-A)',
+    'add-new-class': "افزودن کلاس جدید",
+    'new-class-name': "نام کلاس جدید (مثلاً 3-A)",
     'new-class-placeholder': '3-A',
   },
   ps: {
@@ -2540,6 +2550,8 @@ export default {
     'cleanup-done': 'تش ټولګي ړنګ شول',
     'select-or-type-class': 'یو ټولګی وټاکئ یا د نوي ټولګي نوم ولیکئ',
     'or-new-class': 'یا د نوي ټولګي نوم (لکه 3-A)',
+    'add-new-class': "نوی ټولګی اضافه کول",
+    'new-class-name': "د نوي ټولګي نوم (لکه 3-A)",
     'new-class-placeholder': '3-A',
   },
   ur: {
@@ -2956,6 +2968,8 @@ export default {
     'cleanup-done': 'خالی کلاسیں حذف ہو گئیں',
     'select-or-type-class': 'کلاس منتخب کریں یا نیا کلاس نام درج کریں',
     'or-new-class': 'یا نیا کلاس نام (مثلاً 3-A)',
+    'add-new-class': "نیا کلاس شامل کریں",
+    'new-class-name': "نئے کلاس کا نام (مثلاً 3-A)",
     'new-class-placeholder': '3-A',
   }
 }
