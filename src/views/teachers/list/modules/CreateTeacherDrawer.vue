@@ -216,6 +216,33 @@ const classes = computed(() => {
     })
 })
 
+// Normalize a class name like the backend, to detect when a typed "new class"
+// already exists (so we attach to it instead of creating a duplicate).
+const cyrToLat: Record<string, string> = {
+  'А':'A','В':'B','Е':'E','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','У':'Y','Х':'X'
+}
+const normalizeClassName = (raw: string): string => {
+  if (!raw) return ''
+  let s = String(raw).trim().replace(/["'“”«»]/g, '')
+  s = s.replace(/[\u0400-\u04FF]/g, (ch) => cyrToLat[ch.toUpperCase()] || ch)
+  const m = s.match(/^(\d+)\s*[-_ ]?\s*([A-Za-z\u0400-\u04FF]?)/)
+  if (m) {
+    const sym = (m[2] || '').toUpperCase()
+    return sym ? `${m[1]}-${sym}` : m[1]
+  }
+  return s.replace(/\s+/g, ' ').toUpperCase()
+}
+const findExistingClass = (typed: string): any | null => {
+  const key = normalizeClassName(typed)
+  if (!key) return null
+  return (classes.value || []).find((c: any) => {
+    const name = c.name && String(c.name).trim()
+      ? c.name
+      : (Number(c.degree) > 0 ? `${c.degree}-${(c.symbol || '').trim()}` : (c.symbol || ''))
+    return normalizeClassName(name) === key
+  }) || null
+}
+
 // Reset class when school changes — but not while location is locked (schoolId
 // is set by prefill after the class may have been picked).
 watch(
@@ -246,6 +273,18 @@ watch(
 // Mutation to create teacher and upload photo
 const { isPending: isSubmitPending, mutate } = useMutation({
   mutationFn: async (payload: any) => {
+    // Resolve class: if the typed "new" name already matches an existing class,
+    // attach to it (classId) instead of creating a duplicate.
+    let tClassId = payload.isTeacher ? (newClassMode.value ? null : (payload.classId || null)) : null
+    let tClassName = payload.isTeacher ? (newClassMode.value ? (payload.className || undefined) : undefined) : undefined
+    if (payload.isTeacher && newClassMode.value && payload.className) {
+      const existing = findExistingClass(payload.className)
+      if (existing?.id) {
+        tClassId = existing.id
+        tClassName = undefined
+      }
+    }
+
     // 1. Create Teacher
     const res = await createTeacher({
       firstName: payload.firstName,
@@ -254,8 +293,8 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       password: payload.password,
       isDirectorOrAssistandDirector: false,
       schoolId: payload.schoolId,
-      classId: payload.isTeacher ? (newClassMode.value ? null : (payload.classId || null)) : null,
-      className: payload.isTeacher ? (newClassMode.value ? (payload.className || undefined) : undefined) : undefined,
+      classId: tClassId,
+      className: tClassName,
       isTeacher: payload.isTeacher ?? true
     })
 

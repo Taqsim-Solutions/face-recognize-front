@@ -224,6 +224,38 @@ const classes = computed(() => {
     })
 })
 
+// Normalize a free-form class name the same way the backend does, so "5-A",
+// "5a", "5 A", "5-а" (Cyrillic) all collapse to one key. Used to detect when a
+// typed "new class" actually already exists, so we attach to it instead of
+// trying to create a duplicate (which also avoids a backend FK error).
+const cyrToLat: Record<string, string> = {
+  'А':'A','В':'B','Е':'E','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','У':'Y','Х':'X'
+}
+const normalizeClassName = (raw: string): string => {
+  if (!raw) return ''
+  let s = String(raw).trim().replace(/["'“”«»]/g, '')
+  s = s.replace(/[\u0400-\u04FF]/g, (ch) => cyrToLat[ch.toUpperCase()] || ch)
+  const m = s.match(/^(\d+)\s*[-_ ]?\s*([A-Za-z\u0400-\u04FF]?)/)
+  if (m) {
+    const deg = m[1]
+    const sym = (m[2] || '').toUpperCase()
+    return sym ? `${deg}-${sym}` : deg
+  }
+  return s.replace(/\s+/g, ' ').toUpperCase()
+}
+
+// Find an existing class in the loaded list whose name matches the typed one.
+const findExistingClass = (typed: string): any | null => {
+  const key = normalizeClassName(typed)
+  if (!key) return null
+  return (classes.value || []).find((c: any) => {
+    const name = c.name && String(c.name).trim()
+      ? c.name
+      : (Number(c.degree) > 0 ? `${c.degree}-${(c.symbol || '').trim()}` : (c.symbol || ''))
+    return normalizeClassName(name) === key
+  }) || null
+}
+
 // Reset class when school changes — but only on a genuine user change. When the
 // location is locked (director/teacher), schoolId is set by prefill, often AFTER
 // the user has already picked a class; resetting here would silently wipe that
@@ -276,10 +308,21 @@ const { isPending: isSubmitPending, mutate } = useMutation({
 
     // 1. Create Student first
     // Send classId XOR className depending on the mode — never both, so the
-    // backend can't mis-resolve the class.
+    // backend can't mis-resolve the class. If the typed "new" name already
+    // matches an existing class, attach to that class (classId) instead of
+    // creating a duplicate.
+    let outClassId = newClassMode.value ? 0 : (payload.classId || 0)
+    let outClassName = newClassMode.value ? (payload.className || undefined) : undefined
+    if (newClassMode.value && payload.className) {
+      const existing = findExistingClass(payload.className)
+      if (existing?.id) {
+        outClassId = existing.id
+        outClassName = undefined
+      }
+    }
     const createPayload: any = {
-      classId: newClassMode.value ? 0 : (payload.classId || 0),
-      className: newClassMode.value ? (payload.className || undefined) : undefined,
+      classId: outClassId,
+      className: outClassName,
       schoolId: payload.schoolId,
       regionId: payload.regionId,
       cityId: payload.cityId,
