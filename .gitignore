@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 .qodo
 *.yml
+
+# TypeScript build cache (auto-generated)
+*.tsbuildinfo
