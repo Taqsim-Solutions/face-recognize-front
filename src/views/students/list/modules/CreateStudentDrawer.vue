@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -30,6 +30,7 @@ import {
   fetchClassesBySchool
 } from '../api'
 import { useCameraCapture } from '@/composables/useCameraCapture'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const props = defineProps<{
   open: boolean
@@ -116,6 +117,45 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
   }
 })
 
+// Scope lock: scoped users may only add within their own location. A director
+// (Level2) is locked to region/city/school; a teacher (Level1) is additionally
+// locked to their own class. Pre-fill and lock those fields (backend enforces
+// this too). Admin keeps the full picker.
+const {
+  regionId: myRegionId, cityId: myCityId, schoolId: mySchoolId, classId: myClassId,
+  isAdmin, isTeacher
+} = useCurrentUser()
+const lockLocation = computed(() => !isAdmin.value)
+const lockClass = computed(() => isTeacher.value)
+
+// "Add a new class" mode. Off by default: the user picks an existing class from
+// the list. When turned on, the class picker is cleared/disabled and a name
+// input is used instead — so classId and className can never be sent together
+// (which previously caused the student to be saved under the wrong/"0-" class).
+const newClassMode = ref(false)
+watch(newClassMode, (on) => {
+  if (on) {
+    setFieldValue('classId', undefined as any)
+  } else {
+    setFieldValue('className', '')
+  }
+})
+
+function applyScopeLock() {
+  if (lockLocation.value) {
+    if (myRegionId.value) setFieldValue('regionId', myRegionId.value)
+    if (myCityId.value) setFieldValue('cityId', myCityId.value)
+    if (mySchoolId.value) setFieldValue('schoolId', mySchoolId.value)
+  }
+  if (lockClass.value && myClassId.value) setFieldValue('classId', myClassId.value)
+}
+
+watch(
+  () => [props.open, myRegionId.value, myCityId.value, mySchoolId.value, myClassId.value],
+  () => { if (props.open) applyScopeLock() },
+  { immediate: true }
+)
+
 // 2. Cities list based on selected region
 const availableCities = computed(() => {
   if (!values.regionId) return []
@@ -123,10 +163,11 @@ const availableCities = computed(() => {
   return selectedRegion?.cities || []
 })
 
-// Reset city & school when region changes
+// Reset city & school when region changes (skip while locked to user scope).
 watch(
   () => values.regionId,
   () => {
+    if (lockLocation.value) return
     setFieldValue('cityId', undefined as any)
     setFieldValue('schoolId', undefined as any)
   }
@@ -143,10 +184,11 @@ const schools = computed(() => {
   return res?.data?.result?.data || res?.data?.data || res?.result?.data || []
 })
 
-// Reset school when city changes
+// Reset school when city changes (skip while locked to user scope).
 watch(
   () => values.cityId,
   () => {
+    if (lockLocation.value) return
     setFieldValue('schoolId', undefined as any)
   }
 )
@@ -182,21 +224,28 @@ const classes = computed(() => {
     })
 })
 
-// Reset class when school changes
+// Reset class when school changes — but only on a genuine user change. When the
+// location is locked (director/teacher), schoolId is set by prefill, often AFTER
+// the user has already picked a class; resetting here would silently wipe that
+// pick and the student ends up with no class (saved as "0-").
 watch(
   () => values.schoolId,
   () => {
+    if (lockClass.value || lockLocation.value) return
     setFieldValue('classId', undefined as any)
   }
 )
 
-// Reset form & photo when sheet opens
+// Reset form & photo when sheet opens, then re-apply the scope lock so the
+// locked fields are pre-filled (resetForm clears them first).
 watch(
   () => props.open,
   (val) => {
     if (val) {
       resetForm()
       removePhoto()
+      newClassMode.value = false
+      applyScopeLock()
     }
   }
 )
@@ -226,9 +275,11 @@ const { isPending: isSubmitPending, mutate } = useMutation({
     const dateOfBirthParent = new Date(Date.now() - 40 * 365 * 24 * 60 * 60 * 1000).toISOString()
 
     // 1. Create Student first
+    // Send classId XOR className depending on the mode — never both, so the
+    // backend can't mis-resolve the class.
     const createPayload: any = {
-      classId: payload.classId || 0,
-      className: payload.className || undefined,
+      classId: newClassMode.value ? 0 : (payload.classId || 0),
+      className: newClassMode.value ? (payload.className || undefined) : undefined,
       schoolId: payload.schoolId,
       regionId: payload.regionId,
       cityId: payload.cityId,
@@ -303,8 +354,10 @@ const { isPending: isSubmitPending, mutate } = useMutation({
 })
 
 const onSubmit = handleSubmit((formValues) => {
-  // Require either an existing class or a typed class name.
-  if (!formValues.classId && !(formValues.className && formValues.className.trim())) {
+  // Require an existing class (pick mode) or a typed name (new-class mode).
+  const hasPick = !newClassMode.value && !!formValues.classId
+  const hasName = newClassMode.value && !!(formValues.className && formValues.className.trim())
+  if (!hasPick && !hasName) {
     toast.error(t('select-or-type-class', 'Sinfni tanlang yoki yangi sinf nomini kiriting'))
     return
   }
@@ -367,6 +420,7 @@ const handleCancel = () => {
                 >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
+                    :disabled="lockLocation"
                   >
                     <SelectValue :placeholder="t('select-region')" />
                   </SelectTrigger>
@@ -403,7 +457,7 @@ const handleCancel = () => {
                 >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
-                    :disabled="!values.regionId"
+                    :disabled="lockLocation || !values.regionId"
                   >
                     <SelectValue
                       :placeholder="
@@ -444,7 +498,7 @@ const handleCancel = () => {
                 >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
-                    :disabled="!values.cityId"
+                    :disabled="lockLocation || !values.cityId"
                   >
                     <SelectValue
                       :placeholder="
@@ -467,30 +521,42 @@ const handleCancel = () => {
             </FormItem>
           </FormField>
 
-          <!-- Class Dropdown -->
+          <!-- Class: pick from list, or toggle "new class" to type a name -->
           <FormField v-slot="{ componentField }" name="classId">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('sinf', 'Sinf') }}</FormLabel>
+              <div class="flex items-center justify-between">
+                <FormLabel class="text-sm font-semibold text-gray-700">{{ t('sinf', 'Sinf') }}</FormLabel>
+                <label v-if="!lockClass" class="flex items-center gap-2 text-xs font-medium text-gray-600 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    v-model="newClassMode"
+                    :disabled="!values.schoolId"
+                    class="h-4 w-4 rounded border-gray-300 text-[#ff792d] focus:ring-[#ff792d] cursor-pointer"
+                  />
+                  {{ t('add-new-class', 'Yangi sinf qo\'shish') }}
+                </label>
+              </div>
               <FormControl>
                 <ClassSearchSelect
+                  v-if="!newClassMode"
                   :model-value="componentField.modelValue ? String(componentField.modelValue) : 'all'"
-                  @update:model-value="(val) => { componentField['onUpdate:modelValue']?.(val === 'all' ? undefined : Number(val)); if (val !== 'all') setFieldValue('className', '') }"
+                  @update:model-value="(val) => { componentField['onUpdate:modelValue']?.(val === 'all' ? undefined : Number(val)) }"
                   :classes="classes || []"
-                  :disabled="!values.schoolId"
+                  :disabled="lockClass || !values.schoolId"
                   :allow-all="false"
                   width-class="w-full"
                   :placeholder="!values.schoolId ? t('select-school-first', 'Avval maktabni tanlang') : t('select-class', 'Sinfni tanlang')"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage v-if="!newClassMode" />
             </FormItem>
           </FormField>
 
-          <!-- Or create a new class by typing its name -->
-          <FormField v-slot="{ componentField }" name="className">
+          <!-- New class name input (only when newClassMode is on) -->
+          <FormField v-if="newClassMode && !lockClass" v-slot="{ componentField }" name="className">
             <FormItem>
               <FormLabel class="text-xs font-medium text-gray-500">
-                {{ t('or-new-class', "yoki yangi sinf nomi (masalan 3-A, Yulduzcha)") }}
+                {{ t('new-class-name', "Yangi sinf nomi (masalan 3-A, Yulduzcha)") }}
               </FormLabel>
               <FormControl>
                 <Input
@@ -498,9 +564,9 @@ const handleCancel = () => {
                   :placeholder="t('new-class-placeholder', '3-A')"
                   :disabled="!values.schoolId"
                   class="h-11 border border-gray-300 rounded-lg bg-white"
-                  @input="setFieldValue('classId', undefined as any)"
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           </FormField>
 

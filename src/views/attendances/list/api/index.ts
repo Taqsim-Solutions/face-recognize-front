@@ -42,3 +42,16 @@ export const fetchClassStudentAttendances = async (date: string, classId: number
     `/api/Attendances/date/${date}/class/${classId}`
   )
 }
+
+// All raw camera scans for one student / teacher on a given day (for the popup).
+export const fetchStudentScans = async (studentId: number, date: string) => {
+  return await api.get<{ code: number; message: string; result: any[] }>(
+    `/api/Attendances/students/${studentId}/scans/${date}`
+  )
+}
+
+export const fetchTeacherScans = async (teacherId: number, date: string) => {
+  return await api.get<{ code: number; message: string; result: any[] }>(
+    `/api/Attendances/teachers/${teacherId}/scans/${date}`
+  )
+}

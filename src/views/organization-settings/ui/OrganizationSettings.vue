@@ -547,9 +547,10 @@ const getSchoolName = (cam: any) => {
 
 // Precise Heartbeat formatting separating date and time values
 const getHeartbeatDate = (cam: any) => {
-  // Prefer the real polling "last check" time, then last push, then row times.
-  const timeVal = cam.lastCheckAt || cam.lastSyncAt || cam.updatedAt || cam.createdAt
-  const dateObj = timeVal ? new Date(timeVal) : new Date('2026-05-23T12:23:23')
+  // "So'nggi tekshiruv" now reflects the last real event the camera pushed
+  // (camera -> server callback), which is what produces attendance.
+  if (!cam.lastEventAt) return '—'
+  const dateObj = new Date(cam.lastEventAt)
   const day = dateObj.getDate()
   const months = [
     'Jan',
@@ -571,8 +572,8 @@ const getHeartbeatDate = (cam: any) => {
 }
 
 const getHeartbeatTimeOnly = (cam: any) => {
-  const timeVal = cam.lastCheckAt || cam.lastSyncAt || cam.updatedAt || cam.createdAt
-  const dateObj = timeVal ? new Date(timeVal) : new Date('2026-05-23T12:23:23')
+  if (!cam.lastEventAt) return ''
+  const dateObj = new Date(cam.lastEventAt)
   const pad = (n: number) => n.toString().padStart(2, '0')
   return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`
 }

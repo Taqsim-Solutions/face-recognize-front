@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -30,6 +30,7 @@ import {
   fetchClassesBySchool
 } from '../api'
 import { useCameraCapture } from '@/composables/useCameraCapture'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const props = defineProps<{
   open: boolean
@@ -116,6 +117,37 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
   }
 })
 
+// Scope lock: a director (or any scoped user) may only add within their own
+// region/city/school. Pre-fill those fields and lock them so they can't be
+// changed (the backend enforces this too, but the UI shouldn't even offer it).
+const { regionId: myRegionId, cityId: myCityId, schoolId: mySchoolId, isAdmin } = useCurrentUser()
+const lockLocation = computed(() => !isAdmin.value)
+
+// "Add a new class" mode for a class teacher. Off by default (pick from list);
+// when on, the picker is cleared/disabled and a name input is used instead, so
+// classId and className are never sent together.
+const newClassMode = ref(false)
+watch(newClassMode, (on) => {
+  if (on) setFieldValue('classId', undefined as any)
+  else setFieldValue('className', '')
+})
+// Leaving "class teacher" turns off new-class mode.
+watch(() => values.isTeacher, (isT) => { if (isT === false) newClassMode.value = false })
+
+function applyScopeLock() {
+  if (!lockLocation.value) return
+  if (myRegionId.value) setFieldValue('regionId', myRegionId.value)
+  if (myCityId.value) setFieldValue('cityId', myCityId.value)
+  if (mySchoolId.value) setFieldValue('schoolId', mySchoolId.value)
+}
+
+// Apply on open and whenever the resolved user scope arrives.
+watch(
+  () => [props.open, myRegionId.value, myCityId.value, mySchoolId.value],
+  () => { if (props.open) applyScopeLock() },
+  { immediate: true }
+)
+
 // 2. Cities list based on selected region
 const availableCities = computed(() => {
   if (!values.regionId) return []
@@ -123,10 +155,11 @@ const availableCities = computed(() => {
   return selectedRegion?.cities || []
 })
 
-// Reset city & school when region changes
+// Reset city & school when region changes (but not while locked to user scope).
 watch(
   () => values.regionId,
   () => {
+    if (lockLocation.value) return
     setFieldValue('cityId', undefined as any)
     setFieldValue('schoolId', undefined as any)
   }
@@ -143,10 +176,11 @@ const schools = computed(() => {
   return res?.data?.result?.data || res?.data?.data || res?.result?.data || []
 })
 
-// Reset school when city changes
+// Reset school when city changes (but not while locked to user scope).
 watch(
   () => values.cityId,
   () => {
+    if (lockLocation.value) return
     setFieldValue('schoolId', undefined as any)
   }
 )
@@ -182,21 +216,27 @@ const classes = computed(() => {
     })
 })
 
-// Reset class when school changes
+// Reset class when school changes — but not while location is locked (schoolId
+// is set by prefill after the class may have been picked).
 watch(
   () => values.schoolId,
   () => {
+    if (lockLocation.value) return
     setFieldValue('classId', undefined as any)
+    setFieldValue('className', '')
   }
 )
 
-// Reset form & photo when sheet opens
+// Reset form & photo when sheet opens, then re-apply the scope lock so the
+// locked fields are pre-filled (resetForm clears them first).
 watch(
   () => props.open,
   (val) => {
     if (val) {
       resetForm()
       removePhoto()
+      newClassMode.value = false
+      applyScopeLock()
     }
   }
 )
@@ -214,8 +254,8 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       password: payload.password,
       isDirectorOrAssistandDirector: false,
       schoolId: payload.schoolId,
-      classId: payload.isTeacher ? (payload.classId || null) : null,
-      className: payload.isTeacher ? (payload.className || undefined) : undefined,
+      classId: payload.isTeacher ? (newClassMode.value ? null : (payload.classId || null)) : null,
+      className: payload.isTeacher ? (newClassMode.value ? (payload.className || undefined) : undefined) : undefined,
       isTeacher: payload.isTeacher ?? true
     })
 
@@ -264,12 +304,15 @@ const { isPending: isSubmitPending, mutate } = useMutation({
 })
 
 const onSubmit = handleSubmit((formValues) => {
-  // A class teacher must have either an existing class or a typed class name.
-  if (formValues.isTeacher !== false
-    && !formValues.classId
-    && !(formValues.className && formValues.className.trim())) {
-    toast.error(t('select-or-type-class', 'Sinfni tanlang yoki yangi sinf nomini kiriting'))
-    return
+  // A class teacher must pick an existing class (pick mode) or type a name
+  // (new-class mode).
+  if (formValues.isTeacher !== false) {
+    const hasPick = !newClassMode.value && !!formValues.classId
+    const hasName = newClassMode.value && !!(formValues.className && formValues.className.trim())
+    if (!hasPick && !hasName) {
+      toast.error(t('select-or-type-class', 'Sinfni tanlang yoki yangi sinf nomini kiriting'))
+      return
+    }
   }
   mutate(formValues)
 })
@@ -330,6 +373,7 @@ const handleCancel = () => {
                 >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
+                    :disabled="lockLocation"
                   >
                     <SelectValue :placeholder="t('select-region')" />
                   </SelectTrigger>
@@ -366,7 +410,7 @@ const handleCancel = () => {
                 >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
-                    :disabled="!values.regionId"
+                    :disabled="lockLocation || !values.regionId"
                   >
                     <SelectValue
                       :placeholder="
@@ -407,7 +451,7 @@ const handleCancel = () => {
                 >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
-                    :disabled="!values.cityId || isSchoolsLoading"
+                    :disabled="lockLocation || !values.cityId || isSchoolsLoading"
                   >
                     <SelectValue
                       :placeholder="
@@ -462,11 +506,23 @@ const handleCancel = () => {
           <!-- Class Dropdown — only for teachers -->
           <FormField v-if="values.isTeacher !== false" v-slot="{ componentField }" name="classId">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('sinf') }}</FormLabel>
+              <div class="flex items-center justify-between">
+                <FormLabel class="text-sm font-semibold text-gray-700">{{ t('sinf') }}</FormLabel>
+                <label class="flex items-center gap-2 text-xs font-medium text-gray-600 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    v-model="newClassMode"
+                    :disabled="!values.schoolId"
+                    class="h-4 w-4 rounded border-gray-300 text-[#ff792d] focus:ring-[#ff792d] cursor-pointer"
+                  />
+                  {{ t('add-new-class', 'Yangi sinf qo\'shish') }}
+                </label>
+              </div>
               <FormControl>
                 <ClassSearchSelect
+                  v-if="!newClassMode"
                   :model-value="componentField.modelValue ? String(componentField.modelValue) : 'all'"
-                  @update:model-value="(val) => { componentField['onUpdate:modelValue']?.(val === 'all' ? undefined : Number(val)); if (val !== 'all') setFieldValue('className', '') }"
+                  @update:model-value="(val) => { componentField['onUpdate:modelValue']?.(val === 'all' ? undefined : Number(val)) }"
                   :classes="classes || []"
                   :disabled="!values.schoolId"
                   :loading="isClassesLoading"
@@ -475,15 +531,15 @@ const handleCancel = () => {
                   :placeholder="!values.schoolId ? t('select-school-first', 'Avval maktabni tanlang') : t('select-class', 'Sinfni tanlang')"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage v-if="!newClassMode" />
             </FormItem>
           </FormField>
 
-          <!-- Or create a new class by typing its name (class teachers only) -->
-          <FormField v-if="values.isTeacher !== false" v-slot="{ componentField }" name="className">
+          <!-- New class name input (only when newClassMode is on) -->
+          <FormField v-if="values.isTeacher !== false && newClassMode" v-slot="{ componentField }" name="className">
             <FormItem>
               <FormLabel class="text-xs font-medium text-gray-500">
-                {{ t('or-new-class', 'yoki yangi sinf nomi (masalan 3-A, Yulduzcha)') }}
+                {{ t('new-class-name', 'Yangi sinf nomi (masalan 3-A, Yulduzcha)') }}
               </FormLabel>
               <FormControl>
                 <Input
@@ -491,9 +547,9 @@ const handleCancel = () => {
                   :placeholder="t('new-class-placeholder', '3-A')"
                   :disabled="!values.schoolId"
                   class="h-11 border border-gray-300 rounded-lg bg-white"
-                  @input="setFieldValue('classId', undefined as any)"
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           </FormField>
 

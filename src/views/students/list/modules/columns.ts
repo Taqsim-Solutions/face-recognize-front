@@ -243,8 +243,10 @@ export const createColumns = (callbacks: {
     },
     cell: ({ row }) => {
       const student = row.original
-      const regionName = student.region?.name
-      const cityName = student.city?.name
+      // Backend returns flat regionName/cityName (StudentResultDto); fall back
+      // to nested region/city if a future payload uses that shape.
+      const regionName = student.regionName || student.region?.name
+      const cityName = student.cityName || student.city?.name
       if (!regionName && !cityName) {
         return h(
           'span',
