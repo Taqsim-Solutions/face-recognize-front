@@ -374,7 +374,39 @@ const attendanceRows = computed(() => {
   return Array.from(map.values())
 })
 
-// Cascading Filter Options Fetch
+// One row per DAY (classes merged): the list no longer shows a row per class.
+// studentsCount / absentStudentsCount are summed across the day's classes.
+const dayRows = computed(() => {
+  const map = new Map<string, any>()
+  for (const row of filteredAttendanceRows.value) {
+    const key = String(row.date)
+    const existing = map.get(key)
+    if (existing) {
+      existing.studentsCount += row.studentsCount || 0
+      existing.absentStudentsCount += row.absentStudentsCount || 0
+      existing.classes.push(row)
+    } else {
+      map.set(key, {
+        date: row.date,
+        regionName: row.regionName,
+        cityName: row.cityName,
+        schoolName: row.schoolName,
+        isStudyDay: row.isStudyDay,
+        studentsCount: row.studentsCount || 0,
+        absentStudentsCount: row.absentStudentsCount || 0,
+        classes: [row] // each is a per-class row (has classIds, degree, symbol)
+      })
+    }
+  }
+  return Array.from(map.values())
+})
+
+// The day the user clicked: its classes become filter badges above the table.
+const selectedDay = ref<any | null>(null)
+const selectDay = (day: any) => {
+  // Toggle off if the same day is clicked again.
+  selectedDay.value = selectedDay.value?.date === day.date ? null : day
+}
 const { data: regionsRes } = useQuery({
   queryKey: ['regions-attendances'],
   queryFn: fetchRegions,
@@ -457,8 +489,18 @@ const studentRows = computed(() => {
   return raw?.data?.result || raw?.result || []
 })
 
+// Popup pagination — only kicks in when a class has many students.
+const modalPage = ref(1)
+const modalPageSize = 15
+const modalTotalPages = computed(() => Math.ceil(studentRows.value.length / modalPageSize) || 1)
+const paginatedStudentRows = computed(() => {
+  const start = (modalPage.value - 1) * modalPageSize
+  return studentRows.value.slice(start, start + modalPageSize)
+})
+
 const openStudentModal = (row: any) => {
   selectedClassRow.value = row
+  modalPage.value = 1
   isStudentModalOpen.value = true
 }
 
@@ -571,7 +613,7 @@ const displayError = computed(() =>
 watch(mode, () => { currentPage.value = 1 })
 
 const activeRows = computed(() =>
-  mode.value === 'teachers' ? teacherRows.value : filteredAttendanceRows.value
+  mode.value === 'teachers' ? teacherRows.value : dayRows.value
 )
 
 const paginatedAttendanceRows = computed(() => {
@@ -822,6 +864,36 @@ const getPageNumbers = () => {
       </button>
     </div>
 
+    <!-- Class badges for the selected day (students mode) -->
+    <div
+      v-if="mode === 'students' && selectedDay"
+      class="mt-2 w-full px-4 sm:px-6"
+    >
+      <div class="flex flex-wrap items-center gap-2 p-3 bg-orange-50/60 border border-orange-100 rounded-lg">
+        <span class="text-xs font-semibold text-gray-500 mr-1">
+          {{ formatRowDate(selectedDay.date) }} — {{ t('select-class', 'Sinfni tanlang') }}:
+        </span>
+        <button
+          v-for="(cls, ci) in selectedDay.classes"
+          :key="'badge' + ci"
+          type="button"
+          @click="openStudentModal(cls)"
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white border border-gray-200 text-gray-700 hover:border-[#ff792d] hover:text-[#ff792d] transition-colors cursor-pointer"
+        >
+          {{ cls.name && String(cls.name).trim() ? cls.name : (cls.degree + '-' + cls.symbol) }}
+          <span class="text-green-600">{{ (cls.studentsCount || 0) - (cls.absentStudentsCount || 0) }}</span>
+          <span v-if="cls.absentStudentsCount > 0" class="text-red-500">/ {{ cls.absentStudentsCount }}</span>
+        </button>
+        <button
+          type="button"
+          @click="selectedDay = null"
+          class="ml-auto text-gray-400 hover:text-gray-600 text-xs font-medium"
+        >
+          {{ t('close', 'Yopish') }} ✕
+        </button>
+      </div>
+    </div>
+
     <!-- Table Section with Standard Style -->
     <div class="mt-1 w-full px-4 sm:px-6">
       <div
@@ -842,9 +914,6 @@ const getPageNumbers = () => {
               </TableHead>
               <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
                 {{ t('school-col', 'Maktab') }}
-              </TableHead>
-              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
-                {{ t('dashboard.absents.class', 'Sinf') }}
               </TableHead>
               <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
                 {{ t('students-present', 'Kelgan') }}
@@ -975,8 +1044,8 @@ const getPageNumbers = () => {
                 v-for="(row, idx) in paginatedAttendanceRows"
                 :key="'s' + idx"
                 class="hover:bg-orange-50/60 transition-colors cursor-pointer"
-                :class="{ 'opacity-50': !row.isStudyDay }"
-                @click="openStudentModal(row)"
+                :class="{ 'opacity-50': !row.isStudyDay, 'bg-orange-50': selectedDay?.date === row.date }"
+                @click="selectDay(row)"
               >
                 <!-- Date -->
                 <TableCell class="border p-3 pl-4 border-l-0 text-gray-700 text-sm font-medium">
@@ -996,11 +1065,6 @@ const getPageNumbers = () => {
                 <!-- School -->
                 <TableCell class="border p-3 text-gray-700 text-sm">
                   {{ row.schoolName || '—' }}
-                </TableCell>
-
-                <!-- Class -->
-                <TableCell class="border p-3 text-gray-800 font-semibold text-sm">
-                  {{ row.degree }}-{{ row.symbol }}
                 </TableCell>
 
                 <!-- Present -->
@@ -1186,7 +1250,7 @@ const getPageNumbers = () => {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50">
-            <tr v-for="(s, i) in studentRows" :key="i" class="hover:bg-gray-50">
+            <tr v-for="(s, i) in paginatedStudentRows" :key="i" class="hover:bg-gray-50">
               <td class="px-4 py-2.5">
                 <div class="flex items-center gap-2.5">
                   <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-100 shrink-0">
@@ -1227,10 +1291,33 @@ const getPageNumbers = () => {
           </tbody>
         </table>
       </div>
+
+      <!-- Popup pagination (only when more than one page) -->
+      <div
+        v-if="!studentLoading && modalTotalPages > 1"
+        class="flex items-center justify-between px-5 py-3 border-t border-gray-100 text-sm"
+      >
+        <span class="text-gray-400 text-xs">
+          {{ studentRows.length }} {{ t('students', "o'quvchi") }}
+        </span>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            :disabled="modalPage <= 1"
+            @click="modalPage--"
+            class="px-2.5 py-1 rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >‹</button>
+          <span class="text-gray-600 font-medium">{{ modalPage }} / {{ modalTotalPages }}</span>
+          <button
+            type="button"
+            :disabled="modalPage >= modalTotalPages"
+            @click="modalPage++"
+            class="px-2.5 py-1 rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >›</button>
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- All scans popup (raw comings/goings for one person on a day) -->
   <div
     v-if="isScansOpen"
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
