@@ -30,6 +30,7 @@ import {
   fetchClassesBySchool
 } from '../api'
 import { useCameraCapture } from '@/composables/useCameraCapture'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 const props = defineProps<{
   open: boolean
@@ -116,6 +117,32 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
   }
 })
 
+// Scope lock: scoped users may only add within their own location. A director
+// (Level2) is locked to region/city/school; a teacher (Level1) is additionally
+// locked to their own class. Pre-fill and lock those fields (backend enforces
+// this too). Admin keeps the full picker.
+const {
+  regionId: myRegionId, cityId: myCityId, schoolId: mySchoolId, classId: myClassId,
+  isAdmin, isTeacher
+} = useCurrentUser()
+const lockLocation = computed(() => !isAdmin.value)
+const lockClass = computed(() => isTeacher.value)
+
+function applyScopeLock() {
+  if (lockLocation.value) {
+    if (myRegionId.value) setFieldValue('regionId', myRegionId.value)
+    if (myCityId.value) setFieldValue('cityId', myCityId.value)
+    if (mySchoolId.value) setFieldValue('schoolId', mySchoolId.value)
+  }
+  if (lockClass.value && myClassId.value) setFieldValue('classId', myClassId.value)
+}
+
+watch(
+  () => [props.open, myRegionId.value, myCityId.value, mySchoolId.value, myClassId.value],
+  () => { if (props.open) applyScopeLock() },
+  { immediate: true }
+)
+
 // 2. Cities list based on selected region
 const availableCities = computed(() => {
   if (!values.regionId) return []
@@ -123,10 +150,11 @@ const availableCities = computed(() => {
   return selectedRegion?.cities || []
 })
 
-// Reset city & school when region changes
+// Reset city & school when region changes (skip while locked to user scope).
 watch(
   () => values.regionId,
   () => {
+    if (lockLocation.value) return
     setFieldValue('cityId', undefined as any)
     setFieldValue('schoolId', undefined as any)
   }
@@ -143,10 +171,11 @@ const schools = computed(() => {
   return res?.data?.result?.data || res?.data?.data || res?.result?.data || []
 })
 
-// Reset school when city changes
+// Reset school when city changes (skip while locked to user scope).
 watch(
   () => values.cityId,
   () => {
+    if (lockLocation.value) return
     setFieldValue('schoolId', undefined as any)
   }
 )
@@ -182,21 +211,24 @@ const classes = computed(() => {
     })
 })
 
-// Reset class when school changes
+// Reset class when school changes (skip while locked to the teacher's class).
 watch(
   () => values.schoolId,
   () => {
+    if (lockClass.value) return
     setFieldValue('classId', undefined as any)
   }
 )
 
-// Reset form & photo when sheet opens
+// Reset form & photo when sheet opens, then re-apply the scope lock so the
+// locked fields are pre-filled (resetForm clears them first).
 watch(
   () => props.open,
   (val) => {
     if (val) {
       resetForm()
       removePhoto()
+      applyScopeLock()
     }
   }
 )
@@ -367,6 +399,7 @@ const handleCancel = () => {
                 >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
+                    :disabled="lockLocation"
                   >
                     <SelectValue :placeholder="t('select-region')" />
                   </SelectTrigger>
@@ -403,7 +436,7 @@ const handleCancel = () => {
                 >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
-                    :disabled="!values.regionId"
+                    :disabled="lockLocation || !values.regionId"
                   >
                     <SelectValue
                       :placeholder="
@@ -444,7 +477,7 @@ const handleCancel = () => {
                 >
                   <SelectTrigger
                     class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
-                    :disabled="!values.cityId"
+                    :disabled="lockLocation || !values.cityId"
                   >
                     <SelectValue
                       :placeholder="
@@ -476,7 +509,7 @@ const handleCancel = () => {
                   :model-value="componentField.modelValue ? String(componentField.modelValue) : 'all'"
                   @update:model-value="(val) => { componentField['onUpdate:modelValue']?.(val === 'all' ? undefined : Number(val)); if (val !== 'all') setFieldValue('className', '') }"
                   :classes="classes || []"
-                  :disabled="!values.schoolId"
+                  :disabled="lockClass || !values.schoolId"
                   :allow-all="false"
                   width-class="w-full"
                   :placeholder="!values.schoolId ? t('select-school-first', 'Avval maktabni tanlang') : t('select-class', 'Sinfni tanlang')"
@@ -486,8 +519,8 @@ const handleCancel = () => {
             </FormItem>
           </FormField>
 
-          <!-- Or create a new class by typing its name -->
-          <FormField v-slot="{ componentField }" name="className">
+          <!-- Or create a new class by typing its name (not for teachers) -->
+          <FormField v-if="!lockClass" v-slot="{ componentField }" name="className">
             <FormItem>
               <FormLabel class="text-xs font-medium text-gray-500">
                 {{ t('or-new-class', "yoki yangi sinf nomi (masalan 3-A, Yulduzcha)") }}
