@@ -80,21 +80,18 @@ const formSchema = toTypedSchema(
       .string({ required_error: 'validation.required-field' })
       .min(1, { message: 'validation.required-field' }),
     login: z
-      .string({ required_error: 'validation.required-field' })
-      .min(1, { message: 'validation.required-field' })
-      .refine((v) => isValidPhone(v), { message: 'validation.phone-number-should-be-valid' }),
+      .string()
+      .optional()
+      .nullable()
+      .refine((v) => !v || isValidPhone(v), { message: 'validation.phone-number-should-be-valid' }),
     password: z
-      .string({ required_error: 'validation.required-field' })
-      .min(8, { message: 'validation.password-min' })
-      .refine((value) => /[A-Z]/.test(value), {
-        message: 'validation.password-must-contain-one-uppercase'
-      })
-      .refine((value) => /[a-z]/.test(value), {
-        message: 'validation.password-must-contain-one-lowercase'
-      })
-      .refine((value) => /\d/.test(value), {
-        message: 'validation.password-must-contain-number'
-      }),
+      .string()
+      .optional()
+      .nullable()
+      .refine((v) => !v || v.length >= 8, { message: 'validation.password-min' })
+      .refine((v) => !v || /[A-Z]/.test(v), { message: 'validation.password-must-contain-one-uppercase' })
+      .refine((v) => !v || /[a-z]/.test(v), { message: 'validation.password-must-contain-one-lowercase' })
+      .refine((v) => !v || /\d/.test(v), { message: 'validation.password-must-contain-number' }),
     regionId: z.number({ required_error: 'validation.required-field' }),
     cityId: z.number({ required_error: 'validation.required-field' }),
     schoolId: z.number({ required_error: 'validation.required-field' }),
@@ -130,6 +127,15 @@ const lockLocation = computed(() => !isAdmin.value)
 // when on, the picker is cleared/disabled and a name input is used instead, so
 // classId and className are never sent together.
 const newClassMode = ref(false)
+// Optional login account: off by default. When on, login + password fields are
+// shown and required; otherwise the teacher is saved as a face-only profile.
+const createLoginUser = ref(false)
+watch(createLoginUser, (on) => {
+  if (!on) {
+    setFieldValue('login', '')
+    setFieldValue('password', '')
+  }
+})
 watch(newClassMode, (on) => {
   if (on) setFieldValue('classId', undefined as any)
   else setFieldValue('className', '')
@@ -266,6 +272,7 @@ watch(
       resetForm()
       removePhoto()
       newClassMode.value = false
+      createLoginUser.value = false
       applyScopeLock()
     }
   }
@@ -288,12 +295,14 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       }
     }
 
-    // 1. Create Teacher
+    // 1. Create Teacher. Login/password only when an account was requested;
+    // otherwise send empty so the backend stores a face-only profile.
+    const wantLogin = !!payload.createLoginUser
     const res = await createTeacher({
       firstName: payload.firstName,
       lastName: payload.lastName,
-      login: toE164(payload.login),
-      password: payload.password,
+      login: wantLogin ? toE164(payload.login) : '',
+      password: wantLogin ? payload.password : '',
       isDirectorOrAssistandDirector: false,
       schoolId: payload.schoolId,
       classId: tClassId,
@@ -356,7 +365,18 @@ const onSubmit = handleSubmit((formValues) => {
       return
     }
   }
-  mutate(formValues)
+  // When a login account is requested, login + password are required.
+  if (createLoginUser.value) {
+    if (!formValues.login || !isValidPhone(formValues.login)) {
+      toast.error(t('validation.phone-number-should-be-valid', "Telefon raqami haqiqiy bo'lishi kerak"))
+      return
+    }
+    if (!formValues.password || formValues.password.length < 8) {
+      toast.error(t('validation.password-min', "Parol kamida 8 ta belgidan iborat bo'lishi kerak"))
+      return
+    }
+  }
+  mutate({ ...formValues, createLoginUser: createLoginUser.value })
 })
 
 const handleCancel = () => {
@@ -743,10 +763,23 @@ const handleCancel = () => {
             </FormItem>
           </FormField>
 
-          <!-- Login (phone number) -->
-          <FormField v-slot="{ componentField }" name="login">
+          <!-- Optional login account toggle -->
+          <div class="flex items-center gap-2 pt-1">
+            <input
+              id="createLoginUser"
+              type="checkbox"
+              v-model="createLoginUser"
+              class="w-4 h-4 rounded border-gray-300 text-[#ff792d] focus:ring-[#ff792d] cursor-pointer"
+            />
+            <label for="createLoginUser" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
+              {{ t('create-login-account', 'Login yaratish (tizimga kira oladigan foydalanuvchi)') }}
+            </label>
+          </div>
+
+          <!-- Login (phone number) — only when a login account is requested -->
+          <FormField v-if="createLoginUser" v-slot="{ componentField }" name="login">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('phone-login', 'Telefon raqam (login)') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('phone-login', 'Telefon raqam (login)') }} <span class="text-red-500">*</span></FormLabel>
               <FormControl>
                 <PhoneInput
                   :model-value="componentField.modelValue"
@@ -758,10 +791,10 @@ const handleCancel = () => {
             </FormItem>
           </FormField>
 
-          <!-- Password -->
-          <FormField v-slot="{ componentField }" name="password">
+          <!-- Password — only when a login account is requested -->
+          <FormField v-if="createLoginUser" v-slot="{ componentField }" name="password">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('password') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('password') }} <span class="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   type="password"
