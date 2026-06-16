@@ -17,6 +17,8 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import PhoneInput from '@/components/PhoneInput.vue'
+import { isValidPhone, toE164 } from '@/composables/usePhoneInput'
 import {
   FormControl,
   FormField,
@@ -73,7 +75,7 @@ const formSchema = toTypedSchema(
     level: z.number({ required_error: 'validation.required-field' }),
     regionId: z.number({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }),
     cityId: z.number().nullable().optional(),
-    login: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' })
+    login: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }).refine((v) => isValidPhone(v), { message: 'validation.phone-number-should-be-valid' })
   }).refine((data) => {
     if (data.level === 3) {
       return typeof data.cityId === 'number' && data.cityId > 0
@@ -182,7 +184,7 @@ const onSubmit = handleSubmit((formValues) => {
     id: props.employee.id,
     firstName: formValues.firstName,
     lastName: formValues.lastName,
-    login: formValues.login,
+    login: toE164(formValues.login),
     email: formValues.email,
     level: formValues.level,
     regionId: formValues.regionId,
@@ -329,8 +331,7 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('login') }}</FormLabel>
               <FormControl>
-                <Input type="text" v-bind="componentField" :placeholder="t('login_placeholder')"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white" />
+                <PhoneInput :model-value="componentField.modelValue" @update:model-value="componentField['onUpdate:modelValue']" :placeholder="t('login_placeholder')" />
               </FormControl>
               <FormMessage />
             </FormItem>

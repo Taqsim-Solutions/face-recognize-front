@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import PhoneInput from '@/components/PhoneInput.vue'
+import { isValidPhone, toE164 } from '@/composables/usePhoneInput'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
   Select,
@@ -213,8 +215,12 @@ const createDirectorMutation = useMutation({
 
 const submitNewDirector = () => {
   if (!newUserLogin.value || !newUserPassword.value || !newUserFirstName.value) return
+  if (!isValidPhone(newUserLogin.value)) {
+    toast.error(t('validation.phone-number-should-be-valid', "Telefon raqami haqiqiy bo'lishi kerak"))
+    return
+  }
   createDirectorMutation.mutate({
-    login: newUserLogin.value,
+    login: toE164(newUserLogin.value),
     password: newUserPassword.value,
     firstName: newUserFirstName.value,
     lastName: newUserLastName.value,
@@ -514,11 +520,9 @@ const submitNewDirector = () => {
         <!-- Login -->
         <div class="space-y-1.5">
           <label class="text-sm font-semibold text-gray-700">{{ t('login') }}</label>
-          <input
+          <PhoneInput
             v-model="newUserLogin"
-            type="text"
             :placeholder="t('login_placeholder', 'Login kiriting')"
-            class="w-full h-11 rounded-lg border border-gray-300 px-3 text-sm outline-none focus:border-[#ff792d] bg-white"
           />
         </div>
 

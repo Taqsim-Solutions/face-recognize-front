@@ -12,6 +12,8 @@ import { UploadCloud, X, Camera } from 'lucide-vue-next'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import PhoneInput from '@/components/PhoneInput.vue'
+import { isValidPhone, toE164 } from '@/composables/usePhoneInput'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
   Select,
@@ -85,10 +87,15 @@ const formSchema = toTypedSchema(
       .min(1, { message: 'validation.required-field' }),
     phoneNumber: z
       .string({ required_error: 'validation.required-field' })
-      .min(9, { message: 'validation.required-field' }),
+      .min(1, { message: 'validation.required-field' })
+      .refine((v) => isValidPhone(v), { message: 'validation.phone-number-should-be-valid' }),
     fatherFullName: z.string().optional().nullable(),
     motherFullName: z.string().optional().nullable(),
-    additionalPhoneNumber: z.string().optional().nullable()
+    additionalPhoneNumber: z
+      .string()
+      .optional()
+      .nullable()
+      .refine((v) => !v || isValidPhone(v), { message: 'validation.phone-number-should-be-valid' })
   })
 )
 
@@ -267,20 +274,23 @@ const { isPending: isSubmitPending, mutate } = useMutation({
     const dateOfBirthStudent = props.student.dateOfBirth || new Date(Date.now() - 12 * 365 * 24 * 60 * 60 * 1000).toISOString()
     const dateOfBirthParent = new Date(Date.now() - 40 * 365 * 24 * 60 * 60 * 1000).toISOString()
 
+    const mainPhone = toE164(payload.phoneNumber)
+    const addPhone = payload.additionalPhoneNumber ? toE164(payload.additionalPhoneNumber) : ''
+
     const updatePayload: any = {
       classId: payload.classId,
       firstName: payload.firstName,
       lastName: payload.lastName,
       fatherName: payload.fatherName,
       dateOfBirth: dateOfBirthStudent,
-      phoneNumber: payload.phoneNumber,
+      phoneNumber: mainPhone,
       gender: props.student.gender || 0,
       father: {
         firstName: fatherParsed.firstName,
         lastName: fatherParsed.lastName,
         fatherName: fatherParsed.fatherName,
         dateOfBirth: dateOfBirthParent,
-        phoneNumber: payload.phoneNumber,
+        phoneNumber: mainPhone,
         passport: "",
         workplace: ""
       },
@@ -289,7 +299,7 @@ const { isPending: isSubmitPending, mutate } = useMutation({
         lastName: motherParsed.lastName,
         fatherName: motherParsed.fatherName,
         dateOfBirth: dateOfBirthParent,
-        phoneNumber: payload.additionalPhoneNumber || payload.phoneNumber,
+        phoneNumber: addPhone || mainPhone,
         passport: "",
         workplace: ""
       }
@@ -653,11 +663,10 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('parent_phone', 'Ota yoki Ona telefon raqami') }}</FormLabel>
               <FormControl>
-                <Input
-                  type="text"
-                  v-bind="componentField"
-                  placeholder="+998"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
+                <PhoneInput
+                  :model-value="componentField.modelValue"
+                  @update:model-value="componentField['onUpdate:modelValue']"
+                  placeholder="+998 90 123 45 67"
                 />
               </FormControl>
               <FormMessage />
@@ -701,11 +710,10 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('additional_phone', 'Qo\'shimcha telefon raqam') }}</FormLabel>
               <FormControl>
-                <Input
-                  type="text"
-                  v-bind="componentField"
-                  placeholder="+998"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
+                <PhoneInput
+                  :model-value="componentField.modelValue"
+                  @update:model-value="componentField['onUpdate:modelValue']"
+                  placeholder="+998 90 123 45 67"
                 />
               </FormControl>
               <FormMessage />

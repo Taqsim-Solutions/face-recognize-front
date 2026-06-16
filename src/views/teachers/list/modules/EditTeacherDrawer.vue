@@ -12,6 +12,8 @@ import { X } from 'lucide-vue-next'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import PhoneInput from '@/components/PhoneInput.vue'
+import { isValidPhone, toE164 } from '@/composables/usePhoneInput'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import {
   Select,
@@ -75,7 +77,8 @@ const formSchema = toTypedSchema(
       .min(1, { message: 'validation.required-field' }),
     login: z
       .string({ required_error: 'validation.required-field' })
-      .min(7, { message: 'validation.required-field' }),
+      .min(1, { message: 'validation.required-field' })
+      .refine((v) => isValidPhone(v), { message: 'validation.phone-number-should-be-valid' }),
     regionId: z.number({ required_error: 'validation.required-field' }),
     cityId: z.number({ required_error: 'validation.required-field' }),
     schoolId: z.number({ required_error: 'validation.required-field' }),
@@ -400,7 +403,7 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       payload: {
         firstName: formValues.firstName,
         lastName: formValues.lastName,
-        login: formValues.login,
+        login: toE164(formValues.login),
         isDirectorOrAssistandDirector: false,
         schoolId: formValues.schoolId,
         classId: formValues.isTeacher ? (formValues.classId || null) : null,
@@ -821,11 +824,10 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('phone-login', 'Telefon raqam (login)') }}</FormLabel>
               <FormControl>
-                <Input
-                  type="tel"
-                  v-bind="componentField"
+                <PhoneInput
+                  :model-value="componentField.modelValue"
+                  @update:model-value="componentField['onUpdate:modelValue']"
                   :placeholder="t('phone-login-placeholder', '+998 90 123 45 67')"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
                 />
               </FormControl>
               <FormMessage />

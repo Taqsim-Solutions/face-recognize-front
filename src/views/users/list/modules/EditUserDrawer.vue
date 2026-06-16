@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import PhoneInput from '@/components/PhoneInput.vue'
+import { isValidPhone, toE164 } from '@/composables/usePhoneInput'
 import {
   FormControl,
   FormField,
@@ -53,7 +55,7 @@ const formSchema = toTypedSchema(
       .email('validation.email-should-be-valid')
       .optional()
       .or(z.literal('')),
-    login: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' })
+    login: z.string({ required_error: 'validation.required-field' }).min(1, { message: 'validation.required-field' }).refine((v) => isValidPhone(v), { message: 'validation.phone-number-should-be-valid' })
   })
 )
 
@@ -126,7 +128,7 @@ const onSubmit = handleSubmit((formValues) => {
       payload: {
         firstName: formValues.firstName,
         lastName: formValues.lastName,
-        login: formValues.login,
+        login: toE164(formValues.login),
         email: formValues.email
       } as any
     },
@@ -216,8 +218,7 @@ const handleCancel = () => {
             <FormItem>
               <FormLabel class="text-sm font-semibold text-gray-700">{{ t('login') }}</FormLabel>
               <FormControl>
-                <Input type="text" v-bind="componentField" :placeholder="t('login_placeholder')"
-                  class="h-11 border border-gray-300 rounded-lg focus:border-primary" />
+                <PhoneInput :model-value="componentField.modelValue" @update:model-value="componentField['onUpdate:modelValue']" :placeholder="t('login_placeholder')" />
               </FormControl>
               <FormMessage />
             </FormItem>
