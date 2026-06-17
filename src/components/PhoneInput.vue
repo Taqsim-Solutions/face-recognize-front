@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Input } from '@/components/ui/input'
 import { sanitizePhone, isValidPhone, detectCountry, callingCodeFor } from '@/composables/usePhoneInput'
 
 const props = defineProps<{
@@ -14,9 +13,9 @@ const emit = defineEmits<{
   (e: 'validity', v: boolean): void
 }>()
 
-// Local display value. Re-synced from the prop only when it differs from what
-// we already show (edit prefill / reset). We never write back into this from
-// our own emit, which is what caused the one-keystroke-behind ("press twice").
+// Plain native input (not the shadcn Input, whose internal useVModel fought our
+// binding and caused the one-keystroke-behind bug). Single local ref, sanitized
+// on every input, written straight back to the DOM so letters never appear.
 const display = ref(sanitizePhone(props.modelValue || ''))
 
 watch(
@@ -27,12 +26,11 @@ watch(
   }
 )
 
-const handle = (e: Event) => {
-  const sanitized = sanitizePhone((e.target as HTMLInputElement).value)
+const onInput = (e: Event) => {
+  const el = e.target as HTMLInputElement
+  const sanitized = sanitizePhone(el.value)
   display.value = sanitized
-  // Keep the DOM input in sync immediately so typing a letter just shows
-  // nothing rather than waiting for a round-trip.
-  ;(e.target as HTMLInputElement).value = sanitized
+  if (el.value !== sanitized) el.value = sanitized
   emit('update:modelValue', sanitized)
   emit('validity', isValidPhone(sanitized))
 }
@@ -41,14 +39,14 @@ const ph = computed(() => props.placeholder || callingCodeFor(detectCountry()))
 </script>
 
 <template>
-  <Input
+  <input
+    :value="display"
     type="tel"
     inputmode="tel"
-    :value="display"
     :placeholder="ph"
     :disabled="disabled"
     autocomplete="tel"
-    class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
-    @input="handle"
+    @input="onInput"
+    class="flex h-11 w-full rounded-lg border-2 border-border bg-transparent px-3 py-1 text-sm transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50"
   />
 </template>
