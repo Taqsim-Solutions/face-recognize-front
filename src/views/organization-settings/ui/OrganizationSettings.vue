@@ -61,6 +61,7 @@ const currentCameraId = ref<number | null>(null)
 const formName = ref('')
 const formSerialNumber = ref('')
 const formIpAddress = ref('')
+const formVpnIpAddress = ref('')
 const formUsername = ref('')
 const formPassword = ref('')
 const showPassword = ref(false)
@@ -393,6 +394,7 @@ const openAddDrawer = () => {
   formName.value = ''
   formSerialNumber.value = ''
   formIpAddress.value = ''
+  formVpnIpAddress.value = ''
   formUsername.value = ''
   formPassword.value = ''
   showPassword.value = false
@@ -413,6 +415,7 @@ const openEditDrawer = (camera: any) => {
   formName.value = camera.name || ''
   formSerialNumber.value = camera.serialNumber || ''
   formIpAddress.value = camera.ipAddress || ''
+  formVpnIpAddress.value = camera.vpnIpAddress || ''
   formUsername.value = camera.username || ''
   formPassword.value = camera.password || ''
   formType.value = camera.type || 1
@@ -453,6 +456,7 @@ const saveCameraForm = () => {
     name: formName.value,
     serialNumber: formSerialNumber.value,
     ipAddress: formIpAddress.value,
+    vpnIpAddress: formVpnIpAddress.value?.trim() || null,
     username: formUsername.value,
     password: formPassword.value,
     type: formType.value,
@@ -1115,6 +1119,17 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
                 :placeholder="t('ip-address-placeholder')"
                 class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white"
               />
+            </div>
+
+            <!-- VPN IP (connection only) -->
+            <div class="space-y-1.5">
+              <Label class="text-sm font-semibold text-gray-700">{{ t('vpn-ip-address', 'VPN IP manzil (ulanish uchun)') }}</Label>
+              <Input
+                v-model="formVpnIpAddress"
+                :placeholder="t('vpn-ip-address-placeholder', '10.8.0.5')"
+                class="h-11 rounded-lg border border-gray-300 focus:border-primary bg-white"
+              />
+              <p class="text-xs text-gray-400">{{ t('vpn-ip-address-hint', 'Kameraga ulanish uchun ishlatiladi. Hodisalarni biriktirish esa yuqoridagi IP orqali bo\'ladi.') }}</p>
             </div>
 
             <!-- DDNS external access -->
