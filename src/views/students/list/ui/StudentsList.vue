@@ -70,6 +70,28 @@ const clearSelection = () => {
   rowSelection.value = {}
 }
 
+// Location of the selected students (taken from the first selected row) so the
+// bulk "change class" dialog can prefill + lock region/city/school — class change
+// stays within the students' own school.
+const selectedLocation = computed(() => {
+  const firstId = selectedIds.value[0]
+  if (!firstId) return null
+  const row = (tableData.value as any[]).find((s) => String(s.id) === String(firstId))
+  if (!row) return null
+  return {
+    regionId: row.regionId ?? row.region?.id ?? null,
+    cityId: row.cityId ?? row.city?.id ?? null,
+    schoolId: row.schoolId ?? row.school?.id ?? null,
+    regionName: row.regionName ?? row.region?.name ?? null,
+    cityName: row.cityName ?? row.city?.name ?? null,
+    schoolName: row.schoolName ?? row.school?.name ?? null
+  }
+})
+
+// Current user's level (1 teacher … 5 admin) — only level >= 3 (district and up)
+// may move students to another school via the transfer dialog.
+const userLevel = Number(localStorage.getItem('user_level') || 1)
+
 // Query Params
 const params = ref<FetchStudentsParams>({
   page: 1,
@@ -628,7 +650,7 @@ const handleExcelFileSelect = async (event: Event) => {
       </template>
       <template v-else>
         <div class="mt-5 w-full px-4 sm:px-6">
-          <BulkActionsBar :selected-ids="selectedIds" @done="clearSelection" />
+          <BulkActionsBar :selected-ids="selectedIds" :location="selectedLocation" :user-level="userLevel" @done="clearSelection" />
           <DataTable
             :data="tableData"
             :columns="columns"

@@ -66,6 +66,20 @@ const clearSelection = () => {
   rowSelection.value = {}
 }
 
+// Location of the selected teachers (from the first selected row) so the bulk
+// "change class" dialog can prefill + lock region/city/school.
+const selectedLocation = computed(() => {
+  const firstId = selectedIds.value[0]
+  if (!firstId) return null
+  const row = (tableData.value as any[]).find((u) => String(u.id) === String(firstId))
+  if (!row) return null
+  return {
+    regionId: row.regionId ?? row.region?.id ?? null,
+    cityId: row.cityId ?? row.city?.id ?? null,
+    schoolId: row.schoolId ?? row.school?.id ?? null
+  }
+})
+
 // Query Params
 const params = ref<FetchTeachersParams>({
   page: 1,
@@ -576,7 +590,7 @@ const handleExcelFileSelect = async (event: Event) => {
       </template>
       <template v-else>
         <div class="mt-5 w-full px-4 sm:px-6">
-          <BulkActionsBar :selected-ids="selectedIds" @done="clearSelection" />
+          <BulkActionsBar :selected-ids="selectedIds" :location="selectedLocation" @done="clearSelection" />
           <DataTable
             :data="tableData"
             :columns="columns"

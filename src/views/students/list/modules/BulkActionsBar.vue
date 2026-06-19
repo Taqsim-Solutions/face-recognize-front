@@ -29,6 +29,15 @@ import {
 
 const props = defineProps<{
   selectedIds: (number | string)[]
+  location?: {
+    regionId: number | null
+    cityId: number | null
+    schoolId: number | null
+    regionName: string | null
+    cityName: string | null
+    schoolName: string | null
+  } | null
+  userLevel?: number
 }>()
 const emit = defineEmits<{ (e: 'done'): void }>()
 
@@ -36,6 +45,10 @@ const { t } = useI18n()
 const queryClient = useQueryClient()
 
 const count = computed(() => props.selectedIds.length)
+
+// District level (3) and above may move students to another school. Director
+// (2) and teacher (1) can only change the class within their own school.
+const canTransfer = computed(() => Number(props.userLevel ?? 1) >= 3)
 
 // ----- which dialog is open -----
 const dialog = ref<'status' | 'class' | 'transfer' | null>(null)
@@ -119,9 +132,11 @@ const { isPending: transferPending, mutate: applyTransfer } = useMutation({
 })
 
 const openClass = () => {
-  regionId.value = ''
-  cityId.value = ''
-  schoolId.value = ''
+  // Prefill (and lock in the template) the students' own region/city/school —
+  // class change stays within their school; only the class is chosen.
+  regionId.value = props.location?.regionId != null ? String(props.location.regionId) : ''
+  cityId.value = props.location?.cityId != null ? String(props.location.cityId) : ''
+  schoolId.value = props.location?.schoolId != null ? String(props.location.schoolId) : ''
   classId.value = ''
   dialog.value = 'class'
 }
@@ -152,7 +167,7 @@ const openTransfer = () => {
         class="h-9 px-3 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium">
         {{ t('change-class', "Sinfni o'zgartirish") }}
       </Button>
-      <Button type="button" @click="openTransfer"
+      <Button v-if="canTransfer" type="button" @click="openTransfer"
         class="h-9 px-3 bg-[#f27a3a] hover:bg-[#e06c27] text-white rounded-lg text-sm font-medium">
         {{ t('transfer-school', "Maktabga ko'chirish") }}
       </Button>
@@ -193,20 +208,20 @@ const openTransfer = () => {
           {{ t('class-same-school-hint', 'Tanlangan maktab ichidagi sinfga') }}
         </p>
         <div class="py-2 space-y-3">
-          <Select v-model="regionId">
-            <SelectTrigger class="h-11 bg-white border rounded-lg w-full"><SelectValue :placeholder="t('region', 'Viloyat')" /></SelectTrigger>
+          <Select v-model="regionId" disabled>
+            <SelectTrigger class="h-11 bg-gray-50 border rounded-lg w-full"><SelectValue :placeholder="t('region', 'Viloyat')" /></SelectTrigger>
             <SelectContent>
               <SelectItem v-for="r in regions" :key="r.id" :value="String(r.id)">{{ r.name }}</SelectItem>
             </SelectContent>
           </Select>
-          <Select v-model="cityId" :disabled="!regionId">
-            <SelectTrigger class="h-11 bg-white border rounded-lg w-full"><SelectValue :placeholder="t('city', 'Tuman')" /></SelectTrigger>
+          <Select v-model="cityId" disabled>
+            <SelectTrigger class="h-11 bg-gray-50 border rounded-lg w-full"><SelectValue :placeholder="t('city', 'Tuman')" /></SelectTrigger>
             <SelectContent>
               <SelectItem v-for="c in cities" :key="c.id" :value="String(c.id)">{{ c.name }}</SelectItem>
             </SelectContent>
           </Select>
-          <Select v-model="schoolId" :disabled="!cityId">
-            <SelectTrigger class="h-11 bg-white border rounded-lg w-full"><SelectValue :placeholder="t('school', 'Maktab')" /></SelectTrigger>
+          <Select v-model="schoolId" disabled>
+            <SelectTrigger class="h-11 bg-gray-50 border rounded-lg w-full"><SelectValue :placeholder="t('school', 'Maktab')" /></SelectTrigger>
             <SelectContent>
               <SelectItem v-for="s in schools" :key="s.id" :value="String(s.id)">{{ s.name }}</SelectItem>
             </SelectContent>

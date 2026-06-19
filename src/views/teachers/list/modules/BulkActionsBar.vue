@@ -28,6 +28,11 @@ import {
 
 const props = defineProps<{
   selectedIds: (number | string)[]
+  location?: {
+    regionId: number | null
+    cityId: number | null
+    schoolId: number | null
+  } | null
 }>()
 const emit = defineEmits<{ (e: 'done'): void }>()
 
@@ -99,9 +104,11 @@ const { isPending: classPending, mutate: applyClass } = useMutation({
 })
 
 const openClass = () => {
-  regionId.value = ''
-  cityId.value = ''
-  schoolId.value = ''
+  // Prefill + lock region/city/school from the selected teachers; only the
+  // class is chosen (class change stays within their school).
+  regionId.value = props.location?.regionId != null ? String(props.location.regionId) : ''
+  cityId.value = props.location?.cityId != null ? String(props.location.cityId) : ''
+  schoolId.value = props.location?.schoolId != null ? String(props.location.schoolId) : ''
   classId.value = ''
   dialog.value = 'class'
 }
@@ -156,20 +163,20 @@ const openClass = () => {
           <DialogTitle>{{ t('change-class', "Sinfni o'zgartirish") }}</DialogTitle>
         </DialogHeader>
         <div class="py-2 space-y-3">
-          <Select v-model="regionId">
-            <SelectTrigger class="h-11 bg-white border rounded-lg w-full"><SelectValue :placeholder="t('region', 'Viloyat')" /></SelectTrigger>
+          <Select v-model="regionId" disabled>
+            <SelectTrigger class="h-11 bg-gray-50 border rounded-lg w-full"><SelectValue :placeholder="t('region', 'Viloyat')" /></SelectTrigger>
             <SelectContent>
               <SelectItem v-for="r in regions" :key="r.id" :value="String(r.id)">{{ r.name }}</SelectItem>
             </SelectContent>
           </Select>
-          <Select v-model="cityId" :disabled="!regionId">
-            <SelectTrigger class="h-11 bg-white border rounded-lg w-full"><SelectValue :placeholder="t('city', 'Tuman')" /></SelectTrigger>
+          <Select v-model="cityId" disabled>
+            <SelectTrigger class="h-11 bg-gray-50 border rounded-lg w-full"><SelectValue :placeholder="t('city', 'Tuman')" /></SelectTrigger>
             <SelectContent>
               <SelectItem v-for="c in cities" :key="c.id" :value="String(c.id)">{{ c.name }}</SelectItem>
             </SelectContent>
           </Select>
-          <Select v-model="schoolId" :disabled="!cityId">
-            <SelectTrigger class="h-11 bg-white border rounded-lg w-full"><SelectValue :placeholder="t('school', 'Maktab')" /></SelectTrigger>
+          <Select v-model="schoolId" disabled>
+            <SelectTrigger class="h-11 bg-gray-50 border rounded-lg w-full"><SelectValue :placeholder="t('school', 'Maktab')" /></SelectTrigger>
             <SelectContent>
               <SelectItem v-for="s in schools" :key="s.id" :value="String(s.id)">{{ s.name }}</SelectItem>
             </SelectContent>
