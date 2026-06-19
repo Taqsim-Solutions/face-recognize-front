@@ -775,13 +775,6 @@ watch(() => activeAbsents.value.length,       () => { absentPage.value = 1 })
                     >
                       {{ t('unknown-face', "Noma'lum") }}
                     </span>
-                    <span
-                      v-else
-                      class="text-xs px-2 py-0.5 rounded-full font-semibold"
-                      :class="ev.direction === 'departure' ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600'"
-                    >
-                      {{ ev.direction === 'departure' ? t('left', 'Ketdi') : t('arrived', 'Keldi') }}
-                    </span>
                   </div>
                 </div>
               </div>
