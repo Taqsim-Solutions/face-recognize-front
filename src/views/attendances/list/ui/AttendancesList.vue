@@ -374,12 +374,15 @@ const attendanceRows = computed(() => {
   return Array.from(map.values())
 })
 
-// One row per DAY (classes merged): the list no longer shows a row per class.
-// studentsCount / absentStudentsCount are summed across the day's classes.
+// One row per DAY *per SCHOOL* (classes within a school merged). Previously the
+// key was the date alone, so when two schools had scans on the same day they
+// collapsed into one row and only the first school's name showed — the others
+// silently disappeared from the unfiltered (admin) list. Keying by date+school
+// keeps every school visible.
 const dayRows = computed(() => {
   const map = new Map<string, any>()
   for (const row of filteredAttendanceRows.value) {
-    const key = String(row.date)
+    const key = `${row.date}|${row.schoolId ?? row.schoolName ?? ''}`
     const existing = map.get(key)
     if (existing) {
       existing.studentsCount += row.studentsCount || 0
@@ -388,6 +391,7 @@ const dayRows = computed(() => {
     } else {
       map.set(key, {
         date: row.date,
+        schoolId: row.schoolId,
         regionName: row.regionName,
         cityName: row.cityName,
         schoolName: row.schoolName,
@@ -404,8 +408,10 @@ const dayRows = computed(() => {
 // The day the user clicked: its classes become filter badges above the table.
 const selectedDay = ref<any | null>(null)
 const selectDay = (day: any) => {
-  // Toggle off if the same day is clicked again.
-  selectedDay.value = selectedDay.value?.date === day.date ? null : day
+  // Toggle off if the same day+school row is clicked again.
+  const same = selectedDay.value?.date === day.date
+    && (selectedDay.value?.schoolId ?? null) === (day.schoolId ?? null)
+  selectedDay.value = same ? null : day
 }
 const { data: regionsRes } = useQuery({
   queryKey: ['regions-attendances'],
