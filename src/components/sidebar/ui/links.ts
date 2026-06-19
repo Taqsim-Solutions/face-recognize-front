@@ -471,6 +471,28 @@ const HelpIcon = (props: any) =>
     ]
   )
 
+const PremiumIcon = (props: any) =>
+  h(
+    'svg',
+    {
+      xmlns: 'http://www.w3.org/2000/svg',
+      width: '20',
+      height: '20',
+      viewBox: '0 0 20 20',
+      fill: 'none',
+      ...props
+    },
+    [
+      h('path', {
+        d: 'M10 1.66699L12.5751 6.88491L18.3333 7.72533L14.1667 11.7861L15.1503 17.5212L10 14.8137L4.84975 17.5212L5.83333 11.7861L1.66667 7.72533L7.42492 6.88491L10 1.66699Z',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      })
+    ]
+  )
+
 export const links: LinkProp[] = [
   {
     name: 'dashboard.statistics',
@@ -486,6 +508,11 @@ export const links: LinkProp[] = [
     name: 'governments',
     location: 'governments-list',
     icon: GovernmentIcon
+  },
+  {
+    name: 'premium',
+    location: 'premium',
+    icon: PremiumIcon
   },
   {
     name: 'schools',
