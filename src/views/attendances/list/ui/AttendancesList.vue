@@ -173,13 +173,6 @@ const formatRowDate = (raw: any) => {
 }
 
 // Format a UTC timestamp as local HH:mm for the teacher attendance table.
-const formatTime = (raw: any) => {
-  if (!raw) return ''
-  const d = new Date(raw)
-  if (isNaN(d.getTime())) return ''
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
-
 // Pagination
 const currentPage = ref(1)
 const pageSize = ref(20)
@@ -316,18 +309,41 @@ const {
   staleTime: 5000
 })
 
-// Flat list of teacher-day rows across all days in range.
+// Teacher rows grouped by DAY + SCHOOL (mirrors the student dayRows), so the
+// teacher view reads like the student view: one row per day/school with present/
+// absent/total counts, and the underlying teacher list kept for the popup.
 const teacherRows = computed(() => {
   const raw = teacherRangeData.value as any
   const days: any[] = raw?.data?.result || raw?.result || []
   if (!Array.isArray(days) || !days.length) return []
-  const rows: any[] = []
+
+  const map = new Map<string, any>()
   for (const day of days) {
     for (const tch of (day.teachers || [])) {
-      rows.push({ ...tch, date: day.date })
+      const key = `${day.date}|${tch.schoolId ?? tch.schoolName ?? ''}`
+      const present = tch.attended ? 1 : 0
+      const existing = map.get(key)
+      if (existing) {
+        existing.teachersCount += 1
+        existing.presentCount += present
+        existing.absentCount += present ? 0 : 1
+        existing.teachers.push({ ...tch, date: day.date })
+      } else {
+        map.set(key, {
+          date: day.date,
+          schoolId: tch.schoolId,
+          regionName: tch.regionName,
+          cityName: tch.cityName,
+          schoolName: tch.schoolName,
+          teachersCount: 1,
+          presentCount: present,
+          absentCount: present ? 0 : 1,
+          teachers: [{ ...tch, date: day.date }]
+        })
+      }
     }
   }
-  return rows
+  return Array.from(map.values())
 })
 
 // Flat list of class-day rows across all days in range, grouped so that
@@ -473,8 +489,14 @@ const { data: studentData, isLoading: studentLoading } = useQuery({
   queryFn: async () => {
     const row = selectedClassRow.value
     if (!row) return null
-    const d = new Date(row.date)
-    const dateStr = d.toISOString().split('T')[0] + 'Z'
+    // Use the row's own calendar day WITHOUT shifting through UTC. new Date(...)
+    // .toISOString() converts to UTC, so a local-midnight date (e.g. 20-iyun
+    // 00:00 +05) becomes the previous UTC day (19-iyun) and the popup then asks
+    // the backend for the wrong day — showing "no data" even though the summary
+    // counted scans. Take the date part as-is instead.
+    const raw = String(row.date)
+    const datePart = raw.includes('T') ? raw.split('T')[0] : raw.slice(0, 10)
+    const dateStr = datePart + 'Z'
     // A grouped row can cover several underlying class IDs (same name/school).
     const ids: number[] = row.classIds?.length ? row.classIds : [row.id]
     const responses = await Promise.all(ids.map((cid) => fetchClassStudentAttendances(dateStr, cid)))
@@ -510,6 +532,24 @@ const openStudentModal = (row: any) => {
   isStudentModalOpen.value = true
 }
 
+// ── Teacher detail modal ─────────────────────────────────────────
+// The grouped teacher row already carries its teacher list, so the popup needs
+// no extra request — just show row.teachers for that day+school.
+const selectedTeacherRow = ref<any | null>(null)
+const isTeacherModalOpen = ref(false)
+const teacherModalPage = ref(1)
+const teacherModalRows = computed<any[]>(() => selectedTeacherRow.value?.teachers || [])
+const teacherModalTotalPages = computed(() => Math.ceil(teacherModalRows.value.length / modalPageSize) || 1)
+const paginatedTeacherRows = computed(() => {
+  const start = (teacherModalPage.value - 1) * modalPageSize
+  return teacherModalRows.value.slice(start, start + modalPageSize)
+})
+const openTeacherModal = (row: any) => {
+  selectedTeacherRow.value = row
+  teacherModalPage.value = 1
+  isTeacherModalOpen.value = true
+}
+
 // ---- "All scans" popup (raw comings/goings for one person on a day) ----
 const isScansOpen = ref(false)
 const scanTarget = ref<{ id: number; name: string; date: string; kind: 'student' | 'teacher' } | null>(null)
@@ -536,10 +576,13 @@ const { data: scansData, isLoading: scansLoading } = useQuery({
 
 const scanRows = computed<any[]>(() => (scansData.value as any) || [])
 
-// Build the YYYY-MM-DDZ date string the scan endpoints expect.
+// Build the YYYY-MM-DDZ date string the scan endpoints expect. Take the date
+// part as-is rather than via new Date().toISOString(), which shifts a local
+// date to the previous UTC day (and would fetch scans for the wrong day).
 const toScanDate = (raw: any): string => {
-  const d = new Date(raw)
-  return d.toISOString().split('T')[0] + 'Z'
+  const s = String(raw)
+  const datePart = s.includes('T') ? s.split('T')[0] : s.slice(0, 10)
+  return datePart + 'Z'
 }
 
 const openStudentScans = (s: any) => {
@@ -931,7 +974,7 @@ const getPageNumbers = () => {
                 {{ t('jami', 'Jami') }}
               </TableHead>
             </TableRow>
-            <!-- Teachers header -->
+            <!-- Teachers header (mirrors students) -->
             <TableRow v-else>
               <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 first:pl-3 relative border-l-0 font-semibold bg-[#f2f5f4]">
                 {{ t('date', 'Sana') }}
@@ -946,19 +989,13 @@ const getPageNumbers = () => {
                 {{ t('school-col', 'Maktab') }}
               </TableHead>
               <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
-                {{ t('teacher-fio', 'F.I.Sh') }}
+                {{ t('teachers-present', 'Kelgan') }}
               </TableHead>
               <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
-                {{ t('dashboard.absents.class', 'Sinf') }}
-              </TableHead>
-              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
-                {{ t('arrival-time', 'Kelgan vaqti') }}
-              </TableHead>
-              <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative font-semibold bg-[#f2f5f4]">
-                {{ t('leaving-time', 'Ketgan vaqti') }}
+                {{ t('teachers-absent', 'Kelmagan') }}
               </TableHead>
               <TableHead class="text-nowrap text-sm text-[#74757d] select-none border border-t-0 p-3 pl-4 relative border-r-0 font-semibold bg-[#f2f5f4]">
-                {{ t('status', 'Holat') }}
+                {{ t('jami', 'Jami') }}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -1096,12 +1133,13 @@ const getPageNumbers = () => {
               </TableRow>
               </template>
 
-              <!-- Teachers -->
+              <!-- Teachers (mirrors students: grouped day/school rows, click -> popup) -->
               <template v-else>
               <TableRow
                 v-for="(row, idx) in paginatedAttendanceRows"
                 :key="'t' + idx"
-                class="hover:bg-orange-50/60 transition-colors"
+                class="hover:bg-orange-50/60 transition-colors cursor-pointer"
+                @click="openTeacherModal(row)"
               >
                 <TableCell class="border p-3 pl-4 border-l-0 text-gray-700 text-sm font-medium">
                   {{ formatRowDate(row.date) }}
@@ -1115,35 +1153,26 @@ const getPageNumbers = () => {
                 <TableCell class="border p-3 text-gray-700 text-sm">
                   {{ row.schoolName || '—' }}
                 </TableCell>
-                <TableCell class="border p-3 text-gray-800 font-semibold text-sm">
-                  {{ row.fullName }}
-                  <span v-if="!row.isTeacher" class="ml-1 text-xs font-normal text-gray-400">({{ t('staff', 'Xodim') }})</span>
-                </TableCell>
-                <TableCell class="border p-3 text-gray-700 text-sm">
-                  {{ row.className || '—' }}
-                </TableCell>
+
+                <!-- Present -->
                 <TableCell class="border p-3 text-sm">
-                  <span v-if="row.comingTime" class="font-semibold text-green-600">{{ formatTime(row.comingTime) }}</span>
-                  <span v-else class="text-gray-400">—</span>
-                </TableCell>
-                <TableCell class="border p-3 text-sm">
-                  <span v-if="row.leavingTime" class="font-semibold text-amber-600">{{ formatTime(row.leavingTime) }}</span>
-                  <span v-else class="text-gray-400">—</span>
-                </TableCell>
-                <TableCell class="border p-3 border-r-0 text-sm">
-                  <span
-                    class="inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full text-xs"
-                    :class="row.attended ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'"
-                  >
-                    {{ row.attended ? t('arrived', 'Keldi') : t('not-attended', 'Kelmagan') }}
+                  <span class="inline-flex items-center gap-1 font-semibold text-green-600">
+                    <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+                    {{ row.presentCount }}
                   </span>
-                  <button
-                    type="button"
-                    @click="openTeacherScans(row)"
-                    class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-                  >
-                    {{ t('all-scans', 'Hammasi') }}
-                  </button>
+                </TableCell>
+
+                <!-- Absent -->
+                <TableCell class="border p-3 text-sm">
+                  <span class="inline-flex items-center gap-1 font-semibold" :class="row.absentCount > 0 ? 'text-red-500' : 'text-gray-400'">
+                    <span class="w-2 h-2 rounded-full inline-block" :class="row.absentCount > 0 ? 'bg-red-500' : 'bg-gray-300'"></span>
+                    {{ row.absentCount }}
+                  </span>
+                </TableCell>
+
+                <!-- Total -->
+                <TableCell class="border p-3 border-r-0 text-gray-600 text-sm font-medium">
+                  {{ row.teachersCount }}
                 </TableCell>
               </TableRow>
               </template>
@@ -1324,6 +1353,110 @@ const getPageNumbers = () => {
       </div>
     </div>
   </div>
+
+  <!-- ── Teacher detail modal (mirrors the student modal) ──────────── -->
+  <div
+    v-if="isTeacherModalOpen"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+    @click.self="isTeacherModalOpen = false"
+  >
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div>
+          <h3 class="text-base font-bold text-gray-800">
+            {{ selectedTeacherRow?.schoolName || '' }} —
+            {{ selectedTeacherRow?.date ? new Date(selectedTeacherRow.date).toLocaleDateString() : '' }}
+          </h3>
+          <p class="text-xs text-gray-400 mt-0.5">
+            {{ t('teachers-present', 'Kelgan') }}: {{ selectedTeacherRow?.presentCount || 0 }}
+            &nbsp;·&nbsp;
+            {{ t('teachers-absent', 'Kelmagan') }}: {{ selectedTeacherRow?.absentCount || 0 }}
+          </p>
+        </div>
+        <button @click="isTeacherModalOpen = false" class="text-gray-400 hover:text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto">
+        <div v-if="!teacherModalRows.length" class="flex items-center justify-center py-12 text-gray-400 text-sm">
+          {{ t('no-data', "Ma'lumot yo'q") }}
+        </div>
+        <table v-else class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-50 text-xs text-gray-500 uppercase sticky top-0">
+              <th class="px-4 py-2 text-left">F.I.Sh</th>
+              <th class="px-4 py-2 text-left">{{ t('dashboard.absents.class', 'Sinf') }}</th>
+              <th class="px-4 py-2 text-left">{{ t('kelgan-vaqti', 'Kelgan vaqti') }}</th>
+              <th class="px-4 py-2 text-left">{{ t('ketgan-vaqti', 'Ketgan vaqti') }}</th>
+              <th class="px-4 py-2 text-left">{{ t('status', 'Status') }}</th>
+              <th class="px-4 py-2 text-left">{{ t('scans', 'Skanlar') }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            <tr v-for="(tt, i) in paginatedTeacherRows" :key="i" class="hover:bg-gray-50">
+              <td class="px-4 py-2.5">
+                <span class="font-medium text-gray-800">{{ tt.fullName }}</span>
+                <span v-if="!tt.isTeacher" class="ml-1 text-xs font-normal text-gray-400">({{ t('staff', 'Xodim') }})</span>
+              </td>
+              <td class="px-4 py-2.5 text-gray-600">{{ tt.className || '—' }}</td>
+              <td class="px-4 py-2.5 text-gray-600 font-medium">{{ formatStudentTime(tt.comingTime) }}</td>
+              <td class="px-4 py-2.5 text-gray-400">{{ formatStudentTime(tt.leavingTime) }}</td>
+              <td class="px-4 py-2.5">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                  :class="tt.attended ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'"
+                >
+                  {{ tt.attended ? t('attended', 'Kelgan') : t('not-attended', 'Kelmagan') }}
+                </span>
+              </td>
+              <td class="px-4 py-2.5">
+                <button
+                  type="button"
+                  @click="openTeacherScans(tt)"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" />
+                    <path d="M2 6.5h12" stroke="currentColor" stroke-width="1.3" />
+                  </svg>
+                  {{ t('all-scans', 'Hammasi') }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Popup pagination -->
+      <div
+        v-if="teacherModalTotalPages > 1"
+        class="flex items-center justify-between px-5 py-3 border-t border-gray-100 text-sm"
+      >
+        <span class="text-gray-400 text-xs">
+          {{ teacherModalRows.length }} {{ t('teachers', "o'qituvchi") }}
+        </span>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            :disabled="teacherModalPage <= 1"
+            @click="teacherModalPage--"
+            class="px-2.5 py-1 rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >‹</button>
+          <span class="text-gray-600 font-medium">{{ teacherModalPage }} / {{ teacherModalTotalPages }}</span>
+          <button
+            type="button"
+            :disabled="teacherModalPage >= teacherModalTotalPages"
+            @click="teacherModalPage++"
+            class="px-2.5 py-1 rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div
     v-if="isScansOpen"
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
