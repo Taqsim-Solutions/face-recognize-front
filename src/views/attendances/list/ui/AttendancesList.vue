@@ -473,8 +473,14 @@ const { data: studentData, isLoading: studentLoading } = useQuery({
   queryFn: async () => {
     const row = selectedClassRow.value
     if (!row) return null
-    const d = new Date(row.date)
-    const dateStr = d.toISOString().split('T')[0] + 'Z'
+    // Use the row's own calendar day WITHOUT shifting through UTC. new Date(...)
+    // .toISOString() converts to UTC, so a local-midnight date (e.g. 20-iyun
+    // 00:00 +05) becomes the previous UTC day (19-iyun) and the popup then asks
+    // the backend for the wrong day — showing "no data" even though the summary
+    // counted scans. Take the date part as-is instead.
+    const raw = String(row.date)
+    const datePart = raw.includes('T') ? raw.split('T')[0] : raw.slice(0, 10)
+    const dateStr = datePart + 'Z'
     // A grouped row can cover several underlying class IDs (same name/school).
     const ids: number[] = row.classIds?.length ? row.classIds : [row.id]
     const responses = await Promise.all(ids.map((cid) => fetchClassStudentAttendances(dateStr, cid)))
@@ -536,10 +542,13 @@ const { data: scansData, isLoading: scansLoading } = useQuery({
 
 const scanRows = computed<any[]>(() => (scansData.value as any) || [])
 
-// Build the YYYY-MM-DDZ date string the scan endpoints expect.
+// Build the YYYY-MM-DDZ date string the scan endpoints expect. Take the date
+// part as-is rather than via new Date().toISOString(), which shifts a local
+// date to the previous UTC day (and would fetch scans for the wrong day).
 const toScanDate = (raw: any): string => {
-  const d = new Date(raw)
-  return d.toISOString().split('T')[0] + 'Z'
+  const s = String(raw)
+  const datePart = s.includes('T') ? s.split('T')[0] : s.slice(0, 10)
+  return datePart + 'Z'
 }
 
 const openStudentScans = (s: any) => {
