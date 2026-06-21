@@ -188,7 +188,7 @@ const classLabel = (c: any) => c.name || `${c.degree}-${c.symbol}`
           <Loader2Icon v-if="savingSchool" class="w-4 h-4 mr-1 animate-spin" />{{ t('save', 'Saqlash') }}
         </Button>
       </div>
-      <p class="text-xs text-gray-400 mt-2">{{ t('shift-clear-hint', "Bo'sh qoldirilsa, o'sha smena vaqti tozalanadi.") }}</p>
+      <p class="text-xs text-gray-400 mt-2">{{ t('shift-clear-hint-v2', "2-smena bo'sh qoldirilsa, 2-smena sinflar 1-smena vaqtini oladi.") }}</p>
     </div>
 
     <div v-if="schoolId" class="border-t border-gray-100 pt-4">
