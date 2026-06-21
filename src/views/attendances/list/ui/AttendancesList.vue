@@ -1303,6 +1303,13 @@ const getPageNumbers = () => {
               <td class="px-4 py-2.5 text-gray-400">{{ formatStudentTime(s.leavingTime) }}</td>
               <td class="px-4 py-2.5">
                 <span
+                  v-if="s.attended && s.isLate"
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-600"
+                >
+                  {{ t('late', 'Kech keldi') }}
+                </span>
+                <span
+                  v-else
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
                   :class="s.attended ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'"
                 >

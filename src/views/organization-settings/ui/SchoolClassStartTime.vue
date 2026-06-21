@@ -22,7 +22,6 @@ const queryClient = useQueryClient()
 const toInput = (v: string | null | undefined) => (v ? v.slice(0, 5) : '')
 const fmt = (v: string | null | undefined) => (v ? v.slice(0, 5) : '—')
 
-// ── Location selection ────────────────────────────────────────────
 const regionId = ref('')
 const cityId = ref('')
 const schoolId = ref('')
@@ -67,8 +66,9 @@ watch(regionId, () => { cityId.value = ''; schoolId.value = ''; classId.value = 
 watch(cityId, () => { schoolId.value = ''; classId.value = '' })
 watch(schoolId, () => { classId.value = '' })
 
-// ── School start time ─────────────────────────────────────────────
+// School shift times
 const schoolTime = ref('')
+const schoolTime2 = ref('')
 const { data: schoolInfo, isFetching: schoolLoading } = useQuery({
   queryKey: ['school-start-time', schoolId],
   queryFn: async () => {
@@ -78,14 +78,17 @@ const { data: schoolInfo, isFetching: schoolLoading } = useQuery({
   },
   enabled: computed(() => !!schoolId.value)
 })
-watch(schoolInfo, (v: any) => { schoolTime.value = toInput(v?.school) })
+watch(schoolInfo, (v: any) => {
+  schoolTime.value = toInput(v?.school)
+  schoolTime2.value = toInput(v?.school2)
+})
 
 const savingSchool = ref(false)
-const saveSchool = async (value: string | null) => {
+const saveSchool = async () => {
   if (!schoolId.value) return
   savingSchool.value = true
   try {
-    await setSchoolStartTime(Number(schoolId.value), value)
+    await setSchoolStartTime(Number(schoolId.value), schoolTime.value || null, schoolTime2.value || null)
     toast.success(t('saved', 'Saqlandi'))
     queryClient.invalidateQueries({ queryKey: ['school-start-time'] })
     queryClient.invalidateQueries({ queryKey: ['class-start-time'] })
@@ -96,8 +99,9 @@ const saveSchool = async (value: string | null) => {
   }
 }
 
-// ── Class start time ──────────────────────────────────────────────
+// Class shift + optional explicit time
 const classTime = ref('')
+const classShift = ref('1')
 const { data: classInfo, isFetching: classLoading } = useQuery({
   queryKey: ['class-start-time', classId],
   queryFn: async () => {
@@ -107,14 +111,17 @@ const { data: classInfo, isFetching: classLoading } = useQuery({
   },
   enabled: computed(() => !!classId.value)
 })
-watch(classInfo, (v: any) => { classTime.value = toInput(v?.class) })
+watch(classInfo, (v: any) => {
+  classTime.value = toInput(v?.class)
+  classShift.value = String(v?.shift || 1)
+})
 
 const savingClass = ref(false)
-const saveClass = async (value: string | null) => {
+const saveClass = async () => {
   if (!classId.value) return
   savingClass.value = true
   try {
-    await setClassStartTime(Number(classId.value), value)
+    await setClassStartTime(Number(classId.value), classTime.value || null, Number(classShift.value) || 1)
     toast.success(t('saved', 'Saqlandi'))
     queryClient.invalidateQueries({ queryKey: ['class-start-time'] })
   } catch {
@@ -123,6 +130,7 @@ const saveClass = async (value: string | null) => {
     savingClass.value = false
   }
 }
+const clearClassTime = () => { classTime.value = ''; saveClass() }
 
 const classLabel = (c: any) => c.name || `${c.degree}-${c.symbol}`
 </script>
@@ -136,10 +144,9 @@ const classLabel = (c: any) => c.name || `${c.degree}-${c.symbol}`
       </h3>
     </div>
     <p class="text-xs text-gray-400 mb-4">
-      {{ t('start-time-cascade-hint', 'Sinf vaqti maktabnikidan, maktab vaqti umumiydan ustun turadi. Tozalansa, yuqori daraja qo\'llanadi.') }}
+      {{ t('start-time-cascade-hint', "Sinf aniq vaqti maktab smenasidan, u esa umumiydan ustun turadi. Sinf smenasiga qarab maktabning 1- yoki 2-smena vaqti olinadi.") }}
     </p>
 
-    <!-- Location selectors -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
       <Select v-model="regionId">
         <SelectTrigger class="h-11 bg-gray-50 border rounded-lg"><SelectValue :placeholder="t('region', 'Viloyat')" /></SelectTrigger>
@@ -161,29 +168,29 @@ const classLabel = (c: any) => c.name || `${c.degree}-${c.symbol}`
       </Select>
     </div>
 
-    <!-- School-level time -->
     <div v-if="schoolId" class="border-t border-gray-100 pt-4 mb-4">
-      <div class="flex items-center gap-2 mb-2">
+      <div class="flex items-center gap-2 mb-3">
         <Building2 class="w-4 h-4 text-gray-500" />
         <span class="text-sm font-semibold text-gray-700">{{ t('school', 'Maktab') }}</span>
-        <span v-if="schoolInfo" class="text-xs text-gray-400">
-          ({{ t('effective', 'Amaldagi') }}: {{ fmt((schoolInfo as any)?.effective) }},
-          {{ t('global', 'Umumiy') }}: {{ fmt((schoolInfo as any)?.global) }})
-        </span>
+        <span v-if="schoolInfo" class="text-xs text-gray-400">({{ t('global', 'Umumiy') }}: {{ fmt((schoolInfo as any)?.global) }})</span>
         <Loader2Icon v-if="schoolLoading" class="w-3.5 h-3.5 animate-spin text-gray-300" />
       </div>
-      <div class="flex items-end gap-3 flex-wrap">
-        <Input v-model="schoolTime" type="time" class="h-11 w-36 bg-gray-50 border rounded-lg" />
-        <Button :disabled="savingSchool" @click="saveSchool(schoolTime || null)" class="h-11 px-4 bg-[#f27a3a] hover:bg-[#e06c27] text-white rounded-lg">
+      <div class="flex items-end gap-4 flex-wrap">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">{{ t('shift-1', '1-smena') }}</label>
+          <Input v-model="schoolTime" type="time" class="h-11 w-36 bg-gray-50 border rounded-lg" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">{{ t('shift-2', '2-smena') }}</label>
+          <Input v-model="schoolTime2" type="time" class="h-11 w-36 bg-gray-50 border rounded-lg" />
+        </div>
+        <Button :disabled="savingSchool" @click="saveSchool" class="h-11 px-5 bg-[#f27a3a] hover:bg-[#e06c27] text-white rounded-lg">
           <Loader2Icon v-if="savingSchool" class="w-4 h-4 mr-1 animate-spin" />{{ t('save', 'Saqlash') }}
         </Button>
-        <Button variant="outline" :disabled="savingSchool || !schoolTime" @click="schoolTime = ''; saveSchool(null)" class="h-11 px-4 border rounded-lg">
-          {{ t('clear', 'Tozalash') }}
-        </Button>
       </div>
+      <p class="text-xs text-gray-400 mt-2">{{ t('shift-clear-hint', "Bo'sh qoldirilsa, o'sha smena vaqti tozalanadi.") }}</p>
     </div>
 
-    <!-- Class selector + class-level time -->
     <div v-if="schoolId" class="border-t border-gray-100 pt-4">
       <div class="flex items-center gap-2 mb-2">
         <GraduationCap class="w-4 h-4 text-gray-500" />
@@ -197,23 +204,37 @@ const classLabel = (c: any) => c.name || `${c.degree}-${c.symbol}`
       </Select>
 
       <div v-if="classId" class="mt-2">
-        <div class="flex items-center gap-2 mb-2">
+        <div class="flex items-center gap-2 mb-3">
           <span v-if="classInfo" class="text-xs text-gray-400">
-            {{ t('effective', 'Amaldagi') }}: {{ fmt((classInfo as any)?.effective) }},
-            {{ t('school', 'Maktab') }}: {{ fmt((classInfo as any)?.school) }},
-            {{ t('global', 'Umumiy') }}: {{ fmt((classInfo as any)?.global) }}
+            {{ t('effective', 'Amaldagi') }}: <b>{{ fmt((classInfo as any)?.effective) }}</b>
+            &nbsp;|&nbsp; {{ t('shift-1', '1-smena') }}: {{ fmt((classInfo as any)?.school) }}
+            &nbsp;|&nbsp; {{ t('shift-2', '2-smena') }}: {{ fmt((classInfo as any)?.school2) }}
           </span>
           <Loader2Icon v-if="classLoading" class="w-3.5 h-3.5 animate-spin text-gray-300" />
         </div>
-        <div class="flex items-end gap-3 flex-wrap">
-          <Input v-model="classTime" type="time" class="h-11 w-36 bg-gray-50 border rounded-lg" />
-          <Button :disabled="savingClass" @click="saveClass(classTime || null)" class="h-11 px-4 bg-[#f27a3a] hover:bg-[#e06c27] text-white rounded-lg">
+        <div class="flex items-end gap-4 flex-wrap">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">{{ t('shift', 'Smena') }}</label>
+            <Select v-model="classShift">
+              <SelectTrigger class="h-11 w-36 bg-gray-50 border rounded-lg"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">{{ t('shift-1', '1-smena') }}</SelectItem>
+                <SelectItem value="2">{{ t('shift-2', '2-smena') }}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">{{ t('class-explicit-time', 'Aniq vaqt (ixtiyoriy)') }}</label>
+            <Input v-model="classTime" type="time" class="h-11 w-36 bg-gray-50 border rounded-lg" />
+          </div>
+          <Button :disabled="savingClass" @click="saveClass" class="h-11 px-5 bg-[#f27a3a] hover:bg-[#e06c27] text-white rounded-lg">
             <Loader2Icon v-if="savingClass" class="w-4 h-4 mr-1 animate-spin" />{{ t('save', 'Saqlash') }}
           </Button>
-          <Button variant="outline" :disabled="savingClass || !classTime" @click="classTime = ''; saveClass(null)" class="h-11 px-4 border rounded-lg">
-            {{ t('clear', 'Tozalash') }}
+          <Button variant="outline" :disabled="savingClass || !classTime" @click="clearClassTime" class="h-11 px-4 border rounded-lg">
+            {{ t('clear-time', 'Vaqtni tozalash') }}
           </Button>
         </div>
+        <p class="text-xs text-gray-400 mt-2">{{ t('class-time-hint', "Aniq vaqt qo'yilsa, smena e'tiborga olinmaydi. Tozalansa, smena vaqti qo'llanadi.") }}</p>
       </div>
     </div>
   </div>

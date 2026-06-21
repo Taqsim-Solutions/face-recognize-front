@@ -104,7 +104,9 @@ export const deleteRestPeriod = async (id: number) => {
 export interface StartTimeInfo {
   global: string | null
   school?: string | null
+  school2?: string | null
   class?: string | null
+  shift?: number | null
   effective: string | null
 }
 
@@ -124,8 +126,12 @@ export const fetchSchoolStartTime = async (schoolId: number) => {
   )
 }
 
-export const setSchoolStartTime = async (schoolId: number, startTime: string | null) => {
-  return await api.put(`/api/settings/start-time/school/${schoolId}`, { startTime })
+export const setSchoolStartTime = async (
+  schoolId: number,
+  startTime: string | null,
+  startTime2: string | null
+) => {
+  return await api.put(`/api/settings/start-time/school/${schoolId}`, { startTime, startTime2 })
 }
 
 export const fetchClassStartTime = async (classId: number) => {
@@ -134,6 +140,10 @@ export const fetchClassStartTime = async (classId: number) => {
   )
 }
 
-export const setClassStartTime = async (classId: number, startTime: string | null) => {
-  return await api.put(`/api/settings/start-time/class/${classId}`, { startTime })
+export const setClassStartTime = async (
+  classId: number,
+  startTime: string | null,
+  shift: number | null
+) => {
+  return await api.put(`/api/settings/start-time/class/${classId}`, { startTime, shift })
 }
