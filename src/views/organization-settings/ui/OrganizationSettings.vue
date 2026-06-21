@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import UserContextBadges from '@/components/UserContextBadges.vue'
 import RestPeriodsManager from './RestPeriodsManager.vue'
+import GlobalStartTime from './GlobalStartTime.vue'
+import SchoolClassStartTime from './SchoolClassStartTime.vue'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -1044,6 +1046,16 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Lessons start time (global default) -->
+    <div v-if="isAdmin" class="mt-6 w-full px-6">
+      <GlobalStartTime />
+    </div>
+
+    <!-- Lessons start time (per school / class) -->
+    <div v-if="isAdmin" class="mt-6 w-full px-6">
+      <SchoolClassStartTime />
     </div>
 
     <!-- Rest periods (days off / holidays / summer break) -->

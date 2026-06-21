@@ -99,3 +99,41 @@ export const updateRestPeriod = async (id: number, payload: {
 export const deleteRestPeriod = async (id: number) => {
   return await api.delete(`/api/rest-periods/${id}`)
 }
+
+// ── Start-time settings (global / school / class cascade) ──────────
+export interface StartTimeInfo {
+  global: string | null
+  school?: string | null
+  class?: string | null
+  effective: string | null
+}
+
+export const fetchGlobalStartTime = async () => {
+  return await api.get<{ code: number; message: string; result: string | null }>(
+    '/api/settings/start-time/global'
+  )
+}
+
+export const setGlobalStartTime = async (startTime: string | null) => {
+  return await api.put('/api/settings/start-time/global', { startTime })
+}
+
+export const fetchSchoolStartTime = async (schoolId: number) => {
+  return await api.get<{ code: number; message: string; result: StartTimeInfo }>(
+    `/api/settings/start-time/school/${schoolId}`
+  )
+}
+
+export const setSchoolStartTime = async (schoolId: number, startTime: string | null) => {
+  return await api.put(`/api/settings/start-time/school/${schoolId}`, { startTime })
+}
+
+export const fetchClassStartTime = async (classId: number) => {
+  return await api.get<{ code: number; message: string; result: StartTimeInfo }>(
+    `/api/settings/start-time/class/${classId}`
+  )
+}
+
+export const setClassStartTime = async (classId: number, startTime: string | null) => {
+  return await api.put(`/api/settings/start-time/class/${classId}`, { startTime })
+}
