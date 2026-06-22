@@ -52,22 +52,3 @@ jobs:
           build-args: |
             VITE_BASE_URL=${{ env.VITE_BASE_URL }}
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: dockerize
-    # Faqat main branchda deploy qiladi
-    if: github.ref_name == 'redesign'
-    steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          command_timeout: 20m
-          host: ${{ secrets.MAIN_SSH_HOST }}
-          username: ${{ secrets.MAIN_SSH_USER }}
-          key: ${{ secrets.MAIN_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.MAIN_SSH_PORT }}
-          script: |
-            cd ~/traefik
-            docker rm --force /face-front
-            docker pull taqsim/face_front:redesign
-            docker compose up -d face-front
