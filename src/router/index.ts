@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordNameGeneric } from 'vue-router'
 import { routes } from './routes'
 import api from '@/api'
+import { isPageAllowed, refreshPagePermissions } from '@/shared/permissions'
 
 const alwaysAllowedRoutes = new Set<RouteRecordNameGeneric>([
   'registration',
@@ -9,22 +10,6 @@ const alwaysAllowedRoutes = new Set<RouteRecordNameGeneric>([
   'login',
   'auth'
 ])
-
-const routeLevelPermissions: Record<string, number[]> = {
-  'home': [1, 2, 3, 4, 5],
-  'students-list': [1, 2, 3, 4, 5],
-  'attendances-list': [1, 2, 3, 4, 5],
-  'absences': [1, 2, 3, 4, 5],
-  'reports': [1, 2, 3, 4, 5],
-  'help': [1, 2, 3, 4, 5],
-  'unknown-faces': [1, 2, 3, 4, 5],
-  'teachers-list': [2, 3, 4, 5],
-  'schools-list': [3, 4, 5],
-  'governments-list': [4, 5],
-  'premium': [5],
-  'users-list': [5],
-  'organization-settings': [5]
-}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,15 +45,16 @@ router.beforeEach(async (to) => {
           localStorage.setItem('user_level', String(userLevel))
           storedLevel = String(userLevel)
         }
+        // Pull the admin-configured page matrix once we know we're logged in.
+        await refreshPagePermissions()
       } catch (e) {
         console.error('Failed to fetch user level:', e)
       }
     }
 
     const userLevel = storedLevel ? Number(storedLevel) : 1
-    const allowedLevels = routeLevelPermissions[to.name as string]
 
-    if (allowedLevels !== undefined && !allowedLevels.includes(userLevel)) {
+    if (!isPageAllowed(to.name as string, userLevel)) {
       if (to.name !== 'home') {
         return { name: 'home' }
       }
