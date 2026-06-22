@@ -6,6 +6,7 @@ import { toast } from 'vue-sonner'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select'
+import SearchSelect from '@/components/ui/SearchSelect.vue'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2Icon, CheckIcon, XIcon, Trash2Icon, PlusIcon } from 'lucide-vue-next'
@@ -161,14 +162,22 @@ const statusClass = (s: number) =>
           <SelectTrigger class="h-11 bg-gray-50 border rounded-lg"><SelectValue :placeholder="t('school', 'Maktab')" /></SelectTrigger>
           <SelectContent><SelectItem v-for="s in schools" :key="s.id" :value="String(s.id)">{{ s.name }}</SelectItem></SelectContent>
         </Select>
-        <Select v-model="classId" :disabled="!schoolId">
-          <SelectTrigger class="h-11 bg-gray-50 border rounded-lg"><SelectValue :placeholder="t('sinf', 'Sinf')" /></SelectTrigger>
-          <SelectContent><SelectItem v-for="c in classes" :key="c.id" :value="String(c.id)">{{ classLabel(c) }}</SelectItem></SelectContent>
-        </Select>
-        <Select v-model="studentId" :disabled="!classId">
-          <SelectTrigger class="h-11 bg-gray-50 border rounded-lg"><SelectValue :placeholder="t('student', 'O\'quvchi')" /></SelectTrigger>
-          <SelectContent><SelectItem v-for="s in students" :key="s.id" :value="String(s.id)">{{ studentLabel(s) }}</SelectItem></SelectContent>
-        </Select>
+        <SearchSelect
+          v-model="classId"
+          :options="classes.map((c) => ({ value: String(c.id), label: classLabel(c) }))"
+          :disabled="!schoolId"
+          :placeholder="t('sinf', 'Sinf')"
+          :search-placeholder="t('search-class', 'Sinf qidirish...')"
+          :empty-text="t('no-data', 'Topilmadi')"
+        />
+        <SearchSelect
+          v-model="studentId"
+          :options="students.map((s) => ({ value: String(s.id), label: studentLabel(s) }))"
+          :disabled="!classId"
+          :placeholder="t('student', 'O\'quvchi')"
+          :search-placeholder="t('search-student', 'O\'quvchi qidirish...')"
+          :empty-text="t('no-data', 'Topilmadi')"
+        />
         <Select v-model="reason">
           <SelectTrigger class="h-11 bg-gray-50 border rounded-lg"><SelectValue /></SelectTrigger>
           <SelectContent>

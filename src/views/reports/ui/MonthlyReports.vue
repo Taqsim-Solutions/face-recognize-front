@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/vue-query'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select'
+import SearchSelect from '@/components/ui/SearchSelect.vue'
 import { Button } from '@/components/ui/button'
 import { Loader2Icon, ChevronDownIcon, ChevronRightIcon } from 'lucide-vue-next'
 import { fetchClassesBySchool, fetchRegions, fetchSchoolsByCity } from '@/views/students/list/api'
@@ -80,7 +81,13 @@ const { data: reportRaw, isFetching, refetch } = useQuery({
   },
   enabled: computed(() => !!classId.value)
 })
-const reports = computed<MonthlyReport[]>(() => reportRaw.value || [])
+const allReports = computed<MonthlyReport[]>(() => reportRaw.value || [])
+const studentSearch = ref('')
+const reports = computed<MonthlyReport[]>(() => {
+  const q = studentSearch.value.trim().toLowerCase()
+  if (!q) return allReports.value
+  return allReports.value.filter((r) => (r.studentName || '').toLowerCase().includes(q))
+})
 
 const expanded = ref<Record<number, boolean>>({})
 const toggle = (id: number) => { expanded.value[id] = !expanded.value[id] }
@@ -127,10 +134,14 @@ const fmtDay = (d: string) => String(d).slice(8, 10) + '.' + String(d).slice(5, 
           <SelectTrigger class="h-11 bg-gray-50 border rounded-lg"><SelectValue :placeholder="t('school', 'Maktab')" /></SelectTrigger>
           <SelectContent><SelectItem v-for="s in schools" :key="s.id" :value="String(s.id)">{{ s.name }}</SelectItem></SelectContent>
         </Select>
-        <Select v-model="classId" :disabled="!schoolId">
-          <SelectTrigger class="h-11 bg-gray-50 border rounded-lg"><SelectValue :placeholder="t('sinf', 'Sinf')" /></SelectTrigger>
-          <SelectContent><SelectItem v-for="c in classes" :key="c.id" :value="String(c.id)">{{ classLabel(c) }}</SelectItem></SelectContent>
-        </Select>
+        <SearchSelect
+          v-model="classId"
+          :options="classes.map((c) => ({ value: String(c.id), label: classLabel(c) }))"
+          :disabled="!schoolId"
+          :placeholder="t('sinf', 'Sinf')"
+          :search-placeholder="t('search-class', 'Sinf qidirish...')"
+          :empty-text="t('no-data', 'Topilmadi')"
+        />
       </div>
       <div class="flex items-end gap-3 flex-wrap">
         <div>
@@ -155,6 +166,14 @@ const fmtDay = (d: string) => String(d).slice(8, 10) + '.' + String(d).slice(5, 
 
     <!-- Report table -->
     <div v-if="classId" class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+      <div v-if="allReports.length" class="p-3 border-b border-gray-50">
+        <input
+          v-model="studentSearch"
+          type="text"
+          :placeholder="t('search-student', 'O\'quvchi qidirish...')"
+          class="w-full sm:w-72 h-10 px-3 bg-gray-50 border rounded-lg text-sm outline-none focus:ring-1 focus:ring-[#f27a3a]"
+        />
+      </div>
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-gray-50 text-xs text-gray-500 uppercase">
