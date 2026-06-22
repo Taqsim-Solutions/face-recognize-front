@@ -138,8 +138,8 @@ const statusClass = (s: number) =>
   <div class="w-full px-4 sm:px-6 py-5">
     <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
       <div>
-        <h1 class="text-xl font-bold text-gray-800">{{ t('excused-absences', 'Sababli yo\'qliklar') }}</h1>
-        <p class="text-xs text-gray-400 mt-0.5">{{ t('excused-absences-hint', 'Kasal yoki ruxsat sababli yo\'qliklar') }}</p>
+        <h1 class="text-xl font-bold text-gray-800">{{ t('excused-absences', 'Kelmaganlik sababi') }}</h1>
+        <p class="text-xs text-gray-400 mt-0.5">{{ t('excused-absences-hint', 'Kasal yoki ruxsat sababli kelmagan o\'quvchilar') }}</p>
       </div>
       <Button @click="showForm = !showForm" class="h-10 px-4 bg-[#f27a3a] hover:bg-[#e06c27] text-white rounded-lg">
         <PlusIcon class="w-4 h-4 mr-1" /> {{ t('add', 'Qo\'shish') }}
