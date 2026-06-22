@@ -49,6 +49,9 @@ const { t } = useI18n()
 const queryClient = useQueryClient()
 const { isAdmin } = useCurrentUser()
 
+// Settings tabs (sections shown one at a time instead of one long page).
+const activeTab = ref<'cameras' | 'start-time' | 'alerts' | 'permissions' | 'rest'>('cameras')
+
 // List Filters & Pagination
 const searchQuery = ref('')
 const selectedRegion = ref('all')
@@ -659,7 +662,31 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
       </div>
     </header>
 
-    <!-- Filters Row -->
+    <!-- Settings tabs -->
+    <div class="flex flex-wrap gap-1 px-4 sm:px-6 pt-3 bg-white border-b border-gray-100">
+      <button
+        v-for="tab in (isAdmin
+          ? [
+              { key: 'cameras', label: t('cameras-tab', 'Kameralar') },
+              { key: 'start-time', label: t('start-time-tab', 'Dars vaqti') },
+              { key: 'alerts', label: t('alerts-tab', 'Ogohlantirish') },
+              { key: 'permissions', label: t('permissions-tab', 'Ruxsatlar') },
+              { key: 'rest', label: t('rest-tab', 'Dam olish kunlari') }
+            ]
+          : [{ key: 'cameras', label: t('cameras-tab', 'Kameralar') }])"
+        :key="tab.key"
+        @click="activeTab = tab.key as any"
+        class="px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors -mb-px border-b-2"
+        :class="activeTab === tab.key
+          ? 'border-[#ff792d] text-[#ff792d]'
+          : 'border-transparent text-gray-500 hover:text-gray-700'"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+
+    <!-- Cameras tab -->
+    <div v-show="activeTab === 'cameras'">
     <div class="flex flex-wrap items-center gap-3 px-6 pt-5 bg-white pb-5">
       <!-- Search Field -->
       <div
@@ -1049,30 +1076,38 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
         </div>
       </div>
     </div>
+    </div>
+    <!-- /Cameras tab -->
 
-    <!-- Lessons start time (global default) -->
-    <div v-if="isAdmin" class="mt-6 w-full px-6">
-      <GlobalStartTime />
+    <!-- Start-time tab -->
+    <div v-show="activeTab === 'start-time'">
+      <div v-if="isAdmin" class="mt-6 w-full px-6">
+        <GlobalStartTime />
+      </div>
+      <div v-if="isAdmin" class="mt-6 w-full px-6">
+        <SchoolClassStartTime />
+      </div>
     </div>
 
-    <!-- Lessons start time (per school / class) -->
-    <div v-if="isAdmin" class="mt-6 w-full px-6">
-      <SchoolClassStartTime />
+    <!-- Alerts tab -->
+    <div v-show="activeTab === 'alerts'">
+      <div v-if="isAdmin" class="mt-6 w-full px-6">
+        <AbsenceAlertSettings />
+      </div>
     </div>
 
-    <!-- Not-arrived parent alerts -->
-    <div v-if="isAdmin" class="mt-6 w-full px-6">
-      <AbsenceAlertSettings />
+    <!-- Permissions tab -->
+    <div v-show="activeTab === 'permissions'">
+      <div v-if="isAdmin" class="mt-6 w-full px-6">
+        <PagePermissions />
+      </div>
     </div>
 
-    <!-- Role → page access matrix -->
-    <div v-if="isAdmin" class="mt-6 w-full px-6">
-      <PagePermissions />
-    </div>
-
-    <!-- Rest periods (days off / holidays / summer break) -->
-    <div v-if="isAdmin" class="mt-6 w-full px-6">
-      <RestPeriodsManager />
+    <!-- Rest-days tab -->
+    <div v-show="activeTab === 'rest'">
+      <div v-if="isAdmin" class="mt-6 w-full px-6">
+        <RestPeriodsManager />
+      </div>
     </div>
 
     <!-- Create / Edit Drawer (Sheet Component) -->
