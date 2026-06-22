@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ChevronDownIcon, SearchIcon, BookOpenIcon, ShieldIcon, UsersIcon, CameraIcon, BarChartIcon, AlertCircleIcon } from 'lucide-vue-next'
+import { ChevronDownIcon, SearchIcon, BookOpenIcon, ShieldIcon, UsersIcon, CameraIcon, BarChartIcon, AlertCircleIcon, BellIcon } from 'lucide-vue-next'
 import UserContextBadges from '@/components/UserContextBadges.vue'
 
 const { locale: i18nLocale } = useI18n()
@@ -116,6 +116,45 @@ const faqCategories = [
         id: 12,
         q: { uz: "Statistika sahifasida nima ko'rish mumkin?", uzc: "Статистика саҳифасида нима кўриш мумкин?", ru: "Что можно видеть на странице статистики?", en: "What can be seen on the statistics page?" },
         a: { uz: "Statistika sahifasida: umumiy maktablar soni, ulangan maktablar, o'quvchilar soni, haftalik va oylik davomad grafikları, maktablar bo'yicha batafsil jadval (jami/o'g'il/qiz/kelgan/kelmagan foizlari).", uzc: "Статистика саҳифасида: умумий мактаблар, уланган мактаблар, ўқувчилар сони, ҳафталик/ойлик давомад графиклари, мактаблар бўйича батафсил жадвал.", ru: "На странице статистики: общее кол-во школ, подключённые школы, кол-во учеников, недельные/месячные графики посещаемости, подробная таблица по школам.", en: "Statistics page shows: total schools, connected schools, student count, weekly/monthly attendance charts, detailed table by school (total/boys/girls/present/absent %)." }
+      }
+    ]
+  },
+  {
+    id: 'features',
+    icon: BellIcon,
+    color: 'text-emerald-500',
+    bg: 'bg-emerald-50',
+    title: { uz: "Kelmaganlik sababi, hisobot va bot", uzc: "Келмаганлик сababи, ҳисобот ва бот", ru: "Причина отсутствия, отчёты и бот", en: "Absence reasons, reports & bot" },
+    items: [
+      {
+        id: 101,
+        q: { uz: "Kelmaganlik sababini qanday kiritaman?", uzc: "Келмаганлик сababини қандай киритаман?", ru: "Как добавить причину отсутствия?", en: "How do I add a reason for absence?" },
+        a: { uz: "Chap menyudan 'Kelmaganlik sababi' bo'limiga kiring → 'Qo'shish' → viloyat/tuman/maktab, so'ng sinf va o'quvchini qidirib tanlang → sabab (kasal/ruxsat/boshqa) va sanani (yoki sana oralig'ini) kiriting. O'qituvchi o'z sinfi uchun, direktor o'z maktabi uchun kirita oladi. O'qituvchi kiritsa darhol tasdiqlanadi; ota-ona bot orqali yuborsa, o'qituvchi tasdiqlashi kerak.", uzc: "'Келмаганлик сababи' бўлимига киринг → 'Қўшиш' → синф ва ўқувчини танланг → сабаб ва санани киритинг.", ru: "Откройте раздел 'Причина отсутствия' → 'Добавить' → выберите регион/район/школу, затем найдите и выберите класс и ученика → укажите причину (болезнь/отпросился/другое) и дату (или диапазон). Учитель добавляет для своего класса, директор — для своей школы.", en: "Open 'Reason for absence' → 'Add' → pick region/district/school, then search and select the class and student → choose the reason (sick/permission/other) and the date (or range). Teachers add for their own class, directors for their own school." }
+      },
+      {
+        id: 102,
+        q: { uz: "Oylik hisobotni qayerdan ko'raman?", uzc: "Ойлик ҳисоботни қаердан кўраман?", ru: "Где посмотреть месячный отчёт?", en: "Where do I see the monthly report?" },
+        a: { uz: "'Hisobotlar' bo'limiga kiring → maktab va sinfni qidirib tanlang, yil va oyni belgilang → 'Ko'rsatish'. Har bir o'quvchi bo'yicha kelgan/kech/sababli/kelmagan kunlar soni va davomat foizi chiqadi. O'quvchi qatorini bossangiz, kunma-kun batafsil ko'rinadi. Tepadagi qidiruvdan o'quvchini nomi bo'yicha filtrlash mumkin.", uzc: "'Ҳисоботлар' бўлимига киринг → синф, йил ва ойни танланг → 'Кўрсатиш'.", ru: "Откройте 'Отчёты' → найдите школу и класс, выберите год и месяц → 'Показать'. По каждому ученику видно кол-во дней присутствия/опозданий/уваж./отсутствия и процент. Клик по строке — детализация по дням.", en: "Open 'Reports' → search and select the school and class, pick the year and month → 'Show'. For each student you'll see present/late/excused/absent day counts and the attendance percent. Click a row for the day-by-day breakdown." }
+      },
+      {
+        id: 103,
+        q: { uz: "Ota-onalar uchun Telegram bot nima qiladi?", uzc: "Ота-оналар учун Telegram бот нима қилади?", ru: "Что умеет Telegram-бот для родителей?", en: "What does the parent Telegram bot do?" },
+        a: { uz: "Ota-ona botga telefon raqamini ulashgach, farzandi maktabga kelgan/ketganida xabar oladi. Bot menyusida: 'Bugun' (bugungi holat), 'Hafta' (haftalik), 'Oylik hisobot', va 'Kelmaganlik sababi' (farzandi uchun sababli yo'qlik yuborish — o'qituvchi tasdiqlaydi). Bola maktabga belgilangan vaqtda kelmasa, ota-onaga avtomatik ogohlantirish ham boradi.", uzc: "Ота-она ботга телефонини улагач, келиш/кетиш хабарларини олади. Менюда: Бугун, Ҳафта, Ойлик ҳисобот, Келмаганлик сababи.", ru: "После того как родитель поделится номером, он получает уведомления о приходе/уходе ребёнка. В меню бота: 'Сегодня', 'Неделя', 'Месячный отчёт' и 'Причина отсутствия'. Если ребёнок не пришёл вовремя — родителю приходит автоматическое уведомление.", en: "Once a parent shares their phone number, they get arrival/leave notifications. Bot menu: 'Today', 'Week', 'Monthly report', and 'Absence reason' (submit an excuse for their child — the teacher approves). If a child doesn't arrive on time, the parent also gets an automatic alert." }
+      },
+      {
+        id: 104,
+        q: { uz: "Kelmaganlik ogohlantirishini qanday sozlayman?", uzc: "Келмаганлик огоҳлантиришини қандай созлайман?", ru: "Как настроить уведомление об отсутствии?", en: "How do I configure the absence alert?" },
+        a: { uz: "Admin: Sozlamalar → 'Ogohlantirish' tab. U yerda yoqib qo'ying va belgilang: necha daqiqa kelmasa xabar yuborilsin (masalan 10), har necha daqiqada takror tekshirilsin (5), necha marta eslatilsin (3). Bu qiymatlarni har maktab uchun alohida ham belgilash mumkin (bo'sh qoldirilsa global qiymat ishlaydi). Dam olish kunlari, kech kelganlar va sababli yo'qligi borlarga xabar yuborilmaydi.", uzc: "Админ: Созламалар → 'Огоҳлантириш'. Ёқиб қўйинг ва қийматларни белгиланг.", ru: "Админ: Настройки → вкладка 'Уведомления'. Включите и задайте: через сколько минут после начала слать (напр. 10), интервал повтора (5), сколько раз (3). Можно задать для каждой школы отдельно. В выходные, опоздавшим и при наличии уваж. причины — не отправляется.", en: "Admin: Settings → 'Alerts' tab. Enable it and set: minutes after start before alerting (e.g. 10), repeat interval (5), repeat count (3). These can be overridden per school (blank = use the global value). Not sent on days off, for late arrivals, or when an excused absence exists." }
+      },
+      {
+        id: 105,
+        q: { uz: "Dars boshlanish vaqti va kech kelishni qanday belgilayman?", uzc: "Дарс бошланиш вақти ва кеч келишни қандай белгилайман?", ru: "Как задать время начала урока и опоздание?", en: "How do I set the lesson start time and lateness?" },
+        a: { uz: "Admin: Sozlamalar → 'Dars vaqti' tab. Global standart vaqtni, yoki har maktab/sinf uchun alohida vaqtni belgilang. Smenali maktablar uchun 2 ta vaqt (1-smena, 2-smena) va sinfni smenaga biriktirish mumkin. O'quvchi shu vaqtdan kech kelsa, davomatda 'kech keldi' deb belgilanadi.", uzc: "Админ: Созламалар → 'Дарс вақти'. Глобал ёки мактаб/синф вақтини белгиланг. Сменали мактаблар учун 2 вақт.", ru: "Админ: Настройки → вкладка 'Время урока'. Задайте глобальное время или отдельное для школы/класса. Для сменных школ — 2 времени (1-я и 2-я смена) с привязкой класса. Если ученик пришёл позже — отмечается 'опоздал'.", en: "Admin: Settings → 'Lesson time' tab. Set a global default or per-school/class time. For shift schools, set two times (shift 1 and 2) and assign classes to a shift. A student arriving after that time is marked 'late'." }
+      },
+      {
+        id: 106,
+        q: { uz: "Rol va sahifa ruxsatlarini qanday boshqaraman?", uzc: "Рол ва саҳифа рухсатларини қандай бошқараман?", ru: "Как управлять ролями и доступом к страницам?", en: "How do I manage roles and page permissions?" },
+        a: { uz: "Admin: foydalanuvchini tahrirlaganda uning rolini (Level) va maktabini o'zgartira oladi. Sozlamalar → 'Ruxsatlar' tab orqali har bir rol qaysi sahifalarni ko'rishini belgilash mumkin (jadvaldagi katakchalar) va saqlash. 'Standartga qaytarish' tugmasi dastlabki holatga qaytaradi.", uzc: "Админ: фойдаланувчи ролини ва мактабини ўзгартиради. Созламалар → 'Рухсатлар' — ҳар рол қайси саҳифани кўришини белгиланг.", ru: "Админ: при редактировании пользователя можно изменить его роль (Level) и школу. Настройки → вкладка 'Доступ' — отметьте, какие страницы видит каждая роль, и сохраните. Кнопка 'Сбросить' возвращает значения по умолчанию.", en: "Admin: editing a user lets you change their role (Level) and school. Settings → 'Permissions' tab — tick which pages each role can see and save. 'Reset to defaults' restores the original values." }
       }
     ]
   },
