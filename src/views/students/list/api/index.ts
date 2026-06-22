@@ -26,12 +26,13 @@ export const fetchStudents = async (params: FetchStudentsParams) => {
 }
 
 export const fetchClassesBySchool = async (schoolId: number, withStudents = false) => {
+  const params: Record<string, any> = {
+    PageSize: 999,
+    WithStudents: withStudents
+  }
+  if (schoolId) params.SchoolId = schoolId
   return await api.get<{ code: number; message: string; result: any }>('/api/classes', {
-    params: {
-      SchoolId: schoolId,
-      PageSize: 999,
-      WithStudents: withStudents
-    }
+    params
   })
 }
 

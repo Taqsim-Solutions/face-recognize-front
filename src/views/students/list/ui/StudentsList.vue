@@ -122,6 +122,20 @@ watch([classFilter], () => {
   }
 })
 
+// Selecting a class card: query by classId alone — it's specific enough, and
+// dropping the region/city/school filters avoids a mismatch hiding the students.
+function selectClass(c: any) {
+  params.value = {
+    ...params.value,
+    regionId: undefined,
+    cityId: undefined,
+    schoolId: undefined,
+    classId: Number(c.id),
+    page: 1
+  }
+  classFilter.value = String(c.id)
+}
+
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 watch(searchQuery, (val) => {
   if (searchTimeout) clearTimeout(searchTimeout)
@@ -171,11 +185,16 @@ const schools = computed(() => {
   return res?.data?.result?.data || res?.data?.data || res?.result?.data || []
 })
 
-// Fetch classes list when school is selected
+// Fetch classes: when a school is chosen (admin path) use it; for director/teacher
+// the school filter is hidden, so call without a school and let the backend scope
+// the classes by role.
 const { data: classesRes, isPending: isClassesLoading } = useQuery({
-  queryKey: ['classes-by-school-filter', schoolFilter],
-  queryFn: () => fetchClassesBySchool(Number(schoolFilter.value), true),
-  enabled: computed(() => schoolFilter.value !== 'all'),
+  queryKey: ['classes-by-school-filter', schoolFilter, hideSchoolFilter],
+  queryFn: () => fetchClassesBySchool(
+    schoolFilter.value !== 'all' ? Number(schoolFilter.value) : 0,
+    true
+  ),
+  enabled: computed(() => schoolFilter.value !== 'all' || hideSchoolFilter.value),
   staleTime: 60000
 })
 const classes = computed(() => {
@@ -602,10 +621,10 @@ const handleExcelFileSelect = async (event: Event) => {
       />
     </div>
 
-    <!-- Classes overview (shown when a school is chosen but no class yet) -->
+    <!-- Classes overview (shown when no class is chosen yet) -->
     <Can i="employees.list">
       <div
-        v-if="schoolFilter !== 'all' && classFilter === 'all'"
+        v-if="classFilter === 'all' && (schoolFilter !== 'all' || hideSchoolFilter)"
         class="mt-5 w-full px-4 sm:px-6"
       >
         <div v-if="isClassesLoading" class="py-16 flex justify-center">
@@ -618,7 +637,7 @@ const handleExcelFileSelect = async (event: Event) => {
           <button
             v-for="c in classes"
             :key="c.id"
-            @click="classFilter = String(c.id)"
+            @click="selectClass(c)"
             class="text-left bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:border-[#ff792d] hover:shadow-md transition-all cursor-pointer"
           >
             <div class="flex items-center justify-between mb-3">
@@ -657,10 +676,10 @@ const handleExcelFileSelect = async (event: Event) => {
       <template v-if="isError">
         <ServerError />
       </template>
-      <template v-else-if="!(schoolFilter !== 'all' && classFilter === 'all')">
+      <template v-else-if="!(classFilter === 'all' && (schoolFilter !== 'all' || hideSchoolFilter))">
         <div class="mt-5 w-full px-4 sm:px-6">
           <button
-            v-if="schoolFilter !== 'all' && classFilter !== 'all'"
+            v-if="classFilter !== 'all'"
             @click="classFilter = 'all'"
             class="mb-3 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#ff792d] transition-colors"
           >
