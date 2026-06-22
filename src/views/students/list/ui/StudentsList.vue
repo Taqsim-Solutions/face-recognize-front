@@ -115,24 +115,24 @@ watch([schoolFilter], () => {
 })
 
 watch([classFilter], () => {
-  params.value = {
-    ...params.value,
-    classId: classFilter.value === 'all' ? undefined : Number(classFilter.value),
-    page: 1
+  if (classFilter.value === 'all') {
+    params.value = { ...params.value, classId: undefined, page: 1 }
+  } else {
+    // Query by classId alone — specific enough, and dropping region/city/school
+    // avoids a filter mismatch that could hide the students.
+    params.value = {
+      ...params.value,
+      regionId: undefined,
+      cityId: undefined,
+      schoolId: undefined,
+      classId: Number(classFilter.value),
+      page: 1
+    }
   }
 })
 
-// Selecting a class card: query by classId alone — it's specific enough, and
-// dropping the region/city/school filters avoids a mismatch hiding the students.
+// Selecting a class card.
 function selectClass(c: any) {
-  params.value = {
-    ...params.value,
-    regionId: undefined,
-    cityId: undefined,
-    schoolId: undefined,
-    classId: Number(c.id),
-    page: 1
-  }
   classFilter.value = String(c.id)
 }
 
