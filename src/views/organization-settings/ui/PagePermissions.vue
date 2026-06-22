@@ -25,12 +25,13 @@ const pages: { key: string; label: string }[] = [
   { key: 'organization-settings', label: t('settings', 'Sozlamalar') }
 ]
 
+// Admin (level 5) is intentionally excluded — admins always have full access and
+// are not configurable here. Level 5 is force-added on save below.
 const roles: { level: number; label: string }[] = [
   { level: 1, label: t('role-teacher', 'O\'qituvchi') },
   { level: 2, label: t('role-director', 'Direktor') },
   { level: 3, label: t('role-district', 'Tuman') },
-  { level: 4, label: t('role-region', 'Viloyat') },
-  { level: 5, label: t('role-admin', 'Admin') }
+  { level: 4, label: t('role-region', 'Viloyat') }
 ]
 
 // Local editable matrix: pageKey → Set-like record of level→boolean
@@ -72,7 +73,10 @@ const save = async () => {
   try {
     const payload: Record<string, number[]> = {}
     for (const p of pages) {
-      payload[p.key] = roles.filter((r) => matrix.value[p.key][r.level]).map((r) => r.level)
+      const levels = roles.filter((r) => matrix.value[p.key][r.level]).map((r) => r.level)
+      // Admin (5) always has access — keep it in every page regardless of the UI.
+      if (!levels.includes(5)) levels.push(5)
+      payload[p.key] = levels
     }
     await savePagePermissions(payload)
     await refreshPagePermissions()
