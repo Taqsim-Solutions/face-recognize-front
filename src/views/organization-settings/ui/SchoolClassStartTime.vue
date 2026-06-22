@@ -45,7 +45,8 @@ const { data: schoolsRaw } = useQuery({
   queryFn: async () => {
     if (!cityId.value) return []
     const res = await fetchSchoolsByCity(Number(cityId.value))
-    return (res as any)?.data?.result || (res as any)?.result || []
+    return (res as any)?.data?.result?.data || (res as any)?.result?.data
+      || (res as any)?.data?.result || (res as any)?.result || []
   },
   enabled: computed(() => !!cityId.value)
 })
