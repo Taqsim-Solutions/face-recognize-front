@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import UserContextBadges from '@/components/UserContextBadges.vue'
 import RestPeriodsManager from './RestPeriodsManager.vue'
+import SchoolDataWipe from './SchoolDataWipe.vue'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -1049,6 +1050,11 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
     <!-- Rest periods (days off / holidays / summer break) -->
     <div v-if="isAdmin" class="mt-6 w-full px-6">
       <RestPeriodsManager />
+    </div>
+
+    <!-- Danger zone: per-school data wipe (admin only) -->
+    <div v-if="isAdmin" class="mt-6 mb-10 w-full px-6">
+      <SchoolDataWipe />
     </div>
 
     <!-- Create / Edit Drawer (Sheet Component) -->
