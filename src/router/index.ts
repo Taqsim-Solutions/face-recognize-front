@@ -15,6 +15,7 @@ const routeLevelPermissions: Record<string, number[]> = {
   'students-list': [1, 2, 3, 4, 5],
   'attendances-list': [1, 2, 3, 4, 5],
   'absences': [1, 2, 3, 4, 5],
+  'reports': [1, 2, 3, 4, 5],
   'help': [1, 2, 3, 4, 5],
   'unknown-faces': [1, 2, 3, 4, 5],
   'teachers-list': [2, 3, 4, 5],

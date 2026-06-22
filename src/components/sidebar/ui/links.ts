@@ -522,6 +522,28 @@ const AbsenceIcon = (props: any) =>
     ]
   )
 
+const ReportIcon = (props: any) =>
+  h(
+    'svg',
+    {
+      xmlns: 'http://www.w3.org/2000/svg',
+      width: '20',
+      height: '20',
+      viewBox: '0 0 20 20',
+      fill: 'none',
+      ...props
+    },
+    [
+      h('path', {
+        d: 'M5 12.5V15M10 8.33V15M15 5V15M3.33 17.5H16.67',
+        stroke: 'currentColor',
+        'stroke-width': '1.5',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      })
+    ]
+  )
+
 export const links: LinkProp[] = [
   {
     name: 'dashboard.statistics',
@@ -547,6 +569,11 @@ export const links: LinkProp[] = [
     name: 'absences',
     location: 'absences',
     icon: AbsenceIcon
+  },
+  {
+    name: 'reports',
+    location: 'reports',
+    icon: ReportIcon
   },
   {
     name: 'schools',
