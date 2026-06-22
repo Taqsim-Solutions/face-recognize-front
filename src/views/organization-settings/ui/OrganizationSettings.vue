@@ -2,6 +2,7 @@
 import UserContextBadges from '@/components/UserContextBadges.vue'
 import RestPeriodsManager from './RestPeriodsManager.vue'
 import GlobalStartTime from './GlobalStartTime.vue'
+import AbsenceAlertSettings from './AbsenceAlertSettings.vue'
 import SchoolClassStartTime from './SchoolClassStartTime.vue'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { ref, computed, watch, nextTick } from 'vue'
@@ -1056,6 +1057,11 @@ const getCameraStatus = (cam: any): { label: string; cls: string; error: string 
     <!-- Lessons start time (per school / class) -->
     <div v-if="isAdmin" class="mt-6 w-full px-6">
       <SchoolClassStartTime />
+    </div>
+
+    <!-- Not-arrived parent alerts -->
+    <div v-if="isAdmin" class="mt-6 w-full px-6">
+      <AbsenceAlertSettings />
     </div>
 
     <!-- Rest periods (days off / holidays / summer break) -->

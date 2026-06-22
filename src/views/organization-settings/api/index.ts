@@ -147,3 +147,42 @@ export const setClassStartTime = async (
 ) => {
   return await api.put(`/api/settings/start-time/class/${classId}`, { startTime, shift })
 }
+
+// ── Absence alert settings (global) ────────────────────────────────
+export interface AbsenceAlertSettings {
+  enabled: boolean
+  delayMinutes: number
+  repeatCount: number
+  repeatIntervalMinutes: number
+}
+
+export const fetchAbsenceAlert = async () => {
+  return await api.get<{ result: AbsenceAlertSettings }>('/api/settings/start-time/absence-alert')
+}
+
+export const setAbsenceAlert = async (payload: AbsenceAlertSettings) => {
+  return await api.put('/api/settings/start-time/absence-alert', payload)
+}
+
+// ── Absence alert: per-school override ─────────────────────────────
+export interface SchoolAbsenceAlert {
+  delayMinutes: number | null
+  repeatCount: number | null
+  repeatIntervalMinutes: number | null
+  globalDelayMinutes: number
+  globalRepeatCount: number
+  globalRepeatIntervalMinutes: number
+}
+
+export const fetchSchoolAbsenceAlert = async (schoolId: number) => {
+  return await api.get<{ result: SchoolAbsenceAlert }>(
+    `/api/settings/start-time/absence-alert/school/${schoolId}`
+  )
+}
+
+export const setSchoolAbsenceAlert = async (
+  schoolId: number,
+  payload: { delayMinutes: number | null; repeatCount: number | null; repeatIntervalMinutes: number | null }
+) => {
+  return await api.put(`/api/settings/start-time/absence-alert/school/${schoolId}`, payload)
+}
