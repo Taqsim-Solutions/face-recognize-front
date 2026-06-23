@@ -23,7 +23,6 @@ const formSchema = z.object({
   email: z
     .string({ message: 'validation.required-field' })
     .min(1, { message: 'validation.required-field' })
-    .email({ message: 'validation.email-should-be-valid' })
 })
 
 const form = useForm({
@@ -33,11 +32,13 @@ const form = useForm({
   }
 })
 
-const requestOtp = async (email: string) => {
+const requestOtp = async (login: string) => {
   try {
     loading.value = true
-    await axios.post(`/api/authentication/recovery/${email}`)
-    emit('otpRequested', email)
+    // The login is a phone number; the DB stores it without a leading "+".
+    const normalized = login.trim().replace(/^\+/, '')
+    await axios.post(`/api/authentication/recovery/${encodeURIComponent(normalized)}`)
+    emit('otpRequested', normalized)
     return true
   } catch (err) {
     if (axios.isAxiosError(err)) {
@@ -58,7 +59,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   try {
     const success = await requestOtp(values.email)
     if (!success) {
-      toast.error(t('error.invalid-email'))
+      toast.error(t('error-occurred'))
     }
   } catch (err) {
     if (axios.isAxiosError(err)) {
@@ -77,7 +78,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   <form @submit="onSubmit" class="space-y-6">
     <FormField v-slot="{ componentField }" name="email">
       <FormItem>
-        <FormLabel class="text-grayx2 text-base">{{ t('email') }}</FormLabel>
+        <FormLabel class="text-grayx2 text-base">{{ t('phone-number', 'Telefon raqami') }}</FormLabel>
         <FormControl>
           <div class="relative w-full items-center">
             <svg
@@ -97,8 +98,8 @@ const onSubmit = form.handleSubmit(async (values) => {
             </svg>
             <Input
               v-bind="componentField"
-              type="email"
-              :placeholder="t('email_placeholder')"
+              type="text"
+              :placeholder="t('phone-placeholder', '+998 90 123 45 67')"
               class="h-10 border border-border pl-10"
             />
           </div>

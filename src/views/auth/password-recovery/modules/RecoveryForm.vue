@@ -75,7 +75,7 @@ const startResendTimer = () => {
 const requestOtp = async () => {
   try {
     loading.value = true
-    await axios.post(`/api/authentication/recovery/${props.email}`)
+    await axios.post(`/api/authentication/recovery/${encodeURIComponent(props.email)}`)
     startResendTimer()
     return true
   } catch (err) {
