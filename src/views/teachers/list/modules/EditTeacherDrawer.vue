@@ -644,8 +644,9 @@ const handleCancel = () => {
                   name="classId"
                 >
                   <SelectTrigger
-                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white opacity-60 cursor-not-allowed"
-                    :disabled="true"
+                    class="h-11 border border-gray-300 rounded-lg text-gray-700 focus:ring-0 focus:ring-offset-0 focus:ring-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-transparent focus:border-primary focus-visible:border-primary bg-white"
+                    :class="(!values.schoolId || isClassesLoading) ? 'opacity-60 cursor-not-allowed' : ''"
+                    :disabled="!values.schoolId || isClassesLoading"
                   >
                     <SelectValue
                       :placeholder="
