@@ -52,7 +52,9 @@ const onSubmit = form.handleSubmit(async (values) => {
     loading.value = true
 
     const payload = {
-      login: values.login,
+      // The DB stores phone logins without a leading "+", so normalize it here:
+      // strip a leading "+" (and any spaces) so "+998..." and "998..." both work.
+      login: values.login.trim().replace(/^\+/, ''),
       password: values.password
     }
 
