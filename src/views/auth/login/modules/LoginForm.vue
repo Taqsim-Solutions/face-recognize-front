@@ -52,7 +52,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     loading.value = true
 
     const payload = {
-      login: values.login,
+      login: values.login.trim(),
       password: values.password
     }
 

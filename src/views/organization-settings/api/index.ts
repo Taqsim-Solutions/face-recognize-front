@@ -186,3 +186,20 @@ export const setSchoolAbsenceAlert = async (
 ) => {
   return await api.put(`/api/settings/start-time/absence-alert/school/${schoolId}`, payload)
 }
+
+// ── Admin: per-school data wipe (code-confirmed) ───────────────────
+export const requestSchoolWipe = async (schoolId: number, targets: string[]) => {
+  return await api.post('/api/admin/wipe/request', { schoolId, targets })
+}
+
+export interface WipeResult {
+  students: number
+  teachers: number
+  classes: number
+  attendance: number
+  unknownFaces: number
+}
+
+export const confirmSchoolWipe = async (schoolId: number, code: string) => {
+  return await api.post<{ result: WipeResult }>('/api/admin/wipe/confirm', { schoolId, code })
+}

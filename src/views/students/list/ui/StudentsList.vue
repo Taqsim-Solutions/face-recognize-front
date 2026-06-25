@@ -146,10 +146,19 @@ watch([schoolFilter], () => {
 })
 
 watch([classFilter], () => {
-  params.value = {
-    ...params.value,
-    classId: classFilter.value === 'all' ? undefined : Number(classFilter.value),
-    page: 1
+  if (classFilter.value === 'all') {
+    params.value = { ...params.value, classId: undefined, page: 1 }
+  } else {
+    // Query by classId alone — specific enough, and dropping region/city/school
+    // avoids a filter mismatch that could hide the students.
+    params.value = {
+      ...params.value,
+      regionId: undefined,
+      cityId: undefined,
+      schoolId: undefined,
+      classId: Number(classFilter.value),
+      page: 1
+    }
   }
 })
 
@@ -160,6 +169,11 @@ watch([statusFilter], () => {
     page: 1
   }
 })
+
+// Selecting a class card.
+function selectClass(c: any) {
+  classFilter.value = String(c.id)
+}
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 watch(searchQuery, (val) => {
@@ -210,11 +224,16 @@ const schools = computed(() => {
   return res?.data?.result?.data || res?.data?.data || res?.result?.data || []
 })
 
-// Fetch classes list when school is selected
+// Fetch classes: when a school is chosen (admin path) use it; for director/teacher
+// the school filter is hidden, so call without a school and let the backend scope
+// the classes by role.
 const { data: classesRes, isPending: isClassesLoading } = useQuery({
-  queryKey: ['classes-by-school-filter', schoolFilter],
-  queryFn: () => fetchClassesBySchool(Number(schoolFilter.value), true),
-  enabled: computed(() => schoolFilter.value !== 'all'),
+  queryKey: ['classes-by-school-filter', schoolFilter, hideSchoolFilter],
+  queryFn: () => fetchClassesBySchool(
+    schoolFilter.value !== 'all' ? Number(schoolFilter.value) : 0,
+    true
+  ),
+  enabled: computed(() => schoolFilter.value !== 'all' || hideSchoolFilter.value),
   staleTime: 60000
 })
 const classes = computed(() => {
@@ -643,13 +662,70 @@ const handleExcelFileSelect = async (event: Event) => {
       <StatusFilterSelect v-model="statusFilter" />
     </div>
 
+    <!-- Classes overview (shown when no class is chosen yet) -->
+    <Can i="employees.list">
+      <div
+        v-if="classFilter === 'all' && (schoolFilter !== 'all' || hideSchoolFilter)"
+        class="mt-5 w-full px-4 sm:px-6"
+      >
+        <div v-if="isClassesLoading" class="py-16 flex justify-center">
+          <div class="w-6 h-6 border-2 border-gray-200 border-t-[#ff792d] rounded-full animate-spin" />
+        </div>
+        <div v-else-if="!classes.length" class="py-16 text-center text-gray-400 text-sm">
+          {{ $t('no-classes', 'Bu maktabda sinflar topilmadi') }}
+        </div>
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <button
+            v-for="c in classes"
+            :key="c.id"
+            @click="selectClass(c)"
+            class="text-left bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:border-[#ff792d] hover:shadow-md transition-all cursor-pointer"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-lg font-bold text-gray-800">
+                {{ c.name || (c.degree + '-' + c.symbol) }}
+              </span>
+              <span class="text-xs font-semibold text-[#ff792d] bg-orange-50 px-2.5 py-1 rounded-full">
+                {{ c.studentsCount ?? 0 }} {{ $t('students-short', "o'quvchi") }}
+              </span>
+            </div>
+            <div class="flex items-center gap-4 text-sm text-gray-600 mb-3">
+              <span class="flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-blue-400" />
+                {{ $t('boys', "O'g'il") }}: <b>{{ c.boysCount ?? 0 }}</b>
+              </span>
+              <span class="flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-pink-400" />
+                {{ $t('girls', 'Qiz') }}: <b>{{ c.girlsCount ?? 0 }}</b>
+              </span>
+            </div>
+            <div class="pt-3 border-t border-gray-50 text-sm">
+              <div class="text-gray-400 text-xs mb-0.5">{{ $t('class-teacher', 'Sinf rahbari') }}</div>
+              <div v-if="c.teacher" class="text-gray-700 font-medium">
+                {{ (c.teacher.lastName || '') + ' ' + (c.teacher.firstName || '') }}
+              </div>
+              <div v-if="c.teacher?.login" class="text-gray-400 text-xs">{{ c.teacher.login }}</div>
+              <div v-if="!c.teacher" class="text-gray-400">—</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </Can>
+
     <!-- Table Section -->
     <Can i="employees.list">
       <template v-if="isError">
         <ServerError />
       </template>
-      <template v-else>
+      <template v-else-if="!(classFilter === 'all' && (schoolFilter !== 'all' || hideSchoolFilter))">
         <div class="mt-5 w-full px-4 sm:px-6">
+          <button
+            v-if="classFilter !== 'all'"
+            @click="classFilter = 'all'"
+            class="mb-3 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#ff792d] transition-colors"
+          >
+            ← {{ $t('back-to-classes', 'Sinflarga qaytish') }}
+          </button>
           <BulkActionsBar :selected-ids="selectedIds" :location="selectedLocation" :user-level="userLevel" @done="clearSelection" />
           <DataTable
             :data="tableData"
