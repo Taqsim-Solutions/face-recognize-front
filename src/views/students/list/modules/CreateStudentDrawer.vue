@@ -79,6 +79,9 @@ const formSchema = toTypedSchema(
     classId: z.number().optional().nullable(),
     className: z.string().optional().nullable(),
     gender: z.number().optional().default(0),
+    dateOfBirth: z
+      .string({ required_error: 'validation.required-field' })
+      .min(1, { message: 'validation.required-field' }),
     lastName: z
       .string({ required_error: 'validation.required-field' })
       .min(1, { message: 'validation.required-field' }),
@@ -116,6 +119,7 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
     classId: undefined as any,
     className: '',
     gender: 0,
+    dateOfBirth: '',
     lastName: '',
     firstName: '',
     fatherName: '',
@@ -312,7 +316,9 @@ const { isPending: isSubmitPending, mutate } = useMutation({
     const fatherParsed = parseParentFullName(payload.fatherFullName)
     const motherParsed = parseParentFullName(payload.motherFullName)
 
-    const dateOfBirthStudent = new Date(Date.now() - 12 * 365 * 24 * 60 * 60 * 1000).toISOString()
+    const dateOfBirthStudent = payload.dateOfBirth
+      ? new Date(payload.dateOfBirth).toISOString()
+      : new Date(Date.now() - 12 * 365 * 24 * 60 * 60 * 1000).toISOString()
     const dateOfBirthParent = new Date(Date.now() - 40 * 365 * 24 * 60 * 60 * 1000).toISOString()
 
     // 1. Create Student first
@@ -784,6 +790,22 @@ const handleCancel = () => {
                     {{ t('girl', 'Qiz bola') }}
                   </button>
                 </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- Tug'ilgan sana -->
+          <FormField v-slot="{ componentField }" name="dateOfBirth">
+            <FormItem>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('date-of-birth', "Tug'ilgan sana") }} <span class="text-red-500">*</span></FormLabel>
+              <FormControl>
+                <input
+                  type="date"
+                  v-bind="componentField"
+                  :max="new Date().toISOString().split('T')[0]"
+                  class="h-11 w-full px-3 border border-gray-300 rounded-lg text-gray-700 bg-white text-sm focus:border-primary outline-none"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

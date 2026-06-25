@@ -74,6 +74,10 @@ const formSchema = toTypedSchema(
     cityId: z.number({ required_error: 'validation.required-field' }),
     schoolId: z.number({ required_error: 'validation.required-field' }),
     classId: z.number({ required_error: 'validation.required-field' }),
+    gender: z.number().optional().default(0),
+    dateOfBirth: z
+      .string({ required_error: 'validation.required-field' })
+      .min(1, { message: 'validation.required-field' }),
     lastName: z
       .string({ required_error: 'validation.required-field' })
       .min(1, { message: 'validation.required-field' }),
@@ -99,6 +103,8 @@ const { handleSubmit, resetForm, meta, values, setFieldValue } = useForm({
     cityId: undefined as any,
     schoolId: undefined as any,
     classId: undefined as any,
+    gender: 0,
+    dateOfBirth: '',
     lastName: '',
     firstName: '',
     fatherName: '',
@@ -141,6 +147,10 @@ watch(
           cityId: matchedCityId,
           schoolId: matchedSchoolId,
           classId: matchedClassId,
+          gender: props.student.gender ?? 0,
+          dateOfBirth: props.student.dateOfBirth
+            ? new Date(props.student.dateOfBirth).toISOString().split('T')[0]
+            : '',
           lastName: props.student.lastName || '',
           firstName: props.student.firstName || '',
           fatherName: props.student.fatherName || '',
@@ -264,7 +274,9 @@ const { isPending: isSubmitPending, mutate } = useMutation({
     const fatherParsed = parseParentFullName(payload.fatherFullName)
     const motherParsed = parseParentFullName(payload.motherFullName)
 
-    const dateOfBirthStudent = props.student.dateOfBirth || new Date(Date.now() - 12 * 365 * 24 * 60 * 60 * 1000).toISOString()
+    const dateOfBirthStudent = payload.dateOfBirth
+      ? new Date(payload.dateOfBirth).toISOString()
+      : (props.student.dateOfBirth || new Date(Date.now() - 12 * 365 * 24 * 60 * 60 * 1000).toISOString())
     const dateOfBirthParent = new Date(Date.now() - 40 * 365 * 24 * 60 * 60 * 1000).toISOString()
 
     const updatePayload: any = {
@@ -274,7 +286,7 @@ const { isPending: isSubmitPending, mutate } = useMutation({
       fatherName: payload.fatherName,
       dateOfBirth: dateOfBirthStudent,
       phoneNumber: payload.phoneNumber,
-      gender: props.student.gender || 0,
+      gender: payload.gender ?? props.student.gender ?? 0,
       father: {
         firstName: fatherParsed.firstName,
         lastName: fatherParsed.lastName,
@@ -642,6 +654,54 @@ const handleCancel = () => {
                   v-bind="componentField"
                   placeholder="Otasining ismini kiriting"
                   class="h-11 border border-gray-300 rounded-lg focus:border-primary bg-white"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- Jinsi (gender) -->
+          <FormField name="gender">
+            <FormItem>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('gender', 'Jinsi') }} <span class="text-red-500">*</span></FormLabel>
+              <FormControl>
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    @click="setFieldValue('gender', 0)"
+                    class="flex-1 h-11 rounded-lg border text-sm font-medium transition-colors"
+                    :class="values.gender === 0
+                      ? 'border-blue-400 bg-blue-50 text-blue-600'
+                      : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'"
+                  >
+                    {{ t('boy', "O'g'il bola") }}
+                  </button>
+                  <button
+                    type="button"
+                    @click="setFieldValue('gender', 1)"
+                    class="flex-1 h-11 rounded-lg border text-sm font-medium transition-colors"
+                    :class="values.gender === 1
+                      ? 'border-pink-400 bg-pink-50 text-pink-600'
+                      : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'"
+                  >
+                    {{ t('girl', 'Qiz bola') }}
+                  </button>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          </FormField>
+
+          <!-- Tug'ilgan sana -->
+          <FormField v-slot="{ componentField }" name="dateOfBirth">
+            <FormItem>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('date-of-birth', "Tug'ilgan sana") }} <span class="text-red-500">*</span></FormLabel>
+              <FormControl>
+                <input
+                  type="date"
+                  v-bind="componentField"
+                  :max="new Date().toISOString().split('T')[0]"
+                  class="h-11 w-full px-3 border border-gray-300 rounded-lg text-gray-700 bg-white text-sm focus:border-primary outline-none"
                 />
               </FormControl>
               <FormMessage />
