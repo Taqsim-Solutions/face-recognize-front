@@ -95,7 +95,7 @@ const roleColor = computed(() => {
           </div>
           <div class="flex items-center gap-3 px-4 py-3">
             <KeyIcon class="w-4 h-4 text-gray-400 shrink-0" />
-            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('login') }}</span>
+            <span class="text-xs text-gray-400 w-28 shrink-0">{{ t('phone-login', 'Telefon raqam (login)') }}</span>
             <span class="text-sm font-medium text-gray-800">{{ data.login || '-' }}</span>
           </div>
           <div class="flex items-center gap-3 px-4 py-3">

@@ -6,6 +6,7 @@ import RowActions from './RowActions.vue'
 import EntityStatusBadge from '@/components/EntityStatusBadge.vue'
 import { selectionColumn } from '@/components/table/selectionColumn'
 import type { StudentModel } from '../types'
+import { getImageUrl } from '@/lib/imageUrl'
 
 export const createColumns = (callbacks: {
   onUploadPhoto: (student: StudentModel) => void
@@ -34,7 +35,7 @@ export const createColumns = (callbacks: {
           ? student.imageIds[student.imageIds.length - 1]
           : null)
 
-      const avatarUrl = lastImage ? `/api/images?filename=${lastImage}` : null
+      const avatarUrl = lastImage ? getImageUrl(lastImage) : null
 
       const avatarChild = avatarUrl
         ? h('img', {

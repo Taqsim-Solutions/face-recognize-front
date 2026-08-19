@@ -32,6 +32,7 @@ import {
 } from '../api'
 import type { StudentModel } from '../types'
 import { useCameraCapture } from '@/composables/useCameraCapture'
+import { getImageUrl } from '@/lib/imageUrl'
 
 const props = defineProps<{
   open: boolean
@@ -175,7 +176,7 @@ watch(
         : null)
 
       photoPreviewUrl.value = lastImage
-        ? `/api/images?filename=${lastImage}`
+        ? getImageUrl(lastImage)
         : null
 
       nextTick(() => {

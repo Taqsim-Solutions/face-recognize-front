@@ -18,6 +18,7 @@ import {
   Maximize2Icon
 } from 'lucide-vue-next'
 import { type DateValue, parseDate } from '@internationalized/date'
+import { getImageUrl } from '@/lib/imageUrl'
 
 const { t, locale } = useI18n()
 
@@ -464,9 +465,6 @@ const handleClearRange = () => {
   isCalendarOpen.value = false
 }
 
-const getImageUrl = (imageName: string) => {
-  return `/api/images?filename=${imageName}`
-}
 </script>
 
 <template>

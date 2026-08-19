@@ -31,6 +31,7 @@ import {
   fetchClassesBySchool
 } from '../api'
 import type { TeacherModel } from '../types'
+import { getImageUrl } from '@/lib/imageUrl'
 
 const props = defineProps<{
   open: boolean
@@ -135,7 +136,7 @@ watch(
           ? props.teacher.imageIds[props.teacher.imageIds.length - 1]
           : props.teacher.mainImageName
 
-      photoPreviewUrl.value = lastImage ? `/api/images?filename=${lastImage}` : null
+      photoPreviewUrl.value = lastImage ? getImageUrl(lastImage) : null
 
       nextTick(() => {
         isPrefilling.value = false

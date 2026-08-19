@@ -23,6 +23,7 @@ import {
   mockSchoolDetails, mockClassAttendance, mockAbsents,
   mockLateStudents, mockLiveEvents
 } from '../mockData'
+import { getImageUrl } from '@/lib/imageUrl'
 
 const { t, locale } = useI18n()
 const { regionId: userRegionId, cityId: userCityId, schoolId: userSchoolId,
@@ -752,7 +753,7 @@ watch(() => activeAbsents.value.length,       () => { absentPage.value = 1 })
                   :class="ev.kind === 'unknown' ? 'ring-red-100' : 'ring-white'"
                 >
                   <img v-if="ev.imageName"
-                    :src="`/api/images?filename=${ev.imageName}`"
+                    :src="getImageUrl(ev.imageName)"
                     class="w-full h-full object-cover"
                     @error="($event.target as HTMLImageElement).style.display='none'" />
                   <div v-else class="w-full h-full flex items-center justify-center text-sm font-bold text-gray-400 bg-gray-200">

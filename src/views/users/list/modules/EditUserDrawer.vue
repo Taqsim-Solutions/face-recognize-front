@@ -216,9 +216,9 @@ const handleCancel = () => {
           <!-- Login -->
           <FormField v-slot="{ componentField }" name="login">
             <FormItem>
-              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('login') }}</FormLabel>
+              <FormLabel class="text-sm font-semibold text-gray-700">{{ t('phone-login', 'Telefon raqam (login)') }}</FormLabel>
               <FormControl>
-                <PhoneInput :model-value="componentField.modelValue" @update:model-value="componentField['onUpdate:modelValue']" :placeholder="t('login_placeholder')" />
+                <PhoneInput :model-value="componentField.modelValue" @update:model-value="componentField['onUpdate:modelValue']" :placeholder="t('phone-login-placeholder', '+998 90 123 45 67')" />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -6,6 +6,7 @@ import RowActions from './RowActions.vue'
 import EntityStatusBadge from '@/components/EntityStatusBadge.vue'
 import { selectionColumn } from '@/components/table/selectionColumn'
 import type { TeacherModel } from '../types'
+import { getImageUrl } from '@/lib/imageUrl'
 
 export const createColumns = (): ColumnDef<TeacherModel>[] => [
   selectionColumn<TeacherModel>(),
@@ -32,7 +33,7 @@ export const createColumns = (): ColumnDef<TeacherModel>[] => [
         : teacher.mainImageName
 
       const avatarUrl = lastImage
-        ? `/api/images?filename=${lastImage}`
+        ? getImageUrl(lastImage)
         : null
 
       const avatarChild = avatarUrl

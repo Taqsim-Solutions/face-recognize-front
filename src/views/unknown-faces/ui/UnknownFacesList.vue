@@ -29,6 +29,7 @@ import { type DateValue, parseDate } from '@internationalized/date'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { fetchRegions } from '@/views/schools/list/api'
 import api from '@/api'
+import { getImageUrl } from '@/lib/imageUrl'
 
 const { t, locale } = useI18n()
 const queryClient = useQueryClient()
@@ -368,9 +369,6 @@ const handleClearRange = () => {
 }
 
 // UI Formatters
-const getImageUrl = (imageName: string) => {
-  return `/api/images?filename=${imageName}`
-}
 
 const formatCardName = (id: number) => {
   return `und_${String(id).padStart(6, '0')}.jpg`

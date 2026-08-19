@@ -1,0 +1,43 @@
+# Line endings
+#
+# The repository stores every text file with LF. Without this file a Windows
+# checkout writes CRLF into the working tree and git reports every file as
+# modified, which makes `git diff` useless and corrupts any patch that is
+# copied through a Windows tool.
+#
+# `text=auto` = normalise to LF inside git, check out using the platform's
+# native ending. Editors keep working as before; diffs stay clean.
+#
+# After merging this file, run ONCE:
+#     git add --renormalize .
+#     git commit -m "chore: normalise line endings"
+
+* text=auto
+
+# Always LF - these break if they ever get CRLF.
+*.sh            text eol=lf
+Dockerfile      text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+default.conf    text eol=lf
+
+# Always CRLF - Windows-only tooling.
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+*.ps1           text eol=crlf
+
+# Binary: never touch, never diff.
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.gif           binary
+*.ico           binary
+*.svg           text
+*.woff          binary
+*.woff2         binary
+*.ttf           binary
+*.eot           binary
+*.pdf           binary
+*.xlsx          binary
+*.xls           binary
+*.zip           binary

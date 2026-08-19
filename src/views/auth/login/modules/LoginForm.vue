@@ -87,12 +87,12 @@ const onSubmit = form.handleSubmit(async (values) => {
   <form @submit="onSubmit">
     <FormField v-slot="{ componentField }" name="login">
       <FormItem class="mb-5">
-        <FormLabel class="text-grayx2 text-base">{{ t('auth.login') }}</FormLabel>
+        <FormLabel class="text-grayx2 text-base">{{ t('phone-login', 'Telefon raqam (login)') }}</FormLabel>
         <FormControl>
           <Input
             v-bind="componentField"
             type="text"
-            :placeholder="t('auth.enter-login')"
+            :placeholder="t('phone-login-placeholder', '+998 90 123 45 67')"
             class="h-10 border border-border"
           />
         </FormControl>

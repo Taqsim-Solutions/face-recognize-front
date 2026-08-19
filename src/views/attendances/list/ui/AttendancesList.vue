@@ -37,6 +37,7 @@ import {
 } from 'lucide-vue-next'
 import UserContextBadges from '@/components/UserContextBadges.vue'
 import { useCurrentUser } from '@/composables/useCurrentUser'
+import { getImageUrl } from '@/lib/imageUrl'
 
 const { t, locale } = useI18n()
 const { hideRegionFilter, hideCityFilter, hideSchoolFilter } = useCurrentUser()
@@ -1289,7 +1290,7 @@ const getPageNumbers = () => {
               <td class="px-4 py-2.5">
                 <div class="flex items-center gap-2.5">
                   <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-100 shrink-0">
-                    <img v-if="s.mainImageName" :src="`/api/images?filename=${s.mainImageName}`"
+                    <img v-if="s.mainImageName" :src="getImageUrl(s.mainImageName)"
                       class="w-full h-full object-cover"
                       @error="($event.target as HTMLImageElement).style.display='none'" />
                     <div v-else class="w-full h-full flex items-center justify-center text-xs font-bold text-gray-400">

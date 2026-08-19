@@ -527,10 +527,10 @@ const submitNewDirector = () => {
           />
         </div>
         <div class="space-y-1.5">
-          <label class="text-sm font-semibold text-gray-700">{{ t('login') }}</label>
+          <label class="text-sm font-semibold text-gray-700">{{ t('phone-login', 'Telefon raqam (login)') }}</label>
           <PhoneInput
             v-model="newUserLogin"
-            :placeholder="t('login_placeholder', 'Login kiriting')"
+            :placeholder="t('phone-login-placeholder', '+998 90 123 45 67')"
           />
         </div>
         <div class="space-y-1.5">
